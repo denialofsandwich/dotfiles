@@ -37,6 +37,7 @@ zinit snippet OMZP::command-not-found
 command -v gcloud &> /dev/null && zinit snippet OMZP::gcloud
 
 # Load completions
+fpath+=~/.zfunc
 autoload -Uz compinit && compinit
 
 zinit cdreplay -q
@@ -57,12 +58,28 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-# Completion styling
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-zstyle ':completion:*' menu no
+fzf-tab-disable() {
+  zstyle ':completion:*:descriptions' format "$fg[yellow]%B--- %d%b"
+  zstyle ':fzf-tab:*' disabled-on any
+}
+
+fzf-tab-enable() {
+  zstyle ':completion:*:descriptions' format ""
+  zstyle ':fzf-tab:*' disabled-on none
+}
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:messages' format '%d'
+zstyle ':completion:*:warnings' format "$fg[red]No matches for:$reset_color %d"
+zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
+zstyle ':completion:*' group-name ''
+
+zstyle ':fzf-tab:*' fzf-flags --height=~40 --bind "tab:ignore,btab:ignore,ctrl-space:ignore"
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
+fzf-tab-disable
 
 export VISUAL=nvim
 export EDITOR="$VISUAL"
@@ -82,7 +99,8 @@ export FZF_DEFAULT_OPTS='--height 40% --tmux bottom,40% --layout reverse --borde
 command -v fzf &> /dev/null && eval "$(fzf --zsh)"
 
 # zoxide
-command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd zsh)"
+# NOTICE: The sed part is a hack to make zoxide work with zsh group-names.
+command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd zsh | sed 's/_files/_cd/g')"
 
 # pnpm
 command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
@@ -103,8 +121,21 @@ alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 
-if command -v fd &> /dev/null; then
-  alias f='f(){ export F=$(fd -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
-elif command -v fdfind &> /dev/null; then
-  alias f='f(){ export F=$(fdfind -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
-fi
+command -v fd &> /dev/null && fd_cmd=fd || fd_cmd=fdfind
+quick_find(){
+  export F=$($fd_cmd -LH ".*" $@ | fzf)
+  echo $F
+}
+
+fzf-tab-toggle() {
+  if test "$(zstyle | grep fzf-tab | grep any)"; then
+    echo "Enabling fzf-tab"
+    fzf-tab-enable
+  else
+    echo "Disabling fzf-tab"
+    fzf-tab-disable
+  fi
+}
+
+alias f='quick_find'
+alias tt='fzf-tab-toggle'
