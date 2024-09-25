@@ -1,5 +1,11 @@
 local compare = require("cmp.config.compare")
-compare.python_kwargs = function(entry1, entry2)
+local types = require("cmp.types")
+
+local my_compare = {}
+
+-- Prefer suggesting kwargs if available
+---@type cmp.ComparatorFunction
+my_compare.python_kwargs = function(entry1, entry2)
   if vim.o.filetype ~= "python" then
     return
   end
@@ -13,7 +19,9 @@ compare.python_kwargs = function(entry1, entry2)
   end
 end
 
-compare.python_dunder = function(entry1, entry2)
+-- Rank down dunder methods
+---@type cmp.ComparatorFunction
+my_compare.python_dunder = function(entry1, entry2)
   local _, entry1_under = entry1.completion_item.label:find("^_+")
   local _, entry2_under = entry2.completion_item.label:find("^_+")
   entry1_under = entry1_under or 0
@@ -22,6 +30,56 @@ compare.python_dunder = function(entry1, entry2)
     return false
   elseif entry1_under < entry2_under then
     return true
+  end
+end
+
+local kind_priority = {
+  types.lsp.CompletionItemKind.EnumMember,
+  types.lsp.CompletionItemKind.Method,
+  types.lsp.CompletionItemKind.Function,
+  types.lsp.CompletionItemKind.Constructor,
+  types.lsp.CompletionItemKind.Field,
+  types.lsp.CompletionItemKind.Variable,
+  types.lsp.CompletionItemKind.Class,
+  types.lsp.CompletionItemKind.Interface,
+  types.lsp.CompletionItemKind.Module,
+  types.lsp.CompletionItemKind.Property,
+  types.lsp.CompletionItemKind.Unit,
+  types.lsp.CompletionItemKind.Value,
+  types.lsp.CompletionItemKind.Enum,
+  types.lsp.CompletionItemKind.Keyword,
+  types.lsp.CompletionItemKind.Snippet,
+  types.lsp.CompletionItemKind.Color,
+  types.lsp.CompletionItemKind.File,
+  types.lsp.CompletionItemKind.Reference,
+  types.lsp.CompletionItemKind.Folder,
+  types.lsp.CompletionItemKind.Constant,
+  types.lsp.CompletionItemKind.Struct,
+  types.lsp.CompletionItemKind.Event,
+  types.lsp.CompletionItemKind.Operator,
+  types.lsp.CompletionItemKind.TypeParameter,
+  types.lsp.CompletionItemKind.Text,
+}
+
+local inverse_kind_priority = {}
+for index, value in ipairs(kind_priority) do
+  inverse_kind_priority[value] = index
+end
+
+-- A custom comparator for kind
+---@type cmp.ComparatorFunction
+my_compare.kind = function(entry1, entry2)
+  local kind1 = inverse_kind_priority[entry1:get_kind()]
+  local kind2 = inverse_kind_priority[entry2:get_kind()]
+
+  if kind1 == kind2 then
+    return nil
+  end
+
+  if (kind1 - kind2) < 0 then
+    return true
+  else
+    return false
   end
 end
 
@@ -37,11 +95,11 @@ return {
         compare.exact,
         compare.scopes,
         compare.score,
-        compare.python_kwargs,
-        compare.python_dunder,
+        my_compare.python_kwargs,
+        my_compare.python_dunder,
         compare.recently_used,
         compare.locality,
-        compare.kind,
+        my_compare.kind,
         compare.sort_text,
         compare.length,
         compare.order,
@@ -49,11 +107,16 @@ return {
       opts.mapping = vim.tbl_deep_extend("force", opts.mapping, {
         ["<PageDown>"] = cmp.mapping.select_next_item({ count = 8 }),
         ["<PageUp>"] = cmp.mapping.select_prev_item({ count = 8 }),
+        -- ["<CR>"] = LazyVim.cmp.confirm({ select = false }),
       })
       opts.window = {
         completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
       }
+      opts.preselect = cmp.PreselectMode.None
+      -- opts.completion = {
+      --   completeopt = "noselect",
+      -- }
     end,
   },
 }

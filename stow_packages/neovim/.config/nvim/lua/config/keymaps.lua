@@ -33,5 +33,6 @@ vim.keymap.set("n", "<C-_>", lazyterm, { remap = true, desc = "Terminal (Root Di
 
 vim.keymap.set({ "n", "v" }, "<C-Y>", '"+y', { desc = "Copy to system clipboard" })
 vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>p", '"0p', { desc = "Paste last yanked line" })
 
 vim.keymap.set({ "n" }, "<leader>r", "@q", { desc = "Replay q-macro " })

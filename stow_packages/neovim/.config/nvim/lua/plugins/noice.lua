@@ -9,6 +9,7 @@ return {
     "folke/noice.nvim",
     opts = function(_, opts)
       opts.presets = {
+        -- I wanted to have the command input more in the middle
         command_palette = {
           views = {
             cmdline_popup = {
