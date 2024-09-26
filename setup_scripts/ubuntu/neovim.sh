@@ -5,7 +5,7 @@ pushd $(dirname $0)
 echo -e "\033[33m### SETUP neovim\033[0m"
 
 sudo apt-get install -y stow \
-  flatpak luarocks fd-find ripgrep nodejs tree-sitter-cli
+  flatpak luarocks fd-find ripgrep nodejs npm tree-sitter-cli xclip
 
 echo INSTALL neovim
 pushd $HOME/.local/bin
@@ -27,10 +27,13 @@ fi
 if python3 -c 'import pynvim'; then
   echo "pynvim already installed"
 else
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+
   pyenv install -s 3.12
   pyenv virtualenv 3.12 pynvim
-  pyenv activate pynvim
-  python3 -m pip install pynvim
+  export PYENV_VERSION=pynvim
+  pyenv exec pip install pynvim
 fi
 
 echo "Update stow"
