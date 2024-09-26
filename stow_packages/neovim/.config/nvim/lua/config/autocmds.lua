@@ -22,3 +22,12 @@ vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave"
     end
   end,
 })
+
+-- Disable that strange markdown formatting
+vim.api.nvim_create_autocmd({ "FileType" }, {
+  pattern = { "markdown" },
+  callback = function()
+    vim.wo.conceallevel = 0
+    vim.b.autoformat = false
+  end,
+})
