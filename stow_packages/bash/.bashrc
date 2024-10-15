@@ -2,6 +2,8 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+test -f /etc/bashrc && source /etc/bashrc || source /etc/bash.bashrc
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
