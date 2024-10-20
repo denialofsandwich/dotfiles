@@ -4,6 +4,9 @@
 
 test -f /etc/bashrc && source /etc/bashrc || source /etc/bash.bashrc
 
+[ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
+[ -z "${XDG_CONFIG_HOME}" ] && export XDG_CONFIG_HOME=$HOME/.config
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
