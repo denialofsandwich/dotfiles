@@ -107,16 +107,16 @@ return {
       opts.mapping = vim.tbl_deep_extend("force", opts.mapping, {
         ["<PageDown>"] = cmp.mapping.select_next_item({ count = 8 }),
         ["<PageUp>"] = cmp.mapping.select_prev_item({ count = 8 }),
-        -- ["<CR>"] = LazyVim.cmp.confirm({ select = false }),
+        ["<CR>"] = LazyVim.cmp.confirm({ select = false }),
       })
       opts.window = {
         completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
       }
       opts.preselect = cmp.PreselectMode.None
-      -- opts.completion = {
-      --   completeopt = "noselect",
-      -- }
+      opts.completion = {
+        completeopt = "noselect",
+      }
     end,
   },
 }
