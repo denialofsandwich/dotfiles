@@ -5,7 +5,7 @@ pushd $(dirname $0)
 echo -e "\033[33m### SETUP neovim\033[0m"
 
 sudo apt-get install -y stow \
-  flatpak luarocks fd-find ripgrep nodejs npm tree-sitter-cli xclip
+  flatpak luarocks fd-find ripgrep nodejs npm tree-sitter-cli xclip wl-clipboard
 
 echo INSTALL neovim
 pushd $HOME/.local/bin
