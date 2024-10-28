@@ -11,6 +11,10 @@ export PYENV_ROOT="$HOME/.pyenv"
 test -d $HOME/.local/bin && export PATH="$PATH:$HOME/.local/bin"
 test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
 
+# Pyenv
+command -v pyenv &>/dev/null && eval "$(pyenv init -)"
+command -v pyenv &>/dev/null && eval "$(pyenv virtualenv-init -)"
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -77,10 +81,6 @@ fi
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
-
-# Pyenv
-command -v pyenv &>/dev/null && eval "$(pyenv init -)"
-command -v pyenv &>/dev/null && eval "$(pyenv virtualenv-init -)"
 
 # FZF
 test -d ~/.local/fzf/bin && PATH="$PATH:$HOME/.local/fzf/bin"
