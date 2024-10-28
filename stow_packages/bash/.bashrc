@@ -102,6 +102,9 @@ alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 
+# For geekworm_raspberry pi case
+command -v xSoft.sh >/dev/null && alias poweroff_safe='xSoft.sh 0 27'
+
 if command -v fd &>/dev/null; then
   alias f='f(){ export F=$(fd -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
 elif command -v fdfind &>/dev/null; then
