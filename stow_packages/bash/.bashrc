@@ -110,3 +110,9 @@ if command -v fd &>/dev/null; then
 elif command -v fdfind &>/dev/null; then
   alias f='f(){ export F=$(fdfind -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
 fi
+
+if test -d $HOME/.bash_completions; then
+  for file in $HOME/.bash_completions/*.sh; do
+    [ -r "$file" ] && source "$file"
+  done
+fi
