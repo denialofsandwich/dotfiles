@@ -85,11 +85,12 @@ export VISUAL=nvim
 export EDITOR="$VISUAL"
 CASE_SENSITIVE="true"
 
-export PATH="$PATH:$HOME/.local/bin"
+test -d $HOME/.local/bin && export PATH="$PATH:$HOME/.local/bin"
 
-# Pyenv
+# pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
+
 command -v pyenv &> /dev/null && eval "$(pyenv init -)"
 command -v pyenv &> /dev/null && eval "$(pyenv virtualenv-init -)"
 

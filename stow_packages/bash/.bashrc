@@ -7,6 +7,10 @@ test -f /etc/bashrc && source /etc/bashrc || source /etc/bash.bashrc
 [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
 [ -z "${XDG_CONFIG_HOME}" ] && export XDG_CONFIG_HOME=$HOME/.config
 
+export PYENV_ROOT="$HOME/.pyenv"
+test -d $HOME/.local/bin && export PATH="$PATH:$HOME/.local/bin"
+test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -74,11 +78,7 @@ fi
 export VISUAL=vim
 export EDITOR="$VISUAL"
 
-export PATH="$PATH:$HOME/.local/bin"
-
 # Pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
 command -v pyenv &>/dev/null && eval "$(pyenv init -)"
 command -v pyenv &>/dev/null && eval "$(pyenv virtualenv-init -)"
 
