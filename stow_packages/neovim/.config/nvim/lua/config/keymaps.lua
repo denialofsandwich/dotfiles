@@ -11,7 +11,7 @@ local lazyterm = function()
   local dirname = cwd:match(".+/([^/]+)$")
 
   if vim.env.TMUX == nil then
-    LazyVim.terminal.open({
+    Snacks.terminal.open({
       "bash",
       "-c",
       "tmux new-session -A -s "
@@ -23,7 +23,7 @@ local lazyterm = function()
         .. " | openssl dgst -binary -sha1 | openssl base64 -A | tr -dc A-Za-z0-9 | head -c 8)",
     }, { cwd = cwd })
   else
-    LazyVim.terminal.open({ cwd = cwd })
+    Snacks.terminal.open({ cwd = cwd })
   end
 end
 
