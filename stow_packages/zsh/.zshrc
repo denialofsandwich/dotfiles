@@ -109,8 +109,9 @@ command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd zsh | sed 's/_fil
 command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
 
 alias ls='ls --color'
-alias ll='lsd -lh'
-alias la='lsd -lah'
+alias ll='lsd -l'
+alias la='lsd -la'
+alias lt='lsd --tree -la'
 alias ccat='/bin/cat'
 
 if command -v bat &> /dev/null; then
