@@ -91,8 +91,10 @@ test -d $HOME/.local/bin && export PATH="$PATH:$HOME/.local/bin"
 export PYENV_ROOT="$HOME/.pyenv"
 test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
 
-command -v pyenv &> /dev/null && eval "$(pyenv init -)"
-command -v pyenv &> /dev/null && eval "$(pyenv virtualenv-init -)"
+if command -v pyenv &> /dev/null && [ "$PYENV_VIRTUALENV_INIT" != "1" ]; then
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+fi
 
 # FZF
 test -d ~/.local/fzf/bin && PATH="$PATH:$HOME/.local/fzf/bin"
