@@ -3,7 +3,7 @@
 pushd $(dirname $0)
 
 sudo apt update
-sudo apt-get install -y htop lsof curl entr
+sudo apt-get install -y htop lsof curl entr jq
 sudo snap install telegram-desktop
 
 ./setup_scripts/ubuntu/bash.sh

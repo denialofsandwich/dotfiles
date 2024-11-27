@@ -2,7 +2,7 @@
 
 pushd $(dirname $0)
 
-brew install htop lsof telnet
+brew install htop lsof telnet jq
 
 ./setup_scripts/macos/bash.sh
 ./setup_scripts/macos/fzf.sh
