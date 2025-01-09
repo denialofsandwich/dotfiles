@@ -10,10 +10,10 @@ my_compare.python_kwargs = function(entry1, entry2)
     return
   end
   -- needed because cmp sometimes gives you the same entry and you must return nil in that case
-  if entry1:get_completion_item().label == entry2:get_completion_item().label then
+  if entry1.completion_item.label == entry2.completion_item.label then
     return
   end
-  if entry1:get_completion_item().label:match("%w*=") then
+  if entry1.completion_item.label:match("%w*=") then
     -- return true to pick entry1 over entry2
     return true
   end
