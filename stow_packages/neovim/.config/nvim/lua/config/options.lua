@@ -15,3 +15,4 @@ vim.opt.wrap = true
 vim.opt.spell = true
 vim.opt.clipboard = ""
 vim.opt.formatoptions:remove({ "r", "o" })
+vim.opt.conceallevel = 0
