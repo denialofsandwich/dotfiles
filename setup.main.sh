@@ -9,6 +9,7 @@ sudo snap install telegram-desktop
 ./setup_scripts/ubuntu/bash.sh
 ./setup_scripts/ubuntu/fzf.sh
 ./setup_scripts/ubuntu/zsh.sh
+./setup_scripts/ubuntu/xonsh.sh
 ./setup_scripts/ubuntu/python.sh
 ./setup_scripts/ubuntu/screen.sh
 ./setup_scripts/ubuntu/tmux.sh
