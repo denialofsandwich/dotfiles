@@ -24,16 +24,14 @@ else
   rm lazygit.tar.gz lazygit
 fi
 
-if python3 -c 'import pynvim'; then
+if test -f ~/.local/nvim/venv/bin/python; then
   echo "pynvim already installed"
 else
   eval "$(pyenv init -)"
-  eval "$(pyenv virtualenv-init -)"
-
   pyenv install -s 3.12
-  pyenv virtualenv 3.12 pynvim
-  export PYENV_VERSION=pynvim
-  pyenv exec pip install pynvim
+  mkdir -p ~/.local/nvim
+  python3.12 -m venv ~/.local/nvim/venv
+  ~/.local/nvim/venv/bin/pip install pynvim
 fi
 
 echo "Update stow"

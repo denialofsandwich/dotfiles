@@ -6,8 +6,8 @@
 vim.g.lazyvim_python_lsp = "pyright"
 vim.g.lazyvim_python_ruff = "ruff"
 
-vim.g.python3_host_prog = "~/.pyenv/versions/pynvim/bin/python"
-vim.g.python_host_prog = "~/.pyenv/versions/pynvim/bin/python"
+vim.g.python3_host_prog = "~/.local/nvim/venv/bin/python"
+vim.g.python_host_prog = "~/.local/nvim/venv/bin/python"
 
 vim.opt.relativenumber = true
 vim.opt.shell = "/bin/zsh"
