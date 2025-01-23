@@ -16,4 +16,7 @@ brew install htop lsof telnet jq
 
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
-# - nvim: Add iTerm2 > Profiles > Keys > Key Mappings for <C-_> and <C-/> to Send Hex Code: 0x1f
+# - nvim: Add iTerm2 > Profiles > Keys > Key Mappings:
+#     <C-_> and <C-/> to Send Hex Code: 0x1f:
+#     Home to 0x01
+#     End to 0x05

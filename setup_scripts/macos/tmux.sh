@@ -4,7 +4,7 @@ pushd $(dirname $0)
 
 echo -e "\033[33m### SETUP tmux\033[0m"
 
-brew install stow tmux
+brew install stow tmux bash
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"
