@@ -2,7 +2,8 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-test -f /etc/bashrc && source /etc/bashrc || source /etc/bash.bashrc
+test -f /etc/bashrc && source /etc/bashrc
+test -f /etc/bash.bashrc && source /etc/bash.bashrc
 
 [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
 [ -z "${XDG_CONFIG_HOME}" ] && export XDG_CONFIG_HOME=$HOME/.config
