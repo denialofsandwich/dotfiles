@@ -107,6 +107,9 @@ bindkey "\e[F" end-of-line
 # completion in the middle of a line
 bindkey '^i' expand-or-complete-prefix
 
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 CASE_SENSITIVE="true"
