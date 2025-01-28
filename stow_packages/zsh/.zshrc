@@ -137,6 +137,9 @@ command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd zsh | sed 's/_fil
 # pnpm
 command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
 
+# java openjdk
+test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+
 alias ls='ls --color'
 alias ll='lsd -l'
 alias la='lsd -la'
