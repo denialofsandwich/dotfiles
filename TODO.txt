@@ -1,3 +1,8 @@
 - nvim: Show docs only on keymap
   - OR: Keymap to close all popups
 - nvim: Improve readability of unused variables
+
+- fix: cd .. autocomplete throws error
+- refactor: font as extra script
+- refactor: install scripts with name variables
+- feat: xonsh + oh my posh

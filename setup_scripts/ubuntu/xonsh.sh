@@ -8,14 +8,7 @@ sudo apt-get install -y stow \
   pipx lsd ripgrep bat curl zoxide
 
 pipx install xonsh
-pipx inject xonsh xontrib-fzf-completions
-
-# Maybe some other time
-# if test -d ~/.local/ohmyposh; then
-#   echo "Oh My Posh is already installed"
-# else
-#   curl -s https://ohmyposh.dev/install.sh | bash -s -- -d ~/.local/ohmyposh
-# fi
+pipx inject xonsh xontrib-fzf-completions xontrib-vox
 
 if test -f ~/.local/share/fonts/HackNerdFont-Regular.ttf; then
   echo "HackNF already installed"

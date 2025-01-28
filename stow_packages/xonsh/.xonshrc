@@ -1,6 +1,7 @@
 from xonsh.built_ins import XSH
 
 xontrib load fzf-completions
+xontrib load vox
 
 XSH.env['fzf_history_binding'] = "c-r"  # Ctrl+R
 XSH.env['fzf_ssh_binding'] = "c-s"  # Ctrl+S
@@ -22,3 +23,4 @@ elif "batcat" in XSH.commands_cache:
 XSH.aliases["ipy"] = ["ipython"]
 XSH.aliases["nv"] = ["nvim"]
 
+execx($(oh-my-posh init xonsh --config ~/.omp-main.yml))
