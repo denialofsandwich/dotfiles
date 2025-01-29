@@ -57,6 +57,7 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
+setopt globdots
 
 fzf-tab-disable() {
   zstyle ':completion:*:descriptions' format "$fg[yellow]%B--- %d%b"
@@ -71,6 +72,7 @@ fzf-tab-enable() {
 zstyle ':completion:*' menu select
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*' verbose yes
+zstyle ':completion:*' special-dirs true
 zstyle ':completion:*:messages' format '%d'
 zstyle ':completion:*:warnings' format "$fg[red]No matches for:$reset_color %d"
 zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
@@ -140,6 +142,9 @@ command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
 # java openjdk
 test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 
+# Pulumi
+test -d $HOME/.pulumi/bin && export PATH=$PATH:$HOME/.pulumi/bin
+
 alias ls='ls --color'
 alias ll='lsd -l'
 alias la='lsd -la'
@@ -175,3 +180,10 @@ fzf-tab-toggle() {
 
 alias f='quick_find'
 alias tt='fzf-tab-toggle'
+
+# Host specific scripts that should not be versioned
+if [[ -d ~/.env_scripts ]]; then
+  for script in ~/.env_scripts/*.sh; do
+    source $script
+  done
+fi
