@@ -2,61 +2,70 @@ $schema: >-
   https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
 blocks:
   - alignment: left
+    type: prompt
     segments:
-      - background: "#546E7A"
-        foreground: "#26C6DA"
+      - background: "#444444"
+        foreground: "#EEEEEE"
         style: plain
-        template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}} "
+        template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}}  "
         type: os
-      - background: "#546E7A"
-        foreground: "#26C6DA"
+      - background: "#444444"
+        foreground: "#0087AF"
         style: plain
         template: "  "
         type: root
-      - background: "#546E7A"
-        foreground: "#26C6DA"
+      - background: "#444444"
+        foreground: "#5FD700"
+        style: plain
+        template: "<#949494> </>{{ .HEAD }} "
+        type: git
+      - background: transparent
+        foreground: "#444444"
+        style: plain
+        template: ""
+        type: text
+  - alignment: right
+    type: prompt
+    segments:
+      - background: "#444444"
+        foreground: "#598587"
+        leading_diamond: 
+        style: diamond
+        template: " {{ .UserName }}@{{ .HostName }} <#0087AF></> "
+        type: session
+      - background: "#444444"
+        foreground: "#598587"
+        properties:
+          time_format: "15:04:05"
+        style: plain
+        template: " {{ .CurrentDate | date .Format }}   "
+        type: time
+  - alignment: left
+    type: prompt
+    newline: true
+    segments:
+      - background: "#444444"
+        foreground: "#0087AF"
         properties:
           style: full
         style: plain
         template: " {{ .Path }} "
         type: path
-      - background: "#546E7A"
-        foreground: "#D4E157"
-        style: plain
-        template: "<#26C6DA> </>{{ .HEAD }} "
-        type: git
       - background: transparent
-        foreground: "#546E7A"
+        foreground: "#444444"
         style: plain
         template: 
         type: text
-    type: prompt
-  - alignment: right
-    segments:
-      - background: "#546E7A"
-        foreground: "#D4E157"
-        leading_diamond: 
-        style: diamond
-        template: " {{ .UserName }}@{{ .HostName }} <#26C6DA></> "
-        type: session
-      - background: "#546E7A"
-        foreground: "#D4E157"
-        properties:
-          time_format: "15:04:05"
-        style: plain
-        template: " {{ .CurrentDate | date .Format }}  "
-        type: time
-    type: prompt
   - alignment: left
+    type: prompt
     newline: true
     segments:
-      - foreground: "#D4E157"
+      - foreground: "#5DD101"
         foreground_templates:
-          - "{{ if gt .Code 0 }}#FF5252{{ end }}"
+          - "{{ if gt .Code 0 }}#FE0000{{ end }}"
         properties:
           always_enabled: true
         style: plain
         template: "❯ "
         type: status
-    type: prompt
 version: 3
