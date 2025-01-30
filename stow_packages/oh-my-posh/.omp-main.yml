@@ -6,14 +6,16 @@ blocks:
     segments:
       - background: "#242424"
         foreground: "#3A86FF"
-        powerline_symbol: 
-        style: powerline
+        style: diamond
+        leading_diamond: ""
+        trailing_diamond: 
         template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}} "
         type: os
       - background: "#242424"
         foreground: "#F1184C"
-        powerline_symbol: 
-        style: powerline
+        style: diamond
+        leading_diamond: "<transparent,background></>"
+        trailing_diamond: 
         template: "  "
         type: text
       - background: "#242424"
@@ -21,15 +23,24 @@ blocks:
         powerline_symbol: 
         style: powerline
         template: >-
-          {{ .UpstreamIcon }} {{ .HEAD }}{{ if .Staging.Changed }}<#FF6F00>  {{
+          <> {{ .UpstreamIcon }}  {{ .HEAD }}{{ if .Staging.Changed }}<#FF6F00>  {{
           .Staging.String }}</>{{ end }}{{ if and (.Working.Changed)
           (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}  {{
           .Working.String }}{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount
-          }}{{ end }}
+          }}{{ end }} <>
         type: git
         properties:
           fetch_status: true
           fetch_upstream_icon: true
+      - background: "#242424"
+        background_templates:
+          - "{{ if gt .Code 0 }}#f1184c{{ end }}"
+        foreground: "#33DD2D"
+        style: diamond
+        leading_diamond: "<transparent,background></>"
+        trailing_diamond: 
+        template: "  {{ .Full }} "
+        type: python
   - alignment: right
     type: prompt
     segments:
@@ -51,17 +62,14 @@ blocks:
     newline: true
     segments:
       - background: "#242424"
-        foreground: "#33DD2D"
+        foreground: "#3A86FF"
+        style: diamond
+        leading_diamond: ""
+        trailing_diamond: 
         properties:
           style: full
-        style: plain
         template: " {{ .Path }} "
         type: path
-      - background: transparent
-        foreground: "#242424"
-        style: plain
-        template: 
-        type: text
   - alignment: left
     type: prompt
     newline: true
