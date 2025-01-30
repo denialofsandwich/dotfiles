@@ -5,7 +5,10 @@ pushd $(dirname $0)
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-sudo apt-get install -y vim
+brew install lsd bat ripgrep zoxide
+
+pipx install xonsh
+pipx inject xonsh xontrib-fzf-completions xontrib-vox
 
 echo "Update stow"
 popd

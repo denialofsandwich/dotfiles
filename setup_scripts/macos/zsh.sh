@@ -5,7 +5,6 @@ pushd $(dirname $0)
 echo -e "\033[33m### SETUP zsh\033[0m"
 
 brew install zsh lsd bat ripgrep zoxide
-brew install --cask font-hack-nerd-font
 
 echo "Update stow"
 popd

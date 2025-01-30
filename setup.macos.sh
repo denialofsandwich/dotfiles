@@ -2,10 +2,12 @@
 
 pushd $(dirname $0)
 
-brew install htop lsof telnet jq
+brew install htop lsof telnet jq stow
 
 ./setup_scripts/macos/bash.sh
 ./setup_scripts/macos/fzf.sh
+./setup_scripts/macos/nerd-font.sh
+./setup_scripts/macos/oh-my-posh.sh
 ./setup_scripts/macos/zsh.sh
 ./setup_scripts/macos/python.sh
 ./setup_scripts/macos/screen.sh
@@ -33,3 +35,6 @@ brew install htop lsof telnet jq
 #    - ctrl: cmd
 #    - option: ctrl
 #    - cmd: option
+#  system > keyboard > shortcuts > modifier (Internal Keyboard):
+#    - ctrl: cmd
+#    - cmd: ctrl

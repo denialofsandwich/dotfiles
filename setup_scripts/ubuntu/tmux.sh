@@ -1,10 +1,11 @@
 #!/bin/bash
 
+name=$(basename -s .sh $0)
 pushd $(dirname $0)
 
-echo -e "\033[33m### SETUP tmux\033[0m"
+echo -e "\033[33m### SETUP $name\033[0m"
 
-sudo apt-get install -y stow tmux
+sudo apt-get install -y tmux
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"
@@ -16,4 +17,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ tmux
+stow -d stow_packages -t ~ $name

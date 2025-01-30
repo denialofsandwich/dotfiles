@@ -1,10 +1,11 @@
 #!/bin/bash
 
+name=$(basename -s .sh $0)
 pushd $(dirname $0)
 
-echo -e "\033[33m### SETUP neovim\033[0m"
+echo -e "\033[33m### SETUP $name\033[0m"
 
-sudo apt-get install -y stow \
+sudo apt-get install -y \
   flatpak luarocks fd-find ripgrep nodejs npm tree-sitter-cli xclip wl-clipboard
 
 echo INSTALL neovim
@@ -41,4 +42,4 @@ pushd stow_packages/neovim/.config/nvim/lua/config
 test -f custom.lua || echo "return {}" >custom.lua
 popd
 
-stow -d stow_packages -t ~ neovim
+stow -d stow_packages -t ~ $name

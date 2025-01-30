@@ -1,11 +1,12 @@
 #!/bin/bash
 
+name=$(basename -s .sh $0)
 pushd $(dirname $0)
 
-echo -e "\033[33m### SETUP screen\033[0m"
+echo -e "\033[33m### SETUP $name\033[0m"
 
-sudo apt-get install -y stow screen
+sudo apt-get install -y screen
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ screen
+stow -d stow_packages -t ~ $name

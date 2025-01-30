@@ -3,11 +3,13 @@
 pushd $(dirname $0)
 
 sudo apt update
-sudo apt-get install -y htop lsof curl entr jq
+sudo apt-get install -y htop lsof curl entr jq stow
 sudo snap install telegram-desktop
 
 ./setup_scripts/ubuntu/bash.sh
 ./setup_scripts/ubuntu/fzf.sh
+./setup_scripts/ubuntu/nerd-font.sh
+./setup_scripts/ubuntu/oh-my-posh.sh
 ./setup_scripts/ubuntu/zsh.sh
 ./setup_scripts/ubuntu/xonsh.sh
 ./setup_scripts/ubuntu/python.sh

@@ -4,7 +4,7 @@ pushd $(dirname $0)
 
 echo -e "\033[33m### SETUP vim\033[0m"
 
-brew install stow vim
+brew install vim
 
 echo "Update stow"
 popd
