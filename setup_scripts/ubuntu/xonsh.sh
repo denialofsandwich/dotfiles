@@ -9,7 +9,7 @@ sudo apt-get install -y \
   pipx lsd ripgrep bat curl zoxide
 
 pipx install xonsh
-pipx inject xonsh xontrib-fzf-completions xontrib-vox
+pipx inject xonsh xontrib-fzf-completions xontrib-vox prompt_toolkit
 
 echo "Update stow"
 popd

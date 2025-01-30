@@ -4,21 +4,24 @@ blocks:
   - alignment: left
     type: prompt
     segments:
-      - background: "#444444"
-        foreground: "#EEEEEE"
-        style: plain
-        template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}}  "
+      - background: "#242424"
+        foreground: "#3A86FF"
+        powerline_symbol: 
+        style: powerline
+        template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}} "
         type: os
-      - background: "#444444"
-        foreground: "#0087AF"
-        style: plain
+      - background: "#242424"
+        foreground: "#F1184C"
+        powerline_symbol: 
+        style: powerline
         template: "  "
-        type: root
-      - background: "#444444"
-        foreground: "#5FD700"
-        style: plain
+        type: text
+      - background: "#242424"
+        foreground: "#FFBB00"
+        powerline_symbol: 
+        style: powerline
         template: >-
-          <#000000> </> {{ .UpstreamIcon }} {{ .HEAD }}{{ if .Staging.Changed }}<#FF6F00>  {{
+          {{ .UpstreamIcon }} {{ .HEAD }}{{ if .Staging.Changed }}<#FF6F00>  {{
           .Staging.String }}</>{{ end }}{{ if and (.Working.Changed)
           (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}  {{
           .Working.String }}{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount
@@ -27,21 +30,16 @@ blocks:
         properties:
           fetch_status: true
           fetch_upstream_icon: true
-      - background: transparent
-        foreground: "#444444"
-        style: plain
-        template: ""
-        type: text
   - alignment: right
     type: prompt
     segments:
-      - background: "#444444"
+      - background: "#242424"
         foreground: "#598587"
         leading_diamond: 
         style: diamond
         template: " {{ .UserName }}@{{ .HostName }} <#0087AF></> "
         type: session
-      - background: "#444444"
+      - background: "#242424"
         foreground: "#598587"
         properties:
           time_format: "15:04:05"
@@ -52,15 +50,15 @@ blocks:
     type: prompt
     newline: true
     segments:
-      - background: "#444444"
-        foreground: "#0087AF"
+      - background: "#242424"
+        foreground: "#33DD2D"
         properties:
           style: full
         style: plain
         template: " {{ .Path }} "
         type: path
       - background: transparent
-        foreground: "#444444"
+        foreground: "#242424"
         style: plain
         template: 
         type: text

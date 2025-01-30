@@ -9,6 +9,7 @@ brew install htop lsof telnet jq stow
 ./setup_scripts/macos/nerd-font.sh
 ./setup_scripts/macos/oh-my-posh.sh
 ./setup_scripts/macos/zsh.sh
+./setup_scripts/macos/xonsh.sh
 ./setup_scripts/macos/python.sh
 ./setup_scripts/macos/screen.sh
 ./setup_scripts/macos/tmux.sh
