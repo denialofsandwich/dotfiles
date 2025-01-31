@@ -120,3 +120,6 @@ if test -d $HOME/.bash_completions; then
     [ -r "$file" ] && source "$file"
   done
 fi
+
+# Fancy prompt, if available
+command -v oh-my-posh >/dev/null && eval "$(oh-my-posh init bash)"

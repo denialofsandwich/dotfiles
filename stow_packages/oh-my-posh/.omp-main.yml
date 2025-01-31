@@ -4,58 +4,63 @@ blocks:
   - alignment: left
     type: prompt
     segments:
-      - background: "#242424"
+      - type: os
+        background: "#242424"
         foreground: "#3A86FF"
         style: diamond
         leading_diamond: ""
         trailing_diamond: 
         template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}} "
-        type: os
-      - background: "#242424"
+      - type: shell
+        background: "#242424"
+        foreground: "#F1184C"
+        style: diamond
+        leading_diamond: "<transparent,background></>"
+        trailing_diamond: 
+        template: '{{ if ne .Name "zsh" }} {{ .Name }} {{ end }}'
+        properties:
+          mapped_shell_names:
+            pwsh: PS
+      - type: root
+        background: "#242424"
         foreground: "#F1184C"
         style: diamond
         leading_diamond: "<transparent,background></>"
         trailing_diamond: 
         template: "  "
-        type: text
-      - background: "#242424"
+      - type: git
+        properties:
+          fetch_status: true
+          fetch_upstream_icon: true
+        background: "#242424"
         foreground: "#FFBB00"
-        powerline_symbol: 
-        style: powerline
+        style: diamond
+        leading_diamond: "<transparent,background></>"
+        trailing_diamond: 
         template: >-
           <> {{ .UpstreamIcon }}  {{ .HEAD }}{{ if .Staging.Changed }}<#FF6F00>  {{
           .Staging.String }}</>{{ end }}{{ if and (.Working.Changed)
           (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}  {{
           .Working.String }}{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount
           }}{{ end }} <>
-        type: git
-        properties:
-          fetch_status: true
-          fetch_upstream_icon: true
-      - background: "#242424"
-        background_templates:
-          - "{{ if gt .Code 0 }}#f1184c{{ end }}"
+      - type: python
+        background: "#242424"
         foreground: "#33DD2D"
         style: diamond
         leading_diamond: "<transparent,background></>"
         trailing_diamond: 
-        template: "  {{ .Full }} "
-        type: python
+        template: "  {{ .Venv }} "
   - alignment: right
     type: prompt
     segments:
       - background: "#242424"
-        foreground: "#598587"
-        leading_diamond: 
+        foreground: "#3A86FF"
         style: diamond
-        template: " {{ .UserName }}@{{ .HostName }} <#0087AF></> "
-        type: session
-      - background: "#242424"
-        foreground: "#598587"
+        leading_diamond: ""
+        trailing_diamond: ""
         properties:
           time_format: "15:04:05"
-        style: plain
-        template: " {{ .CurrentDate | date .Format }}   "
+        template: " {{ .CurrentDate | date .Format }}  "
         type: time
   - alignment: left
     type: prompt

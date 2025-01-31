@@ -2,6 +2,4 @@
   - OR: Keymap to close all popups
 - nvim: Improve readability of unused variables
 
-- refactor: font as extra script
-- refactor: install scripts with name variables
-- feat: xonsh + oh my posh
+- Remove p10k if im happy with omp

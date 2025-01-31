@@ -8,6 +8,12 @@ XSH.env['fzf_ssh_binding'] = "c-s"  # Ctrl+S
 XSH.env['fzf_file_binding'] = "c-t"  # Ctrl+T
 XSH.env['fzf_dir_binding'] = "c-g"  # Ctrl+G
 
+if "oh-my-posh" in XSH.commands_cache:
+  execx($(oh-my-posh init xonsh --config ~/.omp-main.yml))
+
+if "zoxide" in XSH.commands_cache:
+  execx($(zoxide init --cmd cd xonsh), 'exec', XSH.ctx, filename='zoxide')
+
 XSH.aliases["ls"] = ["ls", "--color"]
 XSH.aliases["ll"] = ["lsd", "-l"]
 XSH.aliases["la"] = ["lsd", "-la"]
@@ -22,5 +28,3 @@ elif "batcat" in XSH.commands_cache:
   
 XSH.aliases["ipy"] = ["ipython"]
 XSH.aliases["nv"] = ["nvim"]
-
-execx($(oh-my-posh init xonsh --config ~/.omp-main.yml))
