@@ -1,5 +1,3 @@
 - nvim: Show docs only on keymap
   - OR: Keymap to close all popups
 - nvim: Improve readability of unused variables
-
-- Remove p10k if im happy with omp
