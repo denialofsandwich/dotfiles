@@ -89,7 +89,7 @@ blocks:
         foreground: "#3A86FF"
         style: diamond
         leading_diamond: ""
-        trailing_diamond: 
+        trailing_diamond: ""
         properties:
           home_icon: "<#5A9CFF><b>~</b></>"
           right_format: "<#5A9CFF><b>%s</b></>"
