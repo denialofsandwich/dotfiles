@@ -1,8 +1,8 @@
 $schema: >-
   https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
 blocks:
-  - alignment: left
-    type: prompt
+  - type: prompt
+    alignment: left
     segments:
       - type: os
         background: "#242424"
@@ -10,12 +10,12 @@ blocks:
         style: diamond
         leading_diamond: ""
         trailing_diamond: 
-        template: " {{ if .WSL }}WSL at {{ end }}{{.Icon}} "
+        template: "{{ if .WSL }}WSL at {{ end }}{{.Icon}} "
       - type: shell
         background: "#242424"
         foreground: "#F1184C"
         style: diamond
-        leading_diamond: "<transparent,background></>"
+        leading_diamond: ""
         trailing_diamond: 
         template: '{{ if ne .Name "zsh" }} {{ .Name }} {{ end }}'
         properties:
@@ -25,7 +25,7 @@ blocks:
         background: "#242424"
         foreground: "#F1184C"
         style: diamond
-        leading_diamond: "<transparent,background></>"
+        leading_diamond: ""
         trailing_diamond: 
         template: "  "
       - type: git
@@ -35,56 +35,76 @@ blocks:
         background: "#242424"
         foreground: "#FFBB00"
         style: diamond
-        leading_diamond: "<transparent,background></>"
+        leading_diamond: ""
         trailing_diamond: 
         template: >-
-          <> {{ .UpstreamIcon }}  {{ .HEAD }}{{ if .Staging.Changed }}<#FF6F00>  {{
+          <> {{ .UpstreamIcon }}  {{ .HEAD }}{{ if .Staging.Changed }}<#44D1BE>  {{
           .Staging.String }}</>{{ end }}{{ if and (.Working.Changed)
-          (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}  {{
-          .Working.String }}{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount
-          }}{{ end }} <>
+          (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}<#FF966C>  {{
+          .Working.String }}</>{{ end }}{{ if gt .StashCount 0 }}<#82AAFF>  {{ .StashCount
+          }}</>{{ end }} <>
       - type: python
         background: "#242424"
         foreground: "#33DD2D"
         style: diamond
-        leading_diamond: "<transparent,background></>"
+        leading_diamond: ""
         trailing_diamond: 
         template: "  {{ .Venv }} "
-  - alignment: right
-    type: prompt
+  - type: prompt
+    alignment: right
     segments:
-      - background: "#242424"
-        foreground: "#3A86FF"
+      - type: status
+        background: "#242424"
+        foreground: "#AC1C44"
+        style: diamond
+        leading_diamond: ""
+        trailing_diamond: ""
+        properties:
+          status_template: "{{reason .Code }}"
+      - type: executiontime
+        background: "#242424"
+        foreground: "#AC7F1C"
+        style: diamond
+        leading_diamond: ""
+        trailing_diamond: ""
+        template: " {{ .FormattedMs }}  "
+        properties:
+          threshold: 500
+          style: round
+      - type: time
+        background: "#242424"
+        foreground: "#2F5CAC"
         style: diamond
         leading_diamond: ""
         trailing_diamond: ""
         properties:
           time_format: "15:04:05"
         template: " {{ .CurrentDate | date .Format }}  "
-        type: time
-  - alignment: left
-    type: prompt
+  - type: prompt
+    alignment: left
     newline: true
     segments:
-      - background: "#242424"
+      - type: path
+        background: "#242424"
         foreground: "#3A86FF"
         style: diamond
         leading_diamond: ""
         trailing_diamond: 
         properties:
+          home_icon: "<#5A9CFF><b>~</b></>"
+          right_format: "<#5A9CFF><b>%s</b></>"
           style: full
         template: " {{ .Path }} "
-        type: path
-  - alignment: left
-    type: prompt
+  - type: prompt
+    alignment: left
     newline: true
     segments:
-      - foreground: "#5DD101"
+      - type: status
+        foreground: "#5DD101"
         foreground_templates:
           - "{{ if gt .Code 0 }}#FE0000{{ end }}"
         properties:
           always_enabled: true
         style: plain
         template: "❯ "
-        type: status
 version: 3
