@@ -10,9 +10,9 @@ sudo apt-get install -y \
 
 echo INSTALL neovim
 pushd $HOME/.local/bin
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-chmod u+x nvim.appimage
-mv nvim.appimage nvim
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+chmod u+x nvim-linux-x86_64.appimage
+mv nvim-linux-x86_64.appimage nvim
 popd
 
 if type lazygit; then
