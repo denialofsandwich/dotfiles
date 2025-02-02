@@ -38,11 +38,13 @@ blocks:
         leading_diamond: ""
         trailing_diamond: 
         template: >-
-          <> {{ .UpstreamIcon }}  {{ .HEAD }}{{ if .Staging.Changed }}<#44D1BE>  {{
-          .Staging.String }}</>{{ end }}{{ if and (.Working.Changed)
-          (.Staging.Changed) }} |{{ end }}{{ if .Working.Changed }}<#FF966C>  {{
-          .Working.String }}</>{{ end }}{{ if gt .StashCount 0 }}<#82AAFF>  {{ .StashCount
-          }}</>{{ end }} <>
+          <> {{ .UpstreamIcon }}  {{ .HEAD }}{{
+          if or .Ahead .Behind }} {{ end }}{{
+          if .Ahead }}↑{{ .Ahead }}{{ end }}{{
+          if .Behind }}↓{{ .Behind }}{{ end }}{{
+          if .Staging.Changed }}<#44D1BE>  {{ .Staging.String }}</>{{ end }}{{
+          if .Working.Changed }}<#FF966C>  {{ .Working.String }}</>{{ end }}{{
+          if gt .StashCount 0 }}<#82AAFF>  {{ .StashCount }}</>{{ end }} <>
       - type: python
         background: "#242424"
         foreground: "#33DD2D"
