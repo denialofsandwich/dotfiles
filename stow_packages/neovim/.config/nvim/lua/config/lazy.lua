@@ -28,7 +28,6 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.test.core" },
     { import = "lazyvim.plugins.extras.lang.python" },
     { import = "lazyvim.plugins.extras.lang.terraform" },
-    { import = "lazyvim.plugins.extras.formatting.black" },
     { import = "lazyvim.plugins.extras.formatting.prettier" },
     custom_opts.load_copilot and { import = "lazyvim.plugins.extras.ai.copilot" } or {},
     custom_opts.load_copilot and { import = "lazyvim.plugins.extras.ai.copilot-chat" } or {},
