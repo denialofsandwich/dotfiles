@@ -8,26 +8,33 @@ blocks:
         background: "#242424"
         foreground: "#3A86FF"
         style: diamond
-        leading_diamond: ""
+        leading_diamond: 
         trailing_diamond: 
         template: "{{ if .WSL }}WSL at {{ end }}{{ .Icon }} "
+      - type: root
+        background: "#242424"
+        foreground: "#F1184C"
+        style: diamond
+        leading_diamond: 
+        trailing_diamond: 
+        template: "  "
+      - type: session
+        background: "#242424"
+        foreground: "#8027D1"
+        style: diamond
+        leading_diamond: 
+        trailing_diamond: 
+        template: "{{ if .SSHSession }}{{ if .Root }}<b>{{ end }} {{ .UserName }}{{ if .Root }}</b>{{ end }}@{{ .HostName }} {{ end }}"
       - type: shell
         background: "#242424"
         foreground: "#F1184C"
         style: diamond
-        leading_diamond: ""
+        leading_diamond: 
         trailing_diamond: 
         template: '{{ if ne .Name "zsh" }} {{ .Name }} {{ end }}'
         properties:
           mapped_shell_names:
             pwsh: ps
-      - type: root
-        background: "#242424"
-        foreground: "#F1184C"
-        style: diamond
-        leading_diamond: ""
-        trailing_diamond: 
-        template: "  "
       - type: git
         properties:
           fetch_status: true
@@ -35,7 +42,7 @@ blocks:
         background: "#242424"
         foreground: "#FFBB00"
         style: diamond
-        leading_diamond: ""
+        leading_diamond: 
         trailing_diamond: 
         template: >-
           <> {{ .UpstreamIcon }}  {{ .HEAD }}{{
@@ -49,7 +56,7 @@ blocks:
         background: "#242424"
         foreground: "#33DD2D"
         style: diamond
-        leading_diamond: ""
+        leading_diamond: 
         trailing_diamond: 
         template: "  {{ .Venv }} "
   - type: prompt
@@ -59,16 +66,16 @@ blocks:
         background: "#242424"
         foreground: "#AC1C44"
         style: diamond
-        leading_diamond: ""
-        trailing_diamond: ""
+        leading_diamond: 
+        trailing_diamond: 
         properties:
           status_template: "{{ reason .Code }}"
       - type: executiontime
         background: "#242424"
         foreground: "#AC7F1C"
         style: diamond
-        leading_diamond: ""
-        trailing_diamond: ""
+        leading_diamond: 
+        trailing_diamond: 
         properties:
           threshold: 500
           style: round
@@ -77,8 +84,8 @@ blocks:
         background: "#242424"
         foreground: "#2F5CAC"
         style: diamond
-        leading_diamond: ""
-        trailing_diamond: ""
+        leading_diamond: 
+        trailing_diamond: 
         properties:
           time_format: "15:04:05"
         template: " {{ .CurrentDate | date .Format }}  "
@@ -90,8 +97,8 @@ blocks:
         background: "#242424"
         foreground: "#3A86FF"
         style: diamond
-        leading_diamond: ""
-        trailing_diamond: ""
+        leading_diamond: 
+        trailing_diamond: 
         properties:
           home_icon: "<#5A9CFF><b>~</b></>"
           right_format: "<#5A9CFF><b>%s</b></>"

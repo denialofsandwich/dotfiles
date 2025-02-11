@@ -124,4 +124,4 @@ if test -d $HOME/.bash_completions; then
 fi
 
 # Fancy prompt, if available
-command -v oh-my-posh >/dev/null && eval "$(oh-my-posh init bash)"
+command -v oh-my-posh >/dev/null && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
