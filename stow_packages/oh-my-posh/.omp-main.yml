@@ -10,7 +10,7 @@ blocks:
         style: diamond
         leading_diamond: ""
         trailing_diamond: 
-        template: "{{ if .WSL }}WSL at {{ end }}{{.Icon}} "
+        template: "{{ if .WSL }}WSL at {{ end }}{{ .Icon }} "
       - type: shell
         background: "#242424"
         foreground: "#F1184C"
@@ -20,7 +20,7 @@ blocks:
         template: '{{ if ne .Name "zsh" }} {{ .Name }} {{ end }}'
         properties:
           mapped_shell_names:
-            pwsh: PS
+            pwsh: ps
       - type: root
         background: "#242424"
         foreground: "#F1184C"
@@ -62,17 +62,17 @@ blocks:
         leading_diamond: ""
         trailing_diamond: ""
         properties:
-          status_template: "{{reason .Code }}"
+          status_template: "{{ reason .Code }}"
       - type: executiontime
         background: "#242424"
         foreground: "#AC7F1C"
         style: diamond
         leading_diamond: ""
         trailing_diamond: ""
-        template: " {{ .FormattedMs }}  "
         properties:
           threshold: 500
           style: round
+        template: " {{ .FormattedMs }}  "
       - type: time
         background: "#242424"
         foreground: "#2F5CAC"
@@ -105,8 +105,8 @@ blocks:
         foreground: "#5DD101"
         foreground_templates:
           - "{{ if gt .Code 0 }}#FE0000{{ end }}"
+        style: plain
         properties:
           always_enabled: true
-        style: plain
         template: "❯ "
 version: 3
