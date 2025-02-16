@@ -23,6 +23,7 @@ fi
 source "${ZINIT_HOME}/zinit.zsh"
 
 # Add in zsh plugins
+source ~/.zsh_syntax_highlighting.zsh
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
@@ -51,7 +52,7 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
-setopt globdots
+# setopt globdots
 
 fzf-tab-disable() {
   zstyle ':completion:*:descriptions' format "$fg[yellow]%B--- %d%b"
