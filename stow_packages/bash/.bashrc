@@ -124,5 +124,5 @@ if test -d $HOME/.bash_completions; then
 fi
 
 # Fancy prompt, if available
-test -n SSH_CONNECTION && export USER_NERD=1
+test ! -v SSH_CONNECTION && export USER_NERD=1
 command -v oh-my-posh >/dev/null && test "$USER_NERD" == 1 && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
