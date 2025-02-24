@@ -131,8 +131,6 @@ if [[ -d ~/.env_scripts ]]; then
 fi
 
 # Fancy prompt, if available
-test ! -v SSH_CONNECTION && test ! -v USER_NERD &&
-  export USER_NERD=1 &&
-  export OMP_SHOW_SESSION=1
-command -v oh-my-posh >/dev/null && test "$USER_NERD" == 1 &&
-  eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
+fc-list | grep -i nerd 2>&1 >/dev/null && export USER_NERD=1
+test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
+command -v oh-my-posh >/dev/null && test "$USER_NERD" == 1 && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
