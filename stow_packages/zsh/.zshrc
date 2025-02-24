@@ -185,5 +185,5 @@ fi
 
 # Fancy prompt
 export USER_NERD=1
-test ! -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
+test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
 eval "$(oh-my-posh init zsh --config ~/.omp-main.yml)"
