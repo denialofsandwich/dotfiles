@@ -24,7 +24,7 @@ blocks:
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        template: "{{ if .SSHSession }}{{ if .Root }}<b>{{ end }} {{ .UserName }}{{ if .Root }}</b>{{ end }}@{{ .HostName }} {{ end }}"
+        template: '{{ if eq .Env.OMP_SHOW_SESSION "1" }}{{ if .Root }}<b>{{ end }} {{ .UserName }}{{ if .Root }}</b>{{ end }}@{{ .HostName }} {{ end }}'
       - type: shell
         background: "#242424"
         foreground: "#F1184C"

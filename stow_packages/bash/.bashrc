@@ -123,6 +123,13 @@ if test -d $HOME/.bash_completions; then
   done
 fi
 
+# Host specific scripts that should not be versioned
+if [[ -d ~/.env_scripts ]]; then
+  for script in ~/.env_scripts/*.sh; do
+    source $script
+  done
+fi
+
 # Fancy prompt, if available
-test ! -v SSH_CONNECTION && export USER_NERD=1
+test ! -v SSH_CONNECTION && export USER_NERD=1 && export OMP_SHOW_SESSION=1
 command -v oh-my-posh >/dev/null && test "$USER_NERD" == 1 && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
