@@ -184,4 +184,5 @@ if [[ -d ~/.env_scripts ]]; then
 fi
 
 # Fancy prompt
+export USER_NERD=1
 eval "$(oh-my-posh init zsh --config ~/.omp-main.yml)"
