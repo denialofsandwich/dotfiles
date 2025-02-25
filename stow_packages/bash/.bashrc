@@ -87,7 +87,7 @@ export EDITOR="$VISUAL"
 
 # FZF
 test -d ~/.local/fzf/bin && PATH="$PATH:$HOME/.local/fzf/bin"
-export FZF_DEFAULT_OPTS='--height 40% --tmux bottom,40% --layout reverse --border top'
+export FZF_DEFAULT_OPTS='--height 40% --layout reverse --border top'
 command -v fzf &>/dev/null && eval "$(fzf --bash)"
 
 # zoxide
