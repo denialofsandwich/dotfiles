@@ -5,29 +5,29 @@ blocks:
     alignment: left
     segments:
       - type: os
-        background: "#242424"
-        foreground: "#3A86FF"
+        background: "#262626"
+        foreground: "#287DF5"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: "{{ if .WSL }}WSL at {{ end }}{{ .Icon }} "
       - type: root
-        background: "#242424"
-        foreground: "#F1184C"
+        background: "#262626"
+        foreground: "#FD1360"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: "  "
       - type: session
-        background: "#242424"
+        background: "#262626"
         foreground: "#8027D1"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: '{{ if eq .Env.OMP_SHOW_SESSION "1" }}{{ if .Root }}<b>{{ end }} {{ .UserName }}{{ if .Root }}</b>{{ end }}@{{ .HostName }} {{ end }}'
       - type: shell
-        background: "#242424"
-        foreground: "#F1184C"
+        background: "#262626"
+        foreground: "#FD1360"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
@@ -39,7 +39,7 @@ blocks:
         properties:
           fetch_status: true
           fetch_upstream_icon: true
-        background: "#242424"
+        background: "#262626"
         foreground: "#FFBB00"
         style: diamond
         leading_diamond: 
@@ -49,11 +49,11 @@ blocks:
           if or .Ahead .Behind }} {{ end }}{{
           if .Ahead }}↑{{ .Ahead }}{{ end }}{{
           if .Behind }}↓{{ .Behind }}{{ end }}{{
-          if .Staging.Changed }}<#44D1BE>  {{ .Staging.String }}</>{{ end }}{{
-          if .Working.Changed }}<#FF966C>  {{ .Working.String }}</>{{ end }}{{
-          if gt .StashCount 0 }}<#82AAFF>  {{ .StashCount }}</>{{ end }} <>
+          if .Staging.Changed }}<#5DE05B>  {{ .Staging.String }}</>{{ end }}{{
+          if .Working.Changed }}<#FF8550>  {{ .Working.String }}</>{{ end }}{{
+          if gt .StashCount 0 }}<#598EF6>  {{ .StashCount }}</>{{ end }} <>
       - type: python
-        background: "#242424"
+        background: "#262626"
         foreground: "#33DD2D"
         style: diamond
         leading_diamond: 
@@ -63,15 +63,15 @@ blocks:
     alignment: right
     segments:
       - type: status
-        background: "#242424"
-        foreground: "#AC1C44"
+        background: "#262626"
+        foreground: "#AB2044"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         properties:
           status_template: "{{ reason .Code }}"
       - type: executiontime
-        background: "#242424"
+        background: "#262626"
         foreground: "#AC7F1C"
         style: diamond
         leading_diamond: 
@@ -81,8 +81,8 @@ blocks:
           style: round
         template: " {{ .FormattedMs }}  "
       - type: time
-        background: "#242424"
-        foreground: "#2F5CAC"
+        background: "#262626"
+        foreground: "#2756A5"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
@@ -94,14 +94,14 @@ blocks:
     newline: true
     segments:
       - type: path
-        background: "#242424"
-        foreground: "#3A86FF"
+        background: "#262626"
+        foreground: "#287DF5"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         properties:
-          home_icon: "<#5A9CFF><b>~</b></>"
-          right_format: "<#5A9CFF><b>%s</b></>"
+          home_icon: "<#598EF6><b>~</b></>"
+          right_format: "<#598EF6><b>%s</b></>"
           style: full
         template: " {{ .Path }} "
   - type: prompt
@@ -109,9 +109,9 @@ blocks:
     newline: true
     segments:
       - type: status
-        foreground: "#5DD101"
+        foreground: "#33DD2D"
         foreground_templates:
-          - "{{ if gt .Code 0 }}#FE0000{{ end }}"
+          - "{{ if gt .Code 0 }}#E61717{{ end }}"
         style: plain
         properties:
           always_enabled: true
