@@ -27,6 +27,10 @@ local lazyterm = function()
   end
 end
 
+-- Remap Ctrl-C to Esc to behave exactly like it including autocmd
+vim.api.nvim_set_keymap("i", "<C-c>", "<Esc>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<C-c>", "<Esc>", { noremap = true, silent = true })
+
 vim.keymap.set("n", "<leader>ft", lazyterm, { remap = true, desc = "Terminal (Root Dir)" })
 vim.keymap.set("n", "<C-/>", lazyterm, { remap = true, desc = "Terminal (Root Dir)" })
 vim.keymap.set("n", "<C-_>", lazyterm, { remap = true, desc = "Terminal (Root Dir)" })
@@ -35,4 +39,8 @@ vim.keymap.set({ "n", "v" }, "<C-Y>", '"+y', { desc = "Copy to system clipboard"
 vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboard" })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"0p', { desc = "Paste last yanked line" })
 
-vim.keymap.set({ "n" }, "<leader>r", "@q", { desc = "Replay q-macro " })
+vim.keymap.set({ "n" }, "<leader>r", "", { desc = "macro replay" })
+vim.keymap.set({ "n" }, "<leader>rq", "@qq", { desc = "Replay q-macro" })
+vim.keymap.set({ "n" }, "<leader>rw", "@qw", { desc = "Replay w-macro" })
+vim.keymap.set({ "n" }, "<leader>re", "@qe", { desc = "Replay e-macro" })
+vim.keymap.set({ "n" }, "<leader>rr", "@qr", { desc = "Replay r-macro" })

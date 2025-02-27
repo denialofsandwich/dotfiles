@@ -9,7 +9,7 @@ vim.g.lazyvim_python_ruff = "ruff"
 vim.g.python3_host_prog = "~/.local/nvim/venv/bin/python"
 vim.g.python_host_prog = "~/.local/nvim/venv/bin/python"
 
-vim.opt.relativenumber = true
+vim.opt.relativenumber = false
 vim.opt.shell = "/bin/zsh"
 vim.opt.wrap = true
 vim.opt.spell = true
