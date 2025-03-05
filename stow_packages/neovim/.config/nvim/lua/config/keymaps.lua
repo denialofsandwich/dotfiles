@@ -29,7 +29,6 @@ end
 
 -- Remap Ctrl-C to Esc to behave exactly like it including autocmd
 vim.api.nvim_set_keymap("i", "<C-c>", "<Esc>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<C-c>", "<Esc>", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>ft", lazyterm, { remap = true, desc = "Terminal (Root Dir)" })
 vim.keymap.set("n", "<C-/>", lazyterm, { remap = true, desc = "Terminal (Root Dir)" })
