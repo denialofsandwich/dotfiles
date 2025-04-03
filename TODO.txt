@@ -1,3 +1,5 @@
 - nvim: Show docs only on keymap
   - OR: Keymap to close all popups
 - nvim: Improve readability of unused variables
+- nvim: Add https://github.com/linux-cultist/venv-selector.nvim/tree/regexp
+  again
