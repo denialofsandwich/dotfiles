@@ -20,5 +20,6 @@ sudo snap install telegram-desktop
 ./setup_scripts/ubuntu/neovim.sh
 
 git config --global rerere.enabled true
+git config --global pull.rebase true
 
 flatpak permission-set webextensions org.kde.plasma.browser_integration snap.firefox yes

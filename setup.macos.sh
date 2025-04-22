@@ -18,6 +18,7 @@ brew install htop lsof telnet jq stow
 ./setup_scripts/macos/neovim.sh
 
 git config --global rerere.enabled true
+git config --global pull.rebase true
 
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
