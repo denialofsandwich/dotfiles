@@ -17,6 +17,8 @@ brew install htop lsof telnet jq stow
 #./setup_scripts/macos/vscode.sh
 ./setup_scripts/macos/neovim.sh
 
+git config --global rerere.enabled true
+
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
 # - nvim: Add iTerm2 > Profiles > Keys > Key Mappings:
