@@ -5,8 +5,7 @@ pushd $(dirname $0)
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install zsh lsd bat ripgrep zoxide
-
-echo "Update stow"
+pushd $HOME/.local/bin
+curl -LO https://dystroy.org/dysk/download/x86_64-linux/dysk
+chmod +x dysk
 popd
-stow -d stow_packages -t ~ zsh

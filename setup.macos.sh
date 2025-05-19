@@ -16,6 +16,7 @@ brew install htop lsof telnet jq stow
 ./setup_scripts/macos/vim.sh
 #./setup_scripts/macos/vscode.sh
 ./setup_scripts/macos/neovim.sh
+./setup_scripts/macos/dysk.sh
 
 git config --global rerere.enabled true
 git config --global pull.rebase true

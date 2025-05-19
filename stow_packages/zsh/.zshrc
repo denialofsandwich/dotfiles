@@ -144,7 +144,10 @@ alias ls='ls --color'
 alias ll='lsd -l'
 alias la='lsd -la'
 alias lt='lsd --tree -la'
-alias ccat='/bin/cat'
+alias ocat='/bin/cat'
+
+alias odf='/bin/df'
+command -v dysk >/dev/null && alias df='dysk'
 
 if command -v bat &> /dev/null; then
   alias cat='bat -pp'

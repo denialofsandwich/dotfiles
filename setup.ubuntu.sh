@@ -18,6 +18,7 @@ sudo snap install telegram-desktop
 ./setup_scripts/ubuntu/vim.sh
 # ./setup_scripts/ubuntu/vscode.sh
 ./setup_scripts/ubuntu/neovim.sh
+./setup_scripts/ubuntu/dysk.sh
 
 git config --global rerere.enabled true
 git config --global pull.rebase true
