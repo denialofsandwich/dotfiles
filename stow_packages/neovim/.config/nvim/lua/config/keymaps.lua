@@ -39,7 +39,7 @@ vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboa
 vim.keymap.set({ "n", "v" }, "<leader>p", '"0p', { desc = "Paste last yanked line" })
 
 vim.keymap.set({ "n" }, "<leader>r", "", { desc = "macro replay" })
-vim.keymap.set({ "n" }, "<leader>rq", "@qq", { desc = "Replay q-macro" })
-vim.keymap.set({ "n" }, "<leader>rw", "@qw", { desc = "Replay w-macro" })
-vim.keymap.set({ "n" }, "<leader>re", "@qe", { desc = "Replay e-macro" })
-vim.keymap.set({ "n" }, "<leader>rr", "@qr", { desc = "Replay r-macro" })
+vim.keymap.set({ "n" }, "<leader>rq", "@q", { desc = "Replay q-macro" })
+vim.keymap.set({ "n" }, "<leader>rw", "@w", { desc = "Replay w-macro" })
+vim.keymap.set({ "n" }, "<leader>re", "@e", { desc = "Replay e-macro" })
+vim.keymap.set({ "n" }, "<leader>rr", "@r", { desc = "Replay r-macro" })
