@@ -140,7 +140,7 @@ test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/ope
 # Pulumi
 test -d $HOME/.pulumi/bin && export PATH=$PATH:$HOME/.pulumi/bin
 
-alias ls='ls --color'
+alias ls='ls --color=auto'
 alias ll='lsd -l'
 alias la='lsd -la'
 alias lt='lsd --tree -la'
