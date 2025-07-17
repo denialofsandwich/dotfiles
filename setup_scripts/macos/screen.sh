@@ -9,4 +9,4 @@ brew install screen
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ screen
+stow -d stow_packages -t ~ $name

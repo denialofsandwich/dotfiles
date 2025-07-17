@@ -5,7 +5,7 @@ pushd $(dirname $0)
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install stow luarocks fd ripgrep nodejs tree-sitter neovim lazygit python@3.12
+brew install luarocks fd ripgrep nodejs tree-sitter neovim python@3.12
 
 if test -f ~/.local/nvim/venv/bin/python; then
   echo "pynvim already installed"
@@ -22,4 +22,4 @@ pushd stow_packages/neovim/.config/nvim/lua/config
 test -f custom.lua || echo "return {}" >custom.lua
 popd
 
-stow -d stow_packages -t ~ neovim
+stow -d stow_packages -t ~ $name

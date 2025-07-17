@@ -17,4 +17,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ tmux
+stow -d stow_packages -t ~ $name
