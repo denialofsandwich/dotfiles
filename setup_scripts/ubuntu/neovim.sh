@@ -8,6 +8,8 @@ echo -e "\033[33m### SETUP $name\033[0m"
 sudo apt-get install -y \
   flatpak luarocks fd-find ripgrep nodejs npm tree-sitter-cli xclip wl-clipboard
 
+sudo npm install -g tree-sitter-cli
+
 echo INSTALL neovim
 pushd $HOME/.local/bin
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
