@@ -20,6 +20,7 @@ sudo snap install telegram-desktop
 ./setup_scripts/ubuntu/lazygit.sh
 ./setup_scripts/ubuntu/neovim.sh
 ./setup_scripts/ubuntu/dysk.sh
+./setup_scripts/ubuntu/gemini-cli.sh
 
 git config --global rerere.enabled true
 git config --global pull.rebase true
