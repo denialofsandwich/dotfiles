@@ -30,7 +30,6 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.terraform" },
     { import = "lazyvim.plugins.extras.formatting.prettier" },
     custom_opts.load_copilot and { import = "lazyvim.plugins.extras.ai.copilot" } or {},
-    custom_opts.load_copilot and { import = "lazyvim.plugins.extras.ai.copilot-chat" } or {},
     -- import/override with your plugins
     { import = "plugins" },
   },
