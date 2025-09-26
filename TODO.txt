@@ -1,5 +1,6 @@
-- nvim: Show docs only on keymap
-  - OR: Keymap to close all popups
 - nvim: Improve readability of unused variables
 - nvim: Add https://github.com/linux-cultist/venv-selector.nvim/tree/regexp
   again
+- nvim: Fix checkhealth warnings
+  - Make copilot less annoying
+    Ctrl up down to navigate
