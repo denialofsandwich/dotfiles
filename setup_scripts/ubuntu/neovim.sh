@@ -6,7 +6,7 @@ pushd $(dirname $0)
 echo -e "\033[33m### SETUP $name\033[0m"
 
 sudo apt-get install -y \
-  flatpak luarocks fd-find ripgrep nodejs npm tree-sitter-cli xclip wl-clipboard
+  flatpak luarocks fd-find ripgrep nodejs npm xclip wl-clipboard
 
 sudo npm install -g tree-sitter-cli
 
