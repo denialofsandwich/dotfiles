@@ -5,9 +5,7 @@ pushd $(dirname $0)
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install luarocks fd ripgrep nodejs npm tree-sitter neovim python@3.12
-
-# sudo npm install -g tree-sitter-cli
+brew install luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim python@3.12
 
 if test -f ~/.local/nvim/venv/bin/python; then
   echo "pynvim already installed"
