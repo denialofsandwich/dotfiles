@@ -75,3 +75,16 @@ vim.keymap.set("v", "<leader>vy", function()
   vim.fn.setreg("+", relative_path .. ":" .. start_line .. "-" .. end_line)
   vim.api.nvim_input("<Esc>")
 end, { desc = "Copy filename and line range" })
+
+-- In visual mode, select something, then enter "<leader>vf".
+-- This enters command mode with ":'<,'>Gfill ".
+-- You can then type a prompt and press enter to have Gemini fill the selection.
+vim.api.nvim_create_user_command("Gfill", function(opts)
+  vim.cmd(
+    "'<,'>!gemini -m gemini-2.5-flash '"
+      .. opts.args
+      .. "; Print full updated code' 2>/dev/null | sed '1{/^```/d;};${/^```/d;}'"
+  )
+end, { nargs = "*", range = true, desc = "Fill with Gemini" })
+
+vim.keymap.set("v", "<leader>vf", ":Gfill ", { desc = "Gemini Fill" })
