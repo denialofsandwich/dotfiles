@@ -81,9 +81,9 @@ end, { desc = "Copy filename and line range" })
 -- You can then type a prompt and press enter to have Gemini fill the selection.
 vim.api.nvim_create_user_command("Gfill", function(opts)
   vim.cmd(
-    "'<,'>!gemini -m gemini-2.5-flash '"
+    "'<,'>!gemini -m gemini-2.5-flash-lite '"
       .. opts.args
-      .. "; Print full updated code' 2>/dev/null | sed '1{/^```/d;};${/^```/d;}'"
+      .. "; If i provided code: Print the full updated code. Write response without any explanation and follow up questions' 2>/dev/null | sed '1{/^```/d;};${/^```/d;}'"
   )
 end, { nargs = "*", range = true, desc = "Fill with Gemini" })
 
