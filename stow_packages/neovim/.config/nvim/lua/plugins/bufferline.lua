@@ -1,3 +1,4 @@
+-- Adds a tab bar at the top
 return {
   "akinsho/bufferline.nvim",
   keys = {

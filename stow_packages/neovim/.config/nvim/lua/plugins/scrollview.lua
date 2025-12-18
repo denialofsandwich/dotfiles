@@ -1,3 +1,4 @@
+-- Shows indicators at the scrollbar like warnings, markers, etc
 return {
   "dstein64/nvim-scrollview",
   config = function(_, opts)
