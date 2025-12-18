@@ -2,3 +2,12 @@ keybinding:
   universal:
     nextTab: "ä"
     prevTab: "ö"
+customCommands:
+  - key: "D"
+    context: "localBranches"
+    command: 'nvim --server "$NVIM" --remote-send "<C-\><C-n>:close<CR>:DiffviewOpen {{.SelectedLocalBranch.Name}}..HEAD<CR>"'
+    description: "Diffview: Branch vs HEAD"
+  - key: "D"
+    context: "commits"
+    command: 'nvim --server "$NVIM" --remote-send "<C-\><C-n>:close<CR>:DiffviewOpen {{.SelectedCommit.Hash}}..HEAD<CR>"'
+    description: "Diffview: Commit vs HEAD"
