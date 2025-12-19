@@ -1,10 +1,3 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # Initialize homebrew if it's installed
 if [[ -f "/opt/homebrew/bin/brew" ]] then
   eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -137,9 +130,6 @@ command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
 # java openjdk
 test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 
-# Pulumi
-test -d $HOME/.pulumi/bin && export PATH=$PATH:$HOME/.pulumi/bin
-
 alias ls='ls --color=auto'
 alias ll='lsd -l'
 alias la='lsd -la'
@@ -160,12 +150,6 @@ alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 
-command -v fd &> /dev/null && fd_cmd=fd || fd_cmd=fdfind
-quick_find(){
-  export F=$($fd_cmd -LH ".*" $@ | fzf)
-  echo $F
-}
-
 fzf-tab-toggle() {
   if test "$(zstyle | grep fzf-tab | grep any)"; then
     echo "Enabling fzf-tab"
@@ -176,7 +160,6 @@ fzf-tab-toggle() {
   fi
 }
 
-alias f='quick_find'
 alias tt='fzf-tab-toggle'
 
 # Host specific scripts that should not be versioned
