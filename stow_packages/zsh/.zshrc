@@ -47,12 +47,12 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 # setopt globdots
 
-fzf-tab-disable() {
+function fzf-tab-disable() {
   zstyle ':completion:*:descriptions' format "$fg[yellow]%B--- %d%b"
   zstyle ':fzf-tab:*' disabled-on any
 }
 
-fzf-tab-enable() {
+function fzf-tab-enable() {
   zstyle ':completion:*:descriptions' format ""
   zstyle ':fzf-tab:*' disabled-on none
 }
@@ -150,7 +150,7 @@ alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 
-fzf-tab-toggle() {
+function fzf-tab-toggle() {
   if test "$(zstyle | grep fzf-tab | grep any)"; then
     echo "Enabling fzf-tab"
     fzf-tab-enable
@@ -161,6 +161,11 @@ fzf-tab-toggle() {
 }
 
 alias tt='fzf-tab-toggle'
+
+# SSH Agent, so identities and passwords to unlock them are saved
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    eval "$(ssh-agent -s)"
+fi
 
 # Host specific scripts that should not be versioned
 if [[ -d ~/.env_scripts ]]; then

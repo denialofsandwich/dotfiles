@@ -123,6 +123,11 @@ if test -d $HOME/.bash_completions; then
   done
 fi
 
+# SSH Agent, so identities and passwords to unlock them are saved
+if ! pgrep -u "$USER" ssh-agent >/dev/null; then
+  eval "$(ssh-agent -s)"
+fi
+
 # Host specific scripts that should not be versioned
 if [[ -d ~/.env_scripts ]]; then
   for script in ~/.env_scripts/*.sh; do
