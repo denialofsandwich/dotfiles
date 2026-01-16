@@ -3,8 +3,7 @@
 pushd $(dirname $0)
 
 sudo apt update
-sudo apt-get install -y htop lsof curl entr jq stow
-sudo snap install telegram-desktop
+sudo apt-get install -y htop lsof curl entr jq stow zip
 
 ./setup_scripts/ubuntu/bash.sh
 ./setup_scripts/ubuntu/fzf.sh
@@ -24,5 +23,3 @@ sudo snap install telegram-desktop
 
 git config --global rerere.enabled true
 git config --global pull.rebase true
-
-flatpak permission-set webextensions org.kde.plasma.browser_integration snap.firefox yes

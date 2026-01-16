@@ -99,6 +99,11 @@ command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
 # java openjdk
 test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 
+# nvm (node version manager)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
 # some more ls aliases
 alias ls='ls --color=auto'
 alias ll='ls -lh'

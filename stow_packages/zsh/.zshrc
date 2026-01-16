@@ -130,6 +130,11 @@ command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
 # java openjdk
 test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 
+# nvm (node version manager)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 alias ls='ls --color=auto'
 alias ll='lsd -l'
 alias la='lsd -la'
