@@ -15,7 +15,6 @@ sudo apt-get install -y htop lsof curl entr jq stow zip
 ./setup_scripts/ubuntu/screen.sh
 ./setup_scripts/ubuntu/tmux.sh
 ./setup_scripts/ubuntu/vim.sh
-# ./setup_scripts/ubuntu/vscode.sh
 ./setup_scripts/ubuntu/lazygit.sh
 ./setup_scripts/ubuntu/neovim.sh
 ./setup_scripts/ubuntu/dysk.sh

@@ -14,7 +14,6 @@ brew install htop lsof telnet jq stow
 ./setup_scripts/macos/screen.sh
 ./setup_scripts/macos/tmux.sh
 ./setup_scripts/macos/vim.sh
-#./setup_scripts/macos/vscode.sh
 ./setup_scripts/macos/lazygit.sh
 ./setup_scripts/macos/neovim.sh
 
