@@ -5,6 +5,8 @@ pushd $(dirname $0)
 sudo apt update
 sudo apt-get install -y htop lsof curl entr jq stow zip
 
+source ./setup.shared.sh
+
 ./setup_scripts/ubuntu/bash.sh
 ./setup_scripts/ubuntu/fzf.sh
 ./setup_scripts/ubuntu/nerd-font.sh
@@ -20,5 +22,4 @@ sudo apt-get install -y htop lsof curl entr jq stow zip
 ./setup_scripts/ubuntu/dysk.sh
 ./setup_scripts/ubuntu/gemini-cli.sh
 
-git config --global rerere.enabled true
-git config --global pull.rebase true
+popd

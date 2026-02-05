@@ -22,4 +22,4 @@ pushd stow_packages/neovim/nvim/lua/config
 test -f custom.lua || echo "return {}" >custom.lua
 popd
 
-stow -d stow_packages -t ~/.config $name
+stow -d stow_packages -t ~/.config --$MODE $name

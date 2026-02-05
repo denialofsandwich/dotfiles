@@ -4,6 +4,8 @@ pushd $(dirname $0)
 
 brew install htop lsof telnet jq stow
 
+source ./setup.shared.sh
+
 ./setup_scripts/macos/bash.sh
 ./setup_scripts/macos/fzf.sh
 ./setup_scripts/macos/nerd-font.sh
@@ -16,9 +18,6 @@ brew install htop lsof telnet jq stow
 ./setup_scripts/macos/vim.sh
 ./setup_scripts/macos/lazygit.sh
 ./setup_scripts/macos/neovim.sh
-
-git config --global rerere.enabled true
-git config --global pull.rebase true
 
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
@@ -42,3 +41,5 @@ git config --global pull.rebase true
 #  system > keyboard > shortcuts > modifier (Internal Keyboard):
 #    - ctrl: cmd
 #    - cmd: ctrl
+
+popd

@@ -6,3 +6,5 @@ pushd $(dirname $0)
 
 sudo snap install telegram-desktop
 flatpak permission-set webextensions org.kde.plasma.browser_integration snap.firefox yes
+
+popd

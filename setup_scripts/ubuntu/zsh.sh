@@ -10,4 +10,4 @@ sudo apt-get install -y \
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ $name
+stow -d stow_packages -t ~ --$MODE $name

@@ -9,4 +9,4 @@ brew install bash
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ $name
+stow -d stow_packages -t ~ --$MODE $name

@@ -23,4 +23,4 @@ type pre-commit || pipx install pre-commit
 echo "Update stow"
 popd
 mkdir -p ~/.config/pypoetry
-stow -d stow_packages -t ~/.config/pypoetry poetry
+stow -d stow_packages -t ~/.config/pypoetry --$MODE poetry

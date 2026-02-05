@@ -35,4 +35,4 @@ test -f custom.lua || echo "return {}" >custom.lua
 popd
 
 mkdir -p ~/.config
-stow -d stow_packages -t ~/.config $name
+stow -d stow_packages -t ~/.config --$MODE $name

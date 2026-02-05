@@ -13,4 +13,4 @@ pipx inject xonsh xontrib-fzf-completions xontrib-vox prompt_toolkit
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ $name
+stow -d stow_packages -t ~ --$MODE $name

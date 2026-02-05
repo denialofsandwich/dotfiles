@@ -11,4 +11,4 @@ echo "Update stow"
 popd
 
 mkdir -p ~/Library/Application\ Support/lazygit
-stow -d stow_packages -t ~/Library/Application\ Support/lazygit $name
+stow -d stow_packages -t ~/Library/Application\ Support/lazygit --$MODE $name
