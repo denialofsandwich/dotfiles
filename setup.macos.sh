@@ -1,23 +1,25 @@
 #!/bin/bash
 
+# possible modes are: stow, delete, restow
+export MODE="${MODE:-stow}"
+export OS=macos
 pushd $(dirname $0)
 
 brew install htop lsof telnet jq stow
 
-source ./setup.shared.sh
-
-./setup_scripts/macos/bash.sh
-./setup_scripts/macos/fzf.sh
-./setup_scripts/macos/nerd-font.sh
-./setup_scripts/macos/oh-my-posh.sh
-./setup_scripts/macos/zsh.sh
-./setup_scripts/macos/xonsh.sh
-./setup_scripts/macos/python.sh
-./setup_scripts/macos/screen.sh
-./setup_scripts/macos/tmux.sh
-./setup_scripts/macos/vim.sh
-./setup_scripts/macos/lazygit.sh
-./setup_scripts/macos/neovim.sh
+./setup.shared.sh
+./setup_scripts/bash.sh
+./setup_scripts/fzf.sh
+./setup_scripts/nerd-font.sh
+./setup_scripts/oh-my-posh.sh
+./setup_scripts/zsh.sh
+./setup_scripts/xonsh.sh
+./setup_scripts/python.sh
+./setup_scripts/screen.sh
+./setup_scripts/tmux.sh
+./setup_scripts/vim.sh
+./setup_scripts/lazygit.sh
+./setup_scripts/neovim.sh
 
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
