@@ -1,30 +1,37 @@
-from xonsh.built_ins import XSH
+# --- XONSH CONFIGURATION ---
 
-xontrib load fzf-completions
-xontrib load vox
+$SHELL_TYPE = 'prompt_toolkit'
+$COLOR_INPUT = True
+$XONSH_COLOR_STYLE = 'monokai'
+$XONSH_HISTORY_BACKEND = 'sqlite'  # Faster and better for multiple sessions
+$CASE_SENSITIVE_COMPLETIONS = False
+$COMPLETIONS_CONFIRM = True        # Press Enter once to select, twice to run
+$UPDATE_OS_ENVIRON = True          # Keep OS environment variables in sync
 
-XSH.env['fzf_history_binding'] = "c-r"  # Ctrl+R
-XSH.env['fzf_ssh_binding'] = "c-s"  # Ctrl+S
-XSH.env['fzf_file_binding'] = "c-t"  # Ctrl+T
-XSH.env['fzf_dir_binding'] = "c-g"  # Ctrl+G
+xontrib load fzf-completions vox
 
-if "oh-my-posh" in XSH.commands_cache:
-  execx($(oh-my-posh init xonsh --config ~/.omp-main.yml))
+$fzf_history_binding = "c-r"
+$fzf_ssh_binding = "c-s"
+$fzf_file_binding = "c-t"
+$fzf_dir_binding = "c-g"
 
-if "zoxide" in XSH.commands_cache:
-  execx($(zoxide init --cmd cd xonsh), 'exec', XSH.ctx, filename='zoxide')
+if 'oh-my-posh' in __xonsh__.commands_cache:
+    execx($(oh-my-posh init xonsh --config ~/.omp-main.yml))
 
-XSH.aliases["ls"] = ["ls", "--color"]
-XSH.aliases["ll"] = ["lsd", "-l"]
-XSH.aliases["la"] = ["lsd", "-la"]
-XSH.aliases["lt"] = ["lsd", "-la", "--tree"]
-XSH.aliases["ccat"] = ["/bin/cat"]
+if 'zoxide' in __xonsh__.commands_cache:
+    execx($(zoxide init --cmd cd xonsh))
 
-if "bat" in XSH.commands_cache:
-  XSH.aliases["cat"] = ["bat", "-pp"]
-elif "batcat" in XSH.commands_cache:
-  XSH.aliases["cat"] = ["batcat", "-pp"]
-  XSH.aliases["bat"] = ["batcat"]
-  
-XSH.aliases["ipy"] = ["ipython"]
-XSH.aliases["nv"] = ["nvim"]
+aliases['ls'] = ['ls', '--color']
+aliases['ll'] = ['lsd', '-l']
+aliases['la'] = ['lsd', '-la']
+aliases['lt'] = ['lsd', '-la', '--tree']
+aliases['ccat'] = ['/bin/cat']
+
+if 'bat' in __xonsh__.commands_cache:
+    aliases['cat'] = ['bat', '-pp']
+elif 'batcat' in __xonsh__.commands_cache:
+    aliases['cat'] = ['batcat', '-pp']
+    aliases['bat'] = ['batcat']
+
+aliases['ipy'] = 'ipython'
+aliases['nv'] = 'nvim'

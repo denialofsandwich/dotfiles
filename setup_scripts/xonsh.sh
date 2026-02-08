@@ -10,11 +10,11 @@ if [[ $OS == "ubuntu" ]]; then
   sudo apt-get install -y \
     pipx lsd ripgrep bat curl zoxide
 else
-  brew install lsd bat ripgrep zoxide
+  brew install pipx lsd bat ripgrep zoxide
 fi
 
 pipx install xonsh
-pipx inject xonsh xontrib-fzf-completions xontrib-vox prompt_toolkit gnureadline
+pipx inject xonsh xontrib-fzf-completions xontrib-vox prompt_toolkit gnureadline pygments
 
 echo "Update stow"
 popd
