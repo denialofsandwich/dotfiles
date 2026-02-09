@@ -16,22 +16,108 @@ fi
 source "${ZINIT_HOME}/zinit.zsh"
 
 # Add in zsh plugins
-source ~/.zsh_syntax_highlighting.zsh
-zinit light zsh-users/zsh-syntax-highlighting
+zinit ice wait lucid
 zinit light zsh-users/zsh-completions
+
+zinit ice wait lucid
 zinit light zsh-users/zsh-autosuggestions
+
+zinit ice wait lucid
 zinit light Aloxaf/fzf-tab
 
-# Add in snippets
+zinit ice wait lucid
 zinit snippet OMZP::sudo
+
+zinit ice wait lucid
 zinit snippet OMZP::command-not-found
-command -v gcloud &> /dev/null && zinit snippet OMZP::gcloud
+
+source ~/.zsh_syntax_highlighting.zsh
+zinit ice wait'0b' lucid atinit'zpcompinit'
+zinit light zsh-users/zsh-syntax-highlighting
+
+if command -v gcloud &> /dev/null; then
+    zinit ice wait lucid
+    zinit snippet OMZP::gcloud
+fi
+
+export NVM_LAZY_LOAD=true
+export NVM_COMPLETION=true
+zinit ice wait lucid
+zinit light lukechilds/zsh-nvm
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+if command -v pyenv &> /dev/null; then
+    zinit ice wait lucid eval"$(pyenv init -); $(pyenv virtualenv-init -)"
+    zinit snippet OMZP::python
+fi
 
 # Load completions
-fpath+=~/.zfunc
-autoload -Uz compinit && compinit
+autoload -Uz compinit
+# Compinit caching
+if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+  compinit;
+else
+  compinit -C;
+fi
 
 zinit cdreplay -q
+
+[[ -d $HOME/.local/bin ]] && export PATH="$PATH:$HOME/.local/bin"
+
+# FZF
+[[ -d ~/.local/fzf/bin ]] && PATH="$PATH:$HOME/.local/fzf/bin"
+export FZF_DEFAULT_OPTS='--height 40% --layout reverse --border top'
+command -v fzf &> /dev/null && eval "$(fzf --zsh)"
+
+# zoxide
+# NOTICE: The sed part is a hack to make zoxide work with zsh group-names.
+command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd zsh | sed 's/_files/_cd/g')"
+
+# java openjdk
+[[ -d "/opt/homebrew/opt/openjdk@11/bin" ]] && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+
+# pnpm
+command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
+
+# Aliases
+alias ls='ls --color=auto'
+alias ll='lsd -l'
+alias la='lsd -la'
+alias lt='lsd --tree -la'
+alias ocat='/bin/cat'
+
+alias odf='/bin/df'
+command -v dysk >/dev/null && alias df='dysk'
+
+if command -v bat &> /dev/null; then
+  alias cat='bat -pp'
+elif command -v batcat &> /dev/null; then
+  alias cat='batcat -pp'
+  alias bat='batcat'
+fi
+
+alias cl="cd $@ ; ls -lh"
+alias ipy='ipython'
+alias nv='nvim'
+alias x='xonsh'
+alias vx='eval $VIRTUAL_ENV/bin/xonsh'
+
+# SSH Agent, so identities and passwords to unlock them are saved
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    eval "$(ssh-agent -s)"
+fi
+
+# Host specific scripts that should not be versioned
+if [[ -d ~/.env_scripts ]]; then
+  for script in ~/.env_scripts/*.sh; do
+    source $script
+  done
+fi
+
+export VISUAL=nvim
+export EDITOR="$VISUAL"
+CASE_SENSITIVE="true"
 
 # History
 HISTSIZE=5000
@@ -45,7 +131,6 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
-# setopt globdots
 
 function fzf-tab-disable() {
   zstyle ':completion:*:descriptions' format "$fg[yellow]%B--- %d%b"
@@ -56,6 +141,18 @@ function fzf-tab-enable() {
   zstyle ':completion:*:descriptions' format ""
   zstyle ':fzf-tab:*' disabled-on none
 }
+
+function fzf-tab-toggle() {
+  if test "$(zstyle | grep fzf-tab | grep any)"; then
+    echo "Enabling fzf-tab"
+    fzf-tab-enable
+  else
+    echo "Disabling fzf-tab"
+    fzf-tab-disable
+  fi
+}
+
+alias tt='fzf-tab-toggle'
 
 zstyle ':completion:*' menu select
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
@@ -99,87 +196,6 @@ bindkey '^i' expand-or-complete-prefix
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
-
-export VISUAL=nvim
-export EDITOR="$VISUAL"
-CASE_SENSITIVE="true"
-
-test -d $HOME/.local/bin && export PATH="$PATH:$HOME/.local/bin"
-
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
-
-if command -v pyenv &> /dev/null && [ "$PYENV_VIRTUALENV_INIT" != "1" ]; then
-  eval "$(pyenv init -)"
-  eval "$(pyenv virtualenv-init -)"
-fi
-
-# FZF
-test -d ~/.local/fzf/bin && PATH="$PATH:$HOME/.local/fzf/bin"
-export FZF_DEFAULT_OPTS='--height 40% --layout reverse --border top'
-command -v fzf &> /dev/null && eval "$(fzf --zsh)"
-
-# zoxide
-# NOTICE: The sed part is a hack to make zoxide work with zsh group-names.
-command -v zoxide &> /dev/null && eval "$(zoxide init --cmd cd zsh | sed 's/_files/_cd/g')"
-
-# pnpm
-command -v pnpm >/dev/null || export PATH="$PATH:$HOME/.local/share/pnpm"
-
-# java openjdk
-test -d "/opt/homebrew/opt/openjdk@11/bin" && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
-
-# nvm (node version manager)
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-alias ls='ls --color=auto'
-alias ll='lsd -l'
-alias la='lsd -la'
-alias lt='lsd --tree -la'
-alias ocat='/bin/cat'
-
-alias odf='/bin/df'
-command -v dysk >/dev/null && alias df='dysk'
-
-if command -v bat &> /dev/null; then
-  alias cat='bat -pp'
-elif command -v batcat &> /dev/null; then
-  alias cat='batcat -pp'
-  alias bat='batcat'
-fi
-
-alias cl="cd $@ ; ls -lh"
-alias ipy='ipython'
-alias nv='nvim'
-alias x='xonsh'
-alias vx='eval $VIRTUAL_ENV/bin/xonsh'
-
-function fzf-tab-toggle() {
-  if test "$(zstyle | grep fzf-tab | grep any)"; then
-    echo "Enabling fzf-tab"
-    fzf-tab-enable
-  else
-    echo "Disabling fzf-tab"
-    fzf-tab-disable
-  fi
-}
-
-alias tt='fzf-tab-toggle'
-
-# SSH Agent, so identities and passwords to unlock them are saved
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    eval "$(ssh-agent -s)"
-fi
-
-# Host specific scripts that should not be versioned
-if [[ -d ~/.env_scripts ]]; then
-  for script in ~/.env_scripts/*.sh; do
-    source $script
-  done
-fi
 
 # Fancy prompt
 export USER_NERD=1
