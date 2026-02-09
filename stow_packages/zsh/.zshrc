@@ -101,7 +101,6 @@ alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 alias x='xonsh'
-alias vx='eval $VIRTUAL_ENV/bin/xonsh'
 
 # SSH Agent, so identities and passwords to unlock them are saved
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
