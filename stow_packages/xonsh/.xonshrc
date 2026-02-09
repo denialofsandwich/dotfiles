@@ -35,3 +35,13 @@ aliases['ipy'] = 'ipython'
 aliases['nv'] = 'nvim'
 aliases['x'] = 'xonsh'
 aliases['vx'] = 'eval $VIRTUAL_ENV/bin/xonsh'
+
+from pathlib import Path
+
+_env_dir = Path.home() / ".env_scripts"
+if _env_dir.is_dir():
+    for _f in _env_dir.glob("*.sh"):
+        source-bash @(str(_f))
+
+    for _f in _env_dir.glob("*.xsh"):
+        source @(str(_f))
