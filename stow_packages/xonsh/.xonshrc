@@ -1,14 +1,12 @@
-# --- XONSH CONFIGURATION ---
-
 $SHELL_TYPE = 'prompt_toolkit'
 $COLOR_INPUT = True
-$XONSH_COLOR_STYLE = 'monokai'
+$XONSH_COLOR_STYLE = 'default'
 $XONSH_HISTORY_BACKEND = 'sqlite'  # Faster and better for multiple sessions
 $CASE_SENSITIVE_COMPLETIONS = False
 $COMPLETIONS_CONFIRM = True        # Press Enter once to select, twice to run
 $UPDATE_OS_ENVIRON = True          # Keep OS environment variables in sync
 
-xontrib load fzf-completions vox
+xontrib load fzf-completions
 
 $fzf_history_binding = "c-r"
 $fzf_ssh_binding = "c-s"
@@ -35,3 +33,5 @@ elif 'batcat' in __xonsh__.commands_cache:
 
 aliases['ipy'] = 'ipython'
 aliases['nv'] = 'nvim'
+aliases['x'] = 'xonsh'
+aliases['vx'] = 'eval $VIRTUAL_ENV/bin/xonsh'

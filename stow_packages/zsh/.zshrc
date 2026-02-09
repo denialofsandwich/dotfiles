@@ -154,6 +154,8 @@ fi
 alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
+alias x='xonsh'
+alias vx='eval $VIRTUAL_ENV/bin/xonsh'
 
 function fzf-tab-toggle() {
   if test "$(zstyle | grep fzf-tab | grep any)"; then

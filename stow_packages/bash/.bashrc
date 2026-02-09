@@ -112,6 +112,8 @@ alias la='ls -lah'
 alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
+alias x='xonsh'
+alias vx='eval $VIRTUAL_ENV/bin/xonsh'
 
 if command -v fd &>/dev/null; then
   alias f='f(){ export F=$(fd -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
