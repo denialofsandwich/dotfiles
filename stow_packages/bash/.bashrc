@@ -1,6 +1,7 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
+export PROMPT_COMMAND=${PROMPT_COMMAND:-:}
 
 test -f /etc/bashrc && source /etc/bashrc
 test -f /etc/bash.bashrc && source /etc/bash.bashrc
