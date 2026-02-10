@@ -45,13 +45,6 @@ export NVM_COMPLETION=true
 zinit ice wait lucid
 zinit light lukechilds/zsh-nvm
 
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-if command -v pyenv &> /dev/null; then
-    zinit ice wait lucid eval"$(pyenv init -); $(pyenv virtualenv-init -)"
-    zinit snippet OMZP::python
-fi
-
 # Load completions
 autoload -Uz compinit
 # Compinit caching

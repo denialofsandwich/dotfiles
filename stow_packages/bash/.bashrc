@@ -9,16 +9,6 @@ test -f /etc/bash.bashrc && source /etc/bash.bashrc
 [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
 [ -z "${XDG_CONFIG_HOME}" ] && export XDG_CONFIG_HOME=$HOME/.config
 
-export PYENV_ROOT="$HOME/.pyenv"
-test -d $HOME/.local/bin && export PATH="$PATH:$HOME/.local/bin"
-test -d $PYENV_ROOT/bin && export PATH="$PYENV_ROOT/bin:$PATH"
-
-# Pyenv
-if command -v pyenv &>/dev/null && [ "$PYENV_VIRTUALENV_INIT" != "1" ]; then
-  eval "$(pyenv init -)"
-  eval "$(pyenv virtualenv-init -)"
-fi
-
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;

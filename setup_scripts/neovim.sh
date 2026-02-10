@@ -24,27 +24,12 @@ if [[ $OS == "ubuntu" ]]; then
   chmod u+x nvim-linux-x86_64.appimage
   mv nvim-linux-x86_64.appimage nvim
   popd
-
-  if test -f ~/.local/nvim/venv/bin/python; then
-    echo "pynvim already installed"
-  else
-    eval "$(pyenv init -)"
-    pyenv install -s 3.12
-    mkdir -p ~/.local/nvim
-    python3.12 -m venv ~/.local/nvim/venv
-    ~/.local/nvim/venv/bin/pip install pynvim
-  fi
 else
   brew install luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim python@3.12
-
-  if test -f ~/.local/nvim/venv/bin/python; then
-    echo "pynvim already installed"
-  else
-    mkdir -p ~/.local/nvim
-    python3.12 -m venv ~/.local/nvim/venv
-    ~/.local/nvim/venv/bin/pip install pynvim
-  fi
 fi
+
+[[ -d ~/.local/nvim/venv ]] || uv venv ~/.local/nvim/venv
+uv pip install --python ~/.local/nvim/venv/bin/python pynvim
 
 echo "Update stow"
 popd
