@@ -2,7 +2,13 @@
 # Setup Neovim, a Vim-based text editor engineered for extensibility and usability. It aims to improve the editing experience while maintaining compatibility with Vim.
 #
 # Dependencies:
-# - nvm.sh
+# - fzf.sh - Used by fzf-find plugin for anything search related
+# - lazygit.sh - Configured as the default git manager
+# - nerd-font.sh - Complex icon support
+# - nvm.sh (ubuntu) - For the ast parser tree-sitter-cli
+# - python.sh - For python based plugins. But currently unused
+# - tmux.sh - Used to preserve terminal sessions between neovim sessions
+# - zsh.sh - Configured as the default shell
 
 name=$(basename -s .sh $0)
 pushd $(dirname $0)
