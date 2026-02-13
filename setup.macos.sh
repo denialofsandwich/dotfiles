@@ -20,6 +20,7 @@ brew install htop lsof telnet jq stow
 ./setup_scripts/vim.sh
 ./setup_scripts/lazygit.sh
 ./setup_scripts/neovim.sh
+./setup_scripts/gemini-cli.sh
 
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
