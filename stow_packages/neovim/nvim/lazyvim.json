@@ -1,6 +1,13 @@
 {
   "extras": [
-
+    "lazyvim.plugins.extras.editor.illuminate",
+    "lazyvim.plugins.extras.formatting.prettier",
+    "lazyvim.plugins.extras.lang.markdown",
+    "lazyvim.plugins.extras.lang.python",
+    "lazyvim.plugins.extras.lang.terraform",
+    "lazyvim.plugins.extras.test.core",
+    "lazyvim.plugins.extras.ui.mini-indentscope",
+    "lazyvim.plugins.extras.util.dot"
   ],
   "install_version": 7,
   "news": {

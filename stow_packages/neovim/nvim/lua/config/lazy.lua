@@ -14,22 +14,10 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-local custom_opts = vim.tbl_deep_extend("force", {
-  load_copilot = false,
-}, require("config.custom"))
-
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    { import = "lazyvim.plugins.extras.editor.illuminate" },
-    { import = "lazyvim.plugins.extras.ui.mini-indentscope" },
-    { import = "lazyvim.plugins.extras.util.project" },
-    { import = "lazyvim.plugins.extras.test.core" },
-    { import = "lazyvim.plugins.extras.lang.python" },
-    { import = "lazyvim.plugins.extras.lang.terraform" },
-    { import = "lazyvim.plugins.extras.formatting.prettier" },
-    custom_opts.load_copilot and { import = "lazyvim.plugins.extras.ai.copilot" } or {},
     -- import/override with your plugins
     { import = "plugins" },
   },

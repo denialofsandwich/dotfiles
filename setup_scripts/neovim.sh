@@ -40,9 +40,5 @@ uv pip install --python ~/.local/nvim/venv/bin/python pynvim
 echo "Update stow"
 popd
 
-pushd stow_packages/neovim/nvim/lua/config
-test -f custom.lua || echo "return {}" >custom.lua
-popd
-
 mkdir -p ~/.config
 stow -d stow_packages -t ~/.config --$MODE $name
