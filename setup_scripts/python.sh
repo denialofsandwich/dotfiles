@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup Python and its ecosystem, including pipx, ipython, and poetry. This script ensures you have a robust environment for Python development.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -20,4 +21,4 @@ type pre-commit || pipx install pre-commit
 echo "Update stow"
 popd
 mkdir -p ~/.config/pypoetry
-stow -d stow_packages -t ~/.config/pypoetry --$MODE poetry
+stow -d stow_packages -t ~/.config/pypoetry "--$MODE" poetry

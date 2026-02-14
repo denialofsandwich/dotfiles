@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup tmux, a terminal multiplexer that enables you to switch easily between several programs in one terminal. It also allows you to detach and reattach sessions.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -22,4 +23,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ --$MODE $name
+stow -d stow_packages -t ~ "--$MODE" "$name"

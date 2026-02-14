@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup Oh My Posh, a custom prompt engine for any shell. It provides a highly customizable and themed prompt for your terminal.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -15,4 +16,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ --$MODE $name
+stow -d stow_packages -t ~ "--$MODE" "$name"

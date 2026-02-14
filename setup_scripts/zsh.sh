@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup Zsh, a shell designed for interactive use with many features like advanced tab completion and globbing. It's a powerful alternative to Bash.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -15,4 +16,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ --$MODE $name
+stow -d stow_packages -t ~ "--$MODE" "$name"

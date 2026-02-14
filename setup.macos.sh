@@ -1,13 +1,15 @@
 #!/bin/bash
 
+set -euo pipefail
 # possible modes are: stow, delete, restow
 export MODE="${MODE:-stow}"
 export OS=macos
-pushd $(dirname $0)
+pushd "$(dirname "$0")"
 
 brew install htop lsof telnet jq stow
 
-./setup.shared.sh
+source ./setup.shared.sh
+
 ./setup_scripts/bash.sh
 ./setup_scripts/fzf.sh
 ./setup_scripts/nerd-font.sh

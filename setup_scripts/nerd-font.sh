@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup Nerd Fonts, which patches developer targeted fonts with a high number of glyphs (icons). It's essential for a visually rich terminal experience.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 

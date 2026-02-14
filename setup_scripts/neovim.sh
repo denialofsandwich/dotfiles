@@ -10,8 +10,9 @@
 # - tmux.sh - Used to preserve terminal sessions between neovim sessions
 # - zsh.sh - Configured as the default shell
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -25,7 +26,7 @@ if [[ $OS == "ubuntu" ]]; then
   npm install -g tree-sitter-cli
 
   echo INSTALL neovim
-  pushd $HOME/.local/bin
+  pushd "$HOME/.local/bin" || exit 1
   curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
   chmod u+x nvim-linux-x86_64.appimage
   mv nvim-linux-x86_64.appimage nvim
@@ -41,4 +42,4 @@ echo "Update stow"
 popd
 
 mkdir -p ~/.config
-stow -d stow_packages -t ~/.config --$MODE $name
+stow -d stow_packages -t ~/.config "--$MODE" "$name"

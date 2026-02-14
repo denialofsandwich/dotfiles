@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup GNU Screen, a terminal multiplexer that allows you to manage multiple terminal sessions within a single window. It's particularly useful for remote sessions.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -14,4 +15,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ --$MODE $name
+stow -d stow_packages -t ~ "--$MODE" "$name"

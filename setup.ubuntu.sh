@@ -1,9 +1,10 @@
 #!/bin/bash
 
+set -euo pipefail
 # possible modes are: stow, delete, restow
 export MODE="${MODE:-stow}"
 export OS=ubuntu
-pushd $(dirname $0)
+pushd "$(dirname "$0")"
 
 sudo apt update
 sudo apt-get install -y htop lsof curl entr jq stow zip

@@ -1,8 +1,9 @@
 #!/bin/bash
 # Setup Bash, the Bourne Again SHell. It's the default command language for most Linux distributions.
 
-name=$(basename -s .sh $0)
-pushd $(dirname $0)
+set -euo pipefail
+name=$(basename -s .sh "$0")
+pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -14,4 +15,4 @@ fi
 
 echo "Update stow"
 popd
-stow -d stow_packages -t ~ --$MODE $name
+stow -d stow_packages -t ~ "--$MODE" "$name"

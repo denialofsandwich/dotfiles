@@ -1,6 +1,7 @@
 #!/bin/bash
 
-pushd $(dirname $0)
+set -euo pipefail
+pushd "$(dirname "$0")"
 
 source ./setup.ubuntu.sh
 
