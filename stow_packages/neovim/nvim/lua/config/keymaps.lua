@@ -8,28 +8,36 @@
 local lazyterm = function(use_file_dir)
   local _lazyterm = function()
     local count = vim.v.count1
-    local cwd
-    if use_file_dir then
-      cwd = vim.fn.expand("%:p:h")
-    else
-      cwd = vim.fn.getcwd()
-    end
+    local cwd = vim.fn.getcwd()
+    local term_cwd = use_file_dir and vim.fn.expand("%:p:h") or cwd
     local dirname = cwd:match(".+/([^/]+)$")
+    local position = count >= 10 and "right" or "float"
+
+    local win_config = {
+      position = position,
+      width = position == "float" and 0.9 or 0.4,
+      height = position == "float" and 0.9 or 1.0,
+    }
 
     if vim.env.TMUX == nil then
+      local session_name = dirname
+        .. "-"
+        .. count
+        .. "-"
+        .. io.popen(
+          "echo " .. cwd .. " | openssl dgst -binary -sha1 | openssl base64 -A | tr -dc A-Za-z0-9 | head -c 8"
+        )
+          :read("*a")
+
       Snacks.terminal.toggle({
-        "bash",
-        "-c",
-        "tmux new-session -A -s "
-          .. dirname
-          .. "-"
-          .. count
-          .. "-$(echo "
-          .. cwd
-          .. " | openssl dgst -binary -sha1 | openssl base64 -A | tr -dc A-Za-z0-9 | head -c 8)",
-      }, { cwd = cwd, win = { position = "right", height = 0.5, width = 0.5 } })
+        "tmux",
+        "new-session",
+        "-A",
+        "-s",
+        session_name,
+      }, { cwd = term_cwd, win = win_config })
     else
-      Snacks.terminal.toggle("zsh", { cwd = cwd, win = { position = "right", height = 0.5, width = 0.5 } })
+      Snacks.terminal.toggle("zsh", { cwd = term_cwd, win = win_config })
     end
   end
 
@@ -40,8 +48,9 @@ end
 vim.api.nvim_set_keymap("i", "<C-c>", "<Esc>", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>ft", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
-vim.keymap.set("n", "<C-/>", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
+vim.keymap.set("n", "<leader>fT", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
 vim.keymap.set("n", "<C-_>", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
+vim.keymap.set("n", "<C-/>", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
 
 vim.keymap.set({ "n", "v" }, "<C-Y>", '"+y', { desc = "Copy to system clipboard" })
 vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboard" })
@@ -57,7 +66,6 @@ vim.keymap.set({ "n" }, "<leader>re", "@e", { desc = "Replay e-macro" })
 vim.keymap.set({ "n" }, "<leader>rr", "@r", { desc = "Replay r-macro" })
 
 vim.keymap.set({ "n" }, "<leader>v", "", { desc = "custom stuff" })
-vim.keymap.set("n", "<leader>vt", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
 
 vim.keymap.set("n", "<leader>vy", function()
   local file_path = vim.fn.expand("%:p")
