@@ -16,8 +16,8 @@ source ./setup.shared.sh
 ./setup_scripts/nerd-font.sh
 ./setup_scripts/oh-my-posh.sh
 ./setup_scripts/zsh.sh
-./setup_scripts/xonsh.sh
 ./setup_scripts/python.sh
+./setup_scripts/xonsh.sh
 ./setup_scripts/screen.sh
 ./setup_scripts/tmux.sh
 ./setup_scripts/vim.sh
