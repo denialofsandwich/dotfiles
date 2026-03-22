@@ -16,10 +16,8 @@ fi
 source "${ZINIT_HOME}/zinit.zsh"
 
 # Add in zsh plugins
-zinit ice wait lucid
 zinit light zsh-users/zsh-completions
 
-zinit ice wait lucid
 zinit light zsh-users/zsh-autosuggestions
 
 zinit ice wait lucid
