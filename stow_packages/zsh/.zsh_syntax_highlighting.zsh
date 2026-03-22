@@ -1,4 +1,4 @@
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main cursor)
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
 typeset -gA ZSH_HIGHLIGHT_STYLES
 ## General
 ### Diffs
@@ -65,4 +65,3 @@ ZSH_HIGHLIGHT_STYLES[back-quoted-argument-unclosed]='fg=#E61717'
 ZSH_HIGHLIGHT_STYLES[redirection]='fg=#FCFCFC'
 ZSH_HIGHLIGHT_STYLES[arg0]='fg=#FCFCFC'
 ZSH_HIGHLIGHT_STYLES[default]='fg=#FCFCFC'
-ZSH_HIGHLIGHT_STYLES[cursor]='standout'
