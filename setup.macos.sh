@@ -30,6 +30,9 @@ source ./setup.shared.sh
 # - nvim: Add iTerm2 > Profiles > Keys > Key Mappings:
 #     <C-_> and <C-/> to Send Hex Code: 0x1f
 # - disable bell in iterm2
+# brew install mac-mouse-fix
+#   To fix that strange scroll acceleration
+#   paid :/
 # https://github.com/dmarcotte/easy-move-resize
 #  brew install --cask easy-move-plus-resize
 #  xattr -dr com.apple.quarantine /Applications/Easy\ Move+Resize.app
