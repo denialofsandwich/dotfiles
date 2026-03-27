@@ -22,6 +22,7 @@ source ./setup.shared.sh
 ./setup_scripts/vim.sh
 ./setup_scripts/lazygit.sh
 ./setup_scripts/neovim.sh
+./setup_scripts/kitty.sh
 ./setup_scripts/gemini-cli.sh
 
 # Manual fixes:
