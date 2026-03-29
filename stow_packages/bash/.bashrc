@@ -40,7 +40,7 @@ fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-xterm-color | *-256color) color_prompt=yes ;;
+xterm-color | xterm-kitty | *-256color) color_prompt=yes ;;
 esac
 
 if [ "$color_prompt" = yes ]; then
@@ -52,7 +52,7 @@ if [ "$color_prompt" = yes ]; then
 else
   PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
-unset color_prompt force_color_prompt
+unset color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
@@ -102,19 +102,12 @@ alias ls='ls --color=auto'
 alias ll='ls -lh'
 alias la='ls -lah'
 
-alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 alias x='xonsh'
 
-if command -v fd &>/dev/null; then
-  alias f='f(){ export F=$(fd -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
-elif command -v fdfind &>/dev/null; then
-  alias f='f(){ export F=$(fdfind -LH ".*" $@ | fzf); echo $F; unset -f f; }; f'
-fi
-
-if test -d $HOME/.bash_completions; then
-  for file in $HOME/.bash_completions/*.sh; do
+if test -d "$HOME/.bash_completions"; then
+  for file in "$HOME"/.bash_completions/*.sh; do
     [ -r "$file" ] && source "$file"
   done
 fi
