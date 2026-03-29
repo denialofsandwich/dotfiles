@@ -54,7 +54,7 @@ fi
 
 zinit cdreplay -q
 
-[[ -d $HOME/.local/bin ]] && export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 
 # FZF
 [[ -d ~/.local/fzf/bin ]] && PATH="$PATH:$HOME/.local/fzf/bin"
