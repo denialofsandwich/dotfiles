@@ -5,6 +5,7 @@
 vim.g.python3_host_prog = "~/.local/nvim/venv/bin/python"
 vim.g.python_host_prog = "~/.local/nvim/venv/bin/python"
 
+vim.opt.clipboard = ""
 vim.opt.shell = "/bin/zsh"
 vim.opt.wrap = true
 vim.opt.spell = true
