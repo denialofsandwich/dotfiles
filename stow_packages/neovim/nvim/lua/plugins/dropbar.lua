@@ -15,11 +15,22 @@ return {
           end
           return true
         end,
+        sources = function(buf, win)
+          local sources = require("dropbar.sources")
+          return { sources.path }
+        end,
       },
       sources = {
-        path = { relative_to = "cwd" },
-        treesitter = {},
-        lsp = {},
+        path = {
+          relative_to = function()
+            return vim.fn.getcwd()
+          end,
+        },
+      },
+      icons = {
+        kinds = {
+          dir_icon = "",
+        },
       },
     },
   },
