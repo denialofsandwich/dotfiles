@@ -11,11 +11,15 @@ if [[ $OS == "ubuntu" ]]; then
   sudo apt-get install -y kitty
 else
   brew install kitty
-  ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/
+  ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/ || true
 fi
 
 echo "Update stow"
 popd
 
 mkdir -p ~/.config/kitty
-stow -d stow_packages -t ~/.config/kitty "--$MODE" "$name"
+if [[ $OS == "ubuntu" ]]; then
+  stow -d stow_packages/kitty -t ~/.config/kitty "--$MODE" "linux"
+else
+  stow -d stow_packages/kitty -t ~/.config/kitty "--$MODE" "macos"
+fi
