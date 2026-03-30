@@ -12,4 +12,7 @@ if [[ $OS == "ubuntu" ]]; then
   curl -LO https://dystroy.org/dysk/download/x86_64-linux/dysk
   chmod +x dysk
   popd
+else
+  echo No-op for macos
+  exit 0
 fi
