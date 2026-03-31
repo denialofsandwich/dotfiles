@@ -105,6 +105,7 @@ alias la='ls -lah'
 alias ipy='ipython'
 alias nv='nvim'
 alias x='xonsh'
+[[ "$TERM" == "xterm-kitty" ]] && alias ssh='kitten ssh'
 
 if test -d "$HOME/.bash_completions"; then
   for file in "$HOME"/.bash_completions/*.sh; do
