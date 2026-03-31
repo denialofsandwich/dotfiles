@@ -7,38 +7,14 @@
 -- but only if nvim is NOT already running inside a tmux session
 local lazyterm = function(use_file_dir)
   local _lazyterm = function()
-    local count = vim.v.count1
-    local cwd = vim.fn.getcwd()
-    local term_cwd = use_file_dir and vim.fn.expand("%:p:h") or cwd
-    local dirname = cwd:match(".+/([^/]+)$")
-    local position = count >= 10 and "right" or "float"
-
-    local win_config = {
-      position = position,
-      width = position == "float" and 0.9 or 0.4,
-      height = position == "float" and 0.9 or 1.0,
-    }
-
-    if vim.env.TMUX == nil then
-      local session_name = dirname
-        .. "-"
-        .. count
-        .. "-"
-        .. io.popen(
-          "echo " .. cwd .. " | openssl dgst -binary -sha1 | openssl base64 -A | tr -dc A-Za-z0-9 | head -c 8"
-        )
-          :read("*a")
-
-      Snacks.terminal.toggle({
-        "tmux",
-        "new-session",
-        "-A",
-        "-s",
-        session_name,
-      }, { cwd = term_cwd, win = win_config })
-    else
-      Snacks.terminal.toggle("zsh", { cwd = term_cwd, win = win_config })
-    end
+    Snacks.terminal.toggle("zsh", {
+      cwd = use_file_dir and vim.fn.expand("%:p:h") or vim.fn.getcwd(),
+      win = {
+        position = "right",
+        width = 0.4,
+        height = 1.0,
+      },
+    })
   end
 
   return _lazyterm
@@ -46,12 +22,13 @@ end
 
 -- Remap Ctrl-C to Esc to behave exactly like it including autocmd
 vim.api.nvim_set_keymap("i", "<C-c>", "<Esc>", { noremap = true, silent = true })
-vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { desc = "Window navigation" })
 
 vim.keymap.set("n", "<leader>ft", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
 vim.keymap.set("n", "<leader>fT", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
 vim.keymap.set({ "n", "t" }, "<C-_>", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
 vim.keymap.set({ "n", "t" }, "<C-/>", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
+-- Allows navigating windows within the terminal without leaving terminal mode
+vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { desc = "Window navigation" })
 
 vim.keymap.set({ "n", "v" }, "<C-Y>", '"+y', { desc = "Copy to system clipboard" })
 vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboard" })
