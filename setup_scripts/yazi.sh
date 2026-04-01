@@ -8,16 +8,14 @@ pushd "$(dirname "$0")"
 echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS == "ubuntu" ]]; then
-  exit 0
-  # implement for ubuntu
-  # https://yazi-rs.github.io/docs/installation/#debian
+  sudo apt-get -y install ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick resvg
+
+  pushd /tmp
+  curl -LO https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb
+  sudo dpkg --install yazi-x86_64-unknown-linux-gnu.deb
+  rm yazi-x86_64-unknown-linux-gnu.deb
+  popd
 else
   brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font
   brew link ffmpeg-full imagemagick-full -f --overwrite
 fi
-
-# echo "Update stow"
-# popd
-#
-# mkdir -p ~/.config/kitty
-# stow -d stow_packages/kitty -t ~/.config/kitty "--$MODE" "macos"

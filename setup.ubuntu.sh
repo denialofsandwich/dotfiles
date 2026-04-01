@@ -24,6 +24,7 @@ source ./setup.shared.sh
 ./setup_scripts/lazygit.sh
 ./setup_scripts/nvm.sh
 ./setup_scripts/neovim.sh
+./setup_scripts/yazi.sh
 ./setup_scripts/kitty.sh
 ./setup_scripts/dysk.sh
 ./setup_scripts/gemini-cli.sh
