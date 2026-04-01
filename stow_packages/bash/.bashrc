@@ -101,11 +101,25 @@ export NVM_DIR="$HOME/.nvm"
 alias ls='ls --color=auto'
 alias ll='ls -lh'
 alias la='ls -lah'
+alias lt='lsd --tree -la'
 
 alias ipy='ipython'
 alias nv='nvim'
 alias x='xonsh'
+
+# Kittys TERM string is not widely available by default this is leading
+# to problems on other machines, this alias injects the required infos
 [[ "$TERM" == "xterm-kitty" ]] && alias ssh='kitten ssh'
+
+if command -v yazi &>/dev/null; then
+  function y() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd <"$tmp"
+    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+    rm -f -- "$tmp"
+  }
+fi
 
 if test -d "$HOME/.bash_completions"; then
   for file in "$HOME"/.bash_completions/*.sh; do

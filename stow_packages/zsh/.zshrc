@@ -76,11 +76,12 @@ alias ls='ls --color=auto'
 alias ll='lsd -l'
 alias la='lsd -la'
 alias lt='lsd --tree -la'
-alias ocat='/bin/cat'
 
+# A fancy df replacement
 alias odf='/bin/df'
 command -v dysk >/dev/null && alias df='dysk'
 
+alias ocat='/bin/cat'
 if command -v bat &> /dev/null; then
   alias cat='bat -pp'
 elif command -v batcat &> /dev/null; then
@@ -92,7 +93,20 @@ alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
 alias x='xonsh'
+
+# Kittys TERM string is not widely available by default this is leading
+# to problems on other machines, this alias injects the required infos
 [[ "$TERM" == "xterm-kitty" ]] && alias ssh='kitten ssh'
+
+if command -v yazi &> /dev/null; then
+  function y() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd < "$tmp"
+    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+    rm -f -- "$tmp"
+  }
+fi
 
 # SSH Agent, so identities and passwords to unlock them are saved
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
