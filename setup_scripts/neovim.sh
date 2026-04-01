@@ -18,7 +18,7 @@ echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS == "ubuntu" ]]; then
   sudo apt-get install -y \
-    flatpak luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick
+    flatpak luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick-full
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
