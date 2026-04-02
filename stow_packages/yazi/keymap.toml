@@ -1,23 +1,10 @@
-[[mgr.prepend_keymap]]
-on   = [ "c", "m" ]
-run  = "plugin chmod"
-desc = "Chmod on selected files"
+[mgr]
+prepend_keymap = [
+  { on = [ "c", "m" ], run = "plugin chmod",      desc = "Chmod on selected files" },
+  { on = [ "M" ],      run = "plugin mount" ,     desc = "Load the disk mount plugin"},
+  { on = [ "s" ],      run = "plugin searchjump", desc = "searchjump mode" },
+  { on = [ "S", "f" ], run = "search --via=fd",   desc = "Search all files by name via fd" },
+  { on = [ "S", "r" ], run = "search --via=rg",   desc = "Search all files by content via rg" },
+]
 
-[[mgr.prepend_keymap]]
-on  = "M"
-run = "plugin mount"
 
-[[mgr.prepend_keymap]]
-on   = [ "s" ]
-run = "plugin searchjump"
-desc = "searchjump mode"
-
-[[mgr.prepend_keymap]]
-on   = [ "S", "f" ]
-run = "search --via=fd"
-desc = "Search all files by name via fd"
-
-[[mgr.prepend_keymap]]
-on   = [ "S", "r" ]
-run = "search --via=rg"
-desc = "Search all files by content via rg"
