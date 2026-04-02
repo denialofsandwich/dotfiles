@@ -3,7 +3,6 @@
 
 set -euo pipefail
 name=$(basename -s .sh "$0")
-pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -15,8 +14,6 @@ else
 fi
 
 echo "Update stow"
-popd
-
 mkdir -p ~/.config/kitty
 if [[ $OS == "ubuntu" ]]; then
   stow -d stow_packages/kitty -t ~/.config/kitty "--$MODE" "linux"

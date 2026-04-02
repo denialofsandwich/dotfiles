@@ -12,7 +12,6 @@
 
 set -euo pipefail
 name=$(basename -s .sh "$0")
-pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -39,7 +38,5 @@ fi
 uv pip install --python ~/.local/nvim/venv/bin/python pynvim
 
 echo "Update stow"
-popd
-
 mkdir -p ~/.config
 stow -d stow_packages -t ~/.config "--$MODE" "$name"

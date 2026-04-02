@@ -3,7 +3,6 @@
 
 set -euo pipefail
 name=$(basename -s .sh "$0")
-pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -18,5 +17,4 @@ pipx install xonsh
 pipx inject xonsh xontrib-fzf-completions xontrib-vox prompt_toolkit gnureadline pygments
 
 echo "Update stow"
-popd
 stow -d stow_packages -t ~ "--$MODE" "$name"

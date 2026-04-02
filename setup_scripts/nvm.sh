@@ -3,7 +3,6 @@
 
 set -euo pipefail
 name=$(basename -s .sh "$0")
-pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -18,6 +17,7 @@ if [[ $OS == "ubuntu" ]]; then
   nvm install --lts
   nvm alias default node
   nvm use default
+else
+  echo No-op for macos
+  exit 0
 fi
-
-popd

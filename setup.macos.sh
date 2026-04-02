@@ -1,30 +1,7 @@
 #!/bin/bash
 
-set -euo pipefail
-# possible modes are: stow, delete, restow
-export MODE="${MODE:-stow}"
 export OS=macos
-pushd "$(dirname "$0")"
-
-brew install htop lsof telnet jq stow
-
 source ./setup.shared.sh
-
-./setup_scripts/bash.sh
-./setup_scripts/fzf.sh
-./setup_scripts/nerd-font.sh
-./setup_scripts/oh-my-posh.sh
-./setup_scripts/zsh.sh
-./setup_scripts/xonsh.sh
-./setup_scripts/python.sh
-./setup_scripts/screen.sh
-./setup_scripts/tmux.sh
-./setup_scripts/vim.sh
-./setup_scripts/lazygit.sh
-./setup_scripts/neovim.sh
-./setup_scripts/yazi.sh
-./setup_scripts/kitty.sh
-./setup_scripts/gemini-cli.sh
 
 # Manual fixes:
 # - Set Font to "Hack Nerd Font"
@@ -48,5 +25,3 @@ source ./setup.shared.sh
 #  system > keyboard > shortcuts > modifier (Internal Keyboard):
 #    - ctrl: cmd
 #    - cmd: ctrl
-
-popd

@@ -3,7 +3,6 @@
 
 set -euo pipefail
 name=$(basename -s .sh "$0")
-pushd "$(dirname "$0")"
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
@@ -22,8 +21,6 @@ else
 fi
 
 echo "Update stow"
-popd
-
 if [[ $OS == "ubuntu" ]]; then
   mkdir -p ~/.config/lazygit
   stow -d stow_packages -t ~/.config/lazygit "--$MODE" "$name"
