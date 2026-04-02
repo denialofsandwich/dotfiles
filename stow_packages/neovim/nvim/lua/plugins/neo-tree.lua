@@ -55,6 +55,7 @@ return {
         window = {
           mappings = {
             ["i"] = "show_fs_stat",
+            ["s"] = "none",
           },
         },
         commands = {
