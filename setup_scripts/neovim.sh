@@ -17,12 +17,13 @@ echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS == "ubuntu" ]]; then
   sudo apt-get install -y \
-    flatpak luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick
+    flatpak luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick texlive-latex-base
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
   npm install -g tree-sitter-cli
+  npm install -g @mermaid-js/mermaid-cli
 
   echo INSTALL neovim
   pushd "$HOME/.local/bin" || exit 1
@@ -31,7 +32,7 @@ if [[ $OS == "ubuntu" ]]; then
   mv nvim-linux-x86_64.appimage nvim
   popd
 else
-  brew install luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim python@3.12 imagemagick-full
+  brew install luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim python@3.12 imagemagick-full mermaid-cli
 fi
 
 [[ -d ~/.local/nvim/venv ]] || uv venv ~/.local/nvim/venv
