@@ -1,4 +1,12 @@
 -- Autocomplete popup
+local function exit_and_hide(cmp)
+  if cmp.is_menu_visible() then
+    cmp.hide()
+  end
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+  return true
+end
+
 return {
   {
     "saghen/blink.cmp",
@@ -6,8 +14,8 @@ return {
       keymap = {
         preset = "none",
 
-        ["<Esc>"] = { "hide", "fallback" },
-        ["<C-c>"] = { "hide", "fallback" },
+        ["<Esc>"] = { exit_and_hide },
+        ["<C-c>"] = { exit_and_hide },
         ["<C-v>"] = { "show", "select_next" },
         ["<CR>"] = { "accept", "fallback" },
         ["<Up>"] = { "select_prev", "fallback" },
