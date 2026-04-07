@@ -6,5 +6,3 @@ prepend_keymap = [
   { on = [ "S", "f" ], run = "search --via=fd",   desc = "Search all files by name via fd" },
   { on = [ "S", "r" ], run = "search --via=rg",   desc = "Search all files by content via rg" },
 ]
-
-

@@ -3,11 +3,11 @@
 #
 # Dependencies:
 # - fzf.sh - Used by fzf-find plugin for anything search related
-# - lazygit.sh - Configured as the default git manager
+# - lazygit.sh - Configured as the default git manager (optional)
 # - nerd-font.sh - Complex icon support
 # - nvm.sh (ubuntu) - For the ast parser tree-sitter-cli
-# - python.sh - For python based plugins. But currently unused
-# - tmux.sh - Used to preserve terminal sessions between neovim sessions
+# - python.sh - For python based plugins. But currently unused (optional)
+# - yazi.sh - To use the yazi file manager integration (optional)
 # - zsh.sh - Configured as the default shell
 
 set -euo pipefail
@@ -17,7 +17,7 @@ echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS == "ubuntu" ]]; then
   sudo apt-get install -y \
-    flatpak luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick texlive-latex-base
+    luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick texlive-latex-base
 
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
