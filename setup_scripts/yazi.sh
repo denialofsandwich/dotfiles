@@ -20,7 +20,6 @@ else
 fi
 
 ya pkg add yazi-rs/plugins:chmod || true
-ya pkg add yazi-rs/plugins:git || true
 ya pkg add yazi-rs/plugins:mount || true
 ya pkg add dreammaomao/searchjump || true
 

@@ -1,9 +1,17 @@
-[[plugin.prepend_fetchers]]
-id  = "git"
-url = "*"
-run = "git"
+[mgr]
+linemode = "permissions"
 
-[[plugin.prepend_fetchers]]
-id  = "git"
-url = "*/"
-run = "git"
+[opener]
+edit = [
+	{ run = 'nvim "$1"', block = true, desc = "neovim" },
+]
+open = [
+	{ run = 'xdg-open "$@"', orphan = true, desc = "open" , for = "linux" },
+	{ run = 'open "$@"' , orphan = true, desc = "open" , for = "macos"},
+]
+
+[open]
+rules = [
+	{ url = "*/", use = ["open", "edit"] },
+	{ mime = "*", use = ["open", "edit"] },
+]

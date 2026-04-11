@@ -8,4 +8,7 @@ prepend_keymap = [
   { on = [ "ö" ], run = "tab_switch -1 --relative",   desc = "Switch to the previous tab" },
   { on = [ "ä" ], run = "tab_switch 1 --relative",   desc = "Switch to the next tab" },
   { on = [ "q" ], run = "close",   desc = "Close current tab or quit if it's last" },
+  { on = [ "Q", "q" ], run = "quit",   desc = "Quit and change directory" },
+  { on = [ "Q", "Q" ], run = "quit --no-cwd-file",   desc = "Quit without changing directory" },
+  { on = [ "<enter>" ], run = "enter",   desc = "Enter the child directory" },
 ]

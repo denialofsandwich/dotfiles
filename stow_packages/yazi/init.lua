@@ -1,8 +1,3 @@
-require("git"):setup({
-	-- Order of status signs showing in the linemode
-	order = 1500,
-})
-
 require("searchjump"):setup({
 	unmatch_fg = "#b2a496",
 	match_str_fg = "#000000",
