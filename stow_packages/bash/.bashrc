@@ -80,6 +80,7 @@ export PATH="$PATH:$HOME/.local/bin"
 
 # FZF
 test -d ~/.local/fzf/bin && PATH="$PATH:$HOME/.local/fzf/bin"
+test -d ~/.local/fzf/bin && PATH="$HOME/.local/fzf/bin:$PATH"
 export FZF_DEFAULT_OPTS='--height 40% --layout reverse --border top'
 command -v fzf &>/dev/null && eval "$(fzf --bash)"
 

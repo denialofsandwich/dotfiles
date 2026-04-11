@@ -57,7 +57,7 @@ zinit cdreplay -q
 export PATH="$PATH:$HOME/.local/bin"
 
 # FZF
-[[ -d ~/.local/fzf/bin ]] && PATH="$PATH:$HOME/.local/fzf/bin"
+[[ -d ~/.local/fzf/bin ]] && PATH="$HOME/.local/fzf/bin:$PATH"
 export FZF_DEFAULT_OPTS='--height 40% --layout reverse --border top'
 command -v fzf &> /dev/null && eval "$(fzf --zsh)"
 
