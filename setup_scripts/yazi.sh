@@ -10,7 +10,7 @@ if [[ $OS == "ubuntu" ]]; then
   sudo apt-get -y install ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick resvg
 
   pushd /tmp
-  curl -LO https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb
+  curl -LO https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.deb
   sudo dpkg --install yazi-x86_64-unknown-linux-gnu.deb
   rm yazi-x86_64-unknown-linux-gnu.deb
   popd
