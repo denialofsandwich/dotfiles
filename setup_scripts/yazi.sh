@@ -7,7 +7,7 @@ name=$(basename -s .sh "$0")
 echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS == "ubuntu" ]]; then
-  sudo apt-get -y install ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick resvg
+  sudo apt-get -y install ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick resvg chafa
 
   pushd /tmp
   curl -LO https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-gnu.deb
@@ -15,7 +15,7 @@ if [[ $OS == "ubuntu" ]]; then
   rm yazi-x86_64-unknown-linux-gnu.deb
   popd
 else
-  brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font
+  brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa
   brew link ffmpeg-full imagemagick-full -f --overwrite
 fi
 
