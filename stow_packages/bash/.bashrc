@@ -140,6 +140,11 @@ if [[ -d ~/.env_scripts ]]; then
   done
 fi
 
+# Scripts that should activate automatically in specific directories
+if [[ -f ".local_env/activate.sh" ]]; then
+  source .local_env/activate.sh
+fi
+
 # Fancy prompt, if available
 fc-list | grep -i nerd 2>&1 >/dev/null && export USER_NERD=1
 test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1

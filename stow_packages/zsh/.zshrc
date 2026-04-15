@@ -120,6 +120,11 @@ if [[ -d ~/.env_scripts ]]; then
   done
 fi
 
+# Scripts that should activate automatically in specific directories
+if [[ -f ".local_env/activate.sh" ]]; then
+  source .local_env/activate.sh
+fi
+
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 CASE_SENSITIVE="true"
