@@ -8,6 +8,8 @@ edit = [
 open = [
 	{ run = 'xdg-open "$@"', orphan = true, desc = "open" , for = "linux" },
 	{ run = 'open "$@"' , orphan = true, desc = "open" , for = "macos"},
+  { run = '''dbus-send --session --print-reply --dest=org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:"file://$(realpath "$1")" string:""''', desc = "reveal", for = "linux" },
+	{ run = 'open -R "$@"' , orphan = true, desc = "reveal" , for = "macos"},
 ]
 
 [open]
