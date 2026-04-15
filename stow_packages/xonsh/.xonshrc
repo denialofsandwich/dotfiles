@@ -1,10 +1,10 @@
 $SHELL_TYPE = 'prompt_toolkit'
 $COLOR_INPUT = True
-$XONSH_COLOR_STYLE = 'default'
-$XONSH_HISTORY_BACKEND = 'sqlite'  # Faster and better for multiple sessions
+$XONSH_COLOR_STYLE = 'solarized-dark'
+$XONSH_HISTORY_BACKEND = 'sqlite'
 $CASE_SENSITIVE_COMPLETIONS = False
-$COMPLETIONS_CONFIRM = True        # Press Enter once to select, twice to run
-$UPDATE_OS_ENVIRON = True          # Keep OS environment variables in sync
+$COMPLETIONS_CONFIRM = True
+$UPDATE_OS_ENVIRON = True
 
 xontrib load fzf-completions
 
