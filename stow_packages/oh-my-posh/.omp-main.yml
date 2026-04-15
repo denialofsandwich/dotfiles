@@ -59,6 +59,20 @@ blocks:
         leading_diamond: 
         trailing_diamond: 
         template: "  {{ .Venv }} "
+      - type: text
+        background: "#262626"
+        foreground: "#FF7200"
+        style: diamond
+        leading_diamond: 
+        trailing_diamond: 
+        template: " {{ if .Env.OMP_CUSTOM1 }}{{ .Env.OMP_CUSTOM1 }}{{ end }} "
+      - type: text
+        background: "#262626"
+        foreground: "#17E6D6"
+        style: diamond
+        leading_diamond: 
+        trailing_diamond: 
+        template: " {{ if .Env.OMP_CUSTOM2 }}{{ .Env.OMP_CUSTOM2 }}{{ end }} "
   - type: prompt
     alignment: right
     segments:
