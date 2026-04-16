@@ -35,8 +35,8 @@ vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboa
 vim.keymap.set({ "n", "v" }, "<leader>p", '"0p', { desc = "Paste last yanked line" })
 vim.keymap.set("v", "/", 'y/<C-R>"<CR>', { desc = "Yank and search selection" })
 
-vim.keymap.set("n", "<leader><tab><left>", "<cmd>tabprevious<cr>", { desc = "Vorheriger Tab" })
-vim.keymap.set("n", "<leader><tab><right>", "<cmd>tabnext<cr>", { desc = "Nächster Tab" })
+vim.keymap.set("n", "<leader><tab><left>", "<cmd>tabprevious<cr>", { desc = "Previous tab" })
+vim.keymap.set("n", "<leader><tab><right>", "<cmd>tabnext<cr>", { desc = "Next tab" })
 
 vim.keymap.set({ "n" }, "<leader>r", "", { desc = "macro replay" })
 vim.keymap.set({ "n" }, "<leader>rq", "@q", { desc = "Replay q-macro" })
