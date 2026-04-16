@@ -15,10 +15,13 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS == "ubuntu" ]]; then
-  sudo apt-get install -y \
+if [[ $OS_TYPE == "linux" ]]; then
+  [[ $OS == "ubuntu" ]] && sudo apt-get install -y \
     luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick texlive-latex-base
+  [[ $OS == "fedora" ]] && sudo dnf install -y \
+    luarocks fd-find ripgrep nodejs npm xclip wl-clipboard ImageMagick
 
+  # Workaround if nvm was installed recently and the env vars not set yet
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 

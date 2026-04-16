@@ -9,7 +9,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS == "ubuntu" ]]; then
+if [[ $OS_TYPE == "linux" ]]; then
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 

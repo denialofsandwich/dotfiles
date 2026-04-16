@@ -6,7 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS == "ubuntu" ]]; then
+if [[ $OS_TYPE == "linux" ]]; then
   export NVM_DIR="$HOME/.nvm"
   export PROFILE=/dev/null
   mkdir -p "$NVM_DIR"
@@ -19,5 +19,4 @@ if [[ $OS == "ubuntu" ]]; then
   nvm use default
 else
   echo No-op for macos
-  exit 0
 fi

@@ -6,8 +6,8 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS == "ubuntu" ]]; then
-  sudo apt-get install -y \
+if [[ $OS_TYPE == "linux" ]]; then
+  sudo $LINUX_PKG_MGR install -y \
     zsh lsd ripgrep bat curl zoxide
 else
   brew install zsh lsd bat ripgrep zoxide
