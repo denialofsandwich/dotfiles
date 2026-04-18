@@ -6,9 +6,4 @@ return {
     { "<leader>bm<Left>", "<Cmd>BufferLineMovePrev<CR>", desc = "Move Buffer Left" },
     { "<leader>bm<Right>", "<Cmd>BufferLineMoveNext<CR>", desc = "Move Buffer Right" },
   },
-  opts = {
-    options = {
-      separator_style = "slant",
-    },
-  },
 }
