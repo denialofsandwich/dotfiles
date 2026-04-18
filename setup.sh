@@ -3,8 +3,23 @@
 set -euo pipefail
 pushd "$(dirname "$0")" || exit 1
 
-OS="${OS:-unsupported}"
-if [[ ! "$OS" =~ (ubuntu|fedora|macos) ]]; then
+OS="unknown"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  OS="macos"
+elif [[ -f /etc/os-release ]]; then
+  . /etc/os-release
+  case "$ID" in
+  ubuntu)
+    OS="ubuntu"
+    ;;
+  fedora)
+    OS="fedora"
+    ;;
+  esac
+fi
+
+if [[ "$OS" == "unknown" ]]; then
   echo "Error: Unsupported OS"
   exit 1
 fi
