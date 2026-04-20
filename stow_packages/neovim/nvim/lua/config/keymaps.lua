@@ -38,12 +38,6 @@ vim.keymap.set("v", "/", 'y/<C-R>"<CR>', { desc = "Yank and search selection" })
 vim.keymap.set("n", "<leader><tab><left>", "<cmd>tabprevious<cr>", { desc = "Previous tab" })
 vim.keymap.set("n", "<leader><tab><right>", "<cmd>tabnext<cr>", { desc = "Next tab" })
 
-vim.keymap.set({ "n" }, "<leader>r", "", { desc = "macro replay" })
-vim.keymap.set({ "n" }, "<leader>rq", "@q", { desc = "Replay q-macro" })
-vim.keymap.set({ "n" }, "<leader>rw", "@w", { desc = "Replay w-macro" })
-vim.keymap.set({ "n" }, "<leader>re", "@e", { desc = "Replay e-macro" })
-vim.keymap.set({ "n" }, "<leader>rr", "@r", { desc = "Replay r-macro" })
-
 vim.keymap.set({ "n" }, "<leader>v", "", { desc = "custom stuff" })
 
 vim.keymap.set("n", "<leader>vy", function()

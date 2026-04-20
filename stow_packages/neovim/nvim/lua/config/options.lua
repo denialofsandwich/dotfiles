@@ -10,3 +10,5 @@ vim.opt.shell = "/bin/zsh"
 vim.opt.wrap = true
 vim.opt.spell = true
 vim.g.root_spec = { "cwd" }
+vim.g.mapleader = " "
+vim.g.maplocalleader = "ö"
