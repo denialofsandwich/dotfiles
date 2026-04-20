@@ -17,7 +17,7 @@ if [[ $OS == "ubuntu" ]]; then
   popd
 elif [[ $OS == "fedora" ]]; then
   sudo dnf -y install \
-    ffmpeg-free 7zip jq poppler-utils fd-find ripgrep fzf zoxide ImageMagick chafa
+    ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide ImageMagick chafa
 
   pushd $(mktemp -d)
   curl -LO https://github.com/linebender/resvg/releases/latest/download/resvg-linux-x86_64.tar.gz
