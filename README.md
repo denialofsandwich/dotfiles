@@ -23,3 +23,30 @@ Open Discover -> Settings -> enable...:
 sudo dnf swap ffmpeg-free ffmpeg --allowerasing
 sudo dnf install nvidia-driver libva-nvidia-driver
 ```
+
+### MacOS
+
+#### Fix keyboard mapping
+
+- system > keyboard > repeat rate: max
+- system > keyboard > shortcuts > modifier:
+  - ctrl: cmd
+  - cmd: ctrl
+
+#### Install Easy Move Resize
+
+**Repo**: https://github.com/dmarcotte/easy-move-resize
+
+```bash
+brew install --cask easy-move-plus-resize
+xattr -dr com.apple.quarantine /Applications/Easy\ Move+Resize.app
+```
+
+#### Fix scrolling
+
+- system > mouse -> disable "Natural scrolling"
+- Install:
+
+  ```bash
+  brew install mac-mouse-fix
+  ```
