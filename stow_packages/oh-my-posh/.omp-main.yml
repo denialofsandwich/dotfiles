@@ -5,28 +5,28 @@ blocks:
     alignment: left
     segments:
       - type: os
-        background: "0"
+        background: "235"
         foreground: "4"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: "{{ if .WSL }}WSL at {{ end }}{{ .Icon }} "
       - type: root
-        background: "0"
+        background: "235"
         foreground: "5"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: "  "
       - type: session
-        background: "0"
+        background: "235"
         foreground: "6"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: '{{ if eq .Env.OMP_SHOW_SESSION "1" }}{{ if .Root }}<b>{{ end }} {{ .UserName }}{{ if .Root }}</b>{{ end }}@{{ .HostName }} {{ end }}'
       - type: shell
-        background: "0"
+        background: "235"
         foreground: "5"
         style: diamond
         leading_diamond: 
@@ -39,7 +39,7 @@ blocks:
         properties:
           fetch_status: true
           fetch_upstream_icon: true
-        background: "0"
+        background: "235"
         foreground: "11"
         style: diamond
         leading_diamond: 
@@ -53,21 +53,21 @@ blocks:
           if .Working.Changed }}<3>  {{ .Working.String }}</>{{ end }}{{
           if gt .StashCount 0 }}<12>  {{ .StashCount }}</>{{ end }} <>
       - type: python
-        background: "0"
+        background: "235"
         foreground: "2"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: "  {{ .Venv }} "
       - type: text
-        background: "0"
+        background: "235"
         foreground: "3"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
         template: " {{ if .Env.OMP_CUSTOM1 }}{{ .Env.OMP_CUSTOM1 }}{{ end }} "
       - type: text
-        background: "0"
+        background: "235"
         foreground: "14"
         style: diamond
         leading_diamond: 
@@ -77,7 +77,7 @@ blocks:
     alignment: right
     segments:
       - type: status
-        background: "0"
+        background: "235"
         foreground: "5"
         style: diamond
         leading_diamond: 
@@ -85,7 +85,7 @@ blocks:
         properties:
           status_template: "{{ reason .Code }}"
       - type: executiontime
-        background: "0"
+        background: "235"
         foreground: "11"
         style: diamond
         leading_diamond: 
@@ -95,7 +95,7 @@ blocks:
           style: round
         template: " {{ .FormattedMs }}  "
       - type: time
-        background: "0"
+        background: "235"
         foreground: "4"
         style: diamond
         leading_diamond: 
@@ -108,7 +108,7 @@ blocks:
     newline: true
     segments:
       - type: path
-        background: "0"
+        background: "235"
         foreground: "4"
         style: diamond
         leading_diamond: 

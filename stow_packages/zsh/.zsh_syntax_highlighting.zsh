@@ -5,12 +5,12 @@ typeset -gA ZSH_HIGHLIGHT_STYLES
 ZSH_HIGHLIGHT_STYLES[comment]='fg=8'
 
 ## Functions/methods
-ZSH_HIGHLIGHT_STYLES[alias]='fg=10'
-ZSH_HIGHLIGHT_STYLES[suffix-alias]='fg=10'
-ZSH_HIGHLIGHT_STYLES[global-alias]='fg=10'
-ZSH_HIGHLIGHT_STYLES[function]='fg=10'
-ZSH_HIGHLIGHT_STYLES[command]='fg=10'
-ZSH_HIGHLIGHT_STYLES[precommand]='fg=10,italic'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=2'
+ZSH_HIGHLIGHT_STYLES[suffix-alias]='fg=2'
+ZSH_HIGHLIGHT_STYLES[global-alias]='fg=2'
+ZSH_HIGHLIGHT_STYLES[function]='fg=2'
+ZSH_HIGHLIGHT_STYLES[command]='fg=2'
+ZSH_HIGHLIGHT_STYLES[precommand]='fg=2,italic'
 
 ZSH_HIGHLIGHT_STYLES[autodirectory]='fg=11,italic'
 
@@ -19,9 +19,9 @@ ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=9'
 ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=9'
 
 ## Built ins
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=14'
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=14'
-ZSH_HIGHLIGHT_STYLES[hashed-command]='fg=14'
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=6'
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=6'
+ZSH_HIGHLIGHT_STYLES[hashed-command]='fg=6'
 
 ## Punctuation
 ZSH_HIGHLIGHT_STYLES[commandseparator]='fg=1'
