@@ -3,18 +3,17 @@
 set -euo pipefail
 pushd "$(dirname "$0")" || exit 1
 
-OS="unknown"
-
+export OS="unknown"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  OS="macos"
+  export OS="macos"
 elif [[ -f /etc/os-release ]]; then
   . /etc/os-release
   case "$ID" in
   ubuntu)
-    OS="ubuntu"
+    export OS="ubuntu"
     ;;
   fedora)
-    OS="fedora"
+    export OS="fedora"
     ;;
   esac
 fi
