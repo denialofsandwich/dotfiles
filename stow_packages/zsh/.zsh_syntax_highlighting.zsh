@@ -12,11 +12,11 @@ ZSH_HIGHLIGHT_STYLES[function]='fg=2'
 ZSH_HIGHLIGHT_STYLES[command]='fg=2'
 ZSH_HIGHLIGHT_STYLES[precommand]='fg=2,italic'
 
-ZSH_HIGHLIGHT_STYLES[autodirectory]='fg=11,italic'
+ZSH_HIGHLIGHT_STYLES[autodirectory]='fg=3,italic'
 
-ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=9'
-ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=9'
-ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=9'
+ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=3'
+ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=3'
+ZSH_HIGHLIGHT_STYLES[back-quoted-argument]='fg=3'
 
 ## Built ins
 ZSH_HIGHLIGHT_STYLES[builtin]='fg=6'
@@ -33,13 +33,13 @@ ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]='fg=1'
 ZSH_HIGHLIGHT_STYLES[back-dollar-quoted-argument]='fg=1'
 
 ## Strings
-ZSH_HIGHLIGHT_STYLES[command-substitution-quoted]='fg=11'
-ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter-quoted]='fg=11'
-ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=11'
+ZSH_HIGHLIGHT_STYLES[command-substitution-quoted]='fg=3'
+ZSH_HIGHLIGHT_STYLES[command-substitution-delimiter-quoted]='fg=3'
+ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg=3'
 ZSH_HIGHLIGHT_STYLES[single-quoted-argument-unclosed]='fg=1,bold'
-ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=11'
+ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg=3'
 ZSH_HIGHLIGHT_STYLES[double-quoted-argument-unclosed]='fg=1,bold'
-ZSH_HIGHLIGHT_STYLES[rc-quote]='fg=11'
+ZSH_HIGHLIGHT_STYLES[rc-quote]='fg=3'
 
 ## Variables
 ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]='fg=5'
@@ -52,9 +52,9 @@ ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg=default'
 ## No category relevant in spec
 ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=1,bold'
 ZSH_HIGHLIGHT_STYLES[path]='fg=default'
-ZSH_HIGHLIGHT_STYLES[path_pathseparator]='fg=3'
+ZSH_HIGHLIGHT_STYLES[path_pathseparator]='fg=11'
 ZSH_HIGHLIGHT_STYLES[path_prefix]='fg=7'
-ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]='fg=3'
+ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]='fg=11'
 ZSH_HIGHLIGHT_STYLES[globbing]='fg=13'
 ZSH_HIGHLIGHT_STYLES[history-expansion]='fg=5'
 
