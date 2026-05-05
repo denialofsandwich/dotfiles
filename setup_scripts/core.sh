@@ -12,10 +12,10 @@ if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
     htop lsof curl jq git vim screen tmux bash zsh
 fi
 
-brew install htop lsof curl jq stow zip git
+brew $MODE htop lsof curl jq stow zip git
 
 if [[ $OS_TYPE == "macos" ]]; then
-  brew install telnet
+  brew $MODE telnet
 fi
 
 git config --global rerere.enabled true

@@ -45,8 +45,10 @@ DEFAULT_MODULES="
 
 export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
 
-# possible modes are: stow, delete, restow
-export MODE="${MODE:-stow}"
+# possible modes are: install, uninstall
+export MODE="${MODE:-install}"
+[[ "$MODE" == "install" ]] && export STOW_MODE="stow"
+[[ "$MODE" == "uninstall" ]] && export STOW_MODE="delete"
 
 export OS_TYPE="linux"
 if [[ "$OS" == "macos" ]]; then

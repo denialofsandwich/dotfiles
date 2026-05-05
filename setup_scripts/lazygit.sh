@@ -6,13 +6,13 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install lazygit
+brew $MODE lazygit
 
 echo "Update stow"
 if [[ $OS == "ubuntu" ]]; then
   mkdir -p ~/.config/lazygit
-  stow -d stow_packages -t ~/.config/lazygit "--$MODE" "$name"
+  stow -d stow_packages -t ~/.config/lazygit "--$STOW_MODE" "$name"
 else
   mkdir -p ~/Library/Application\ Support/lazygit
-  stow -d stow_packages -t ~/Library/Application\ Support/lazygit "--$MODE" "$name"
+  stow -d stow_packages -t ~/Library/Application\ Support/lazygit "--$STOW_MODE" "$name"
 fi

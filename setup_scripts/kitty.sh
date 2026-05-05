@@ -9,14 +9,14 @@ echo -e "\033[33m### SETUP $name\033[0m"
 if [[ $OS_TYPE == "linux" ]]; then
   sudo $LINUX_PKG_MGR install -y kitty
 else
-  brew install kitty
+  brew $MODE kitty
   ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/ || true
 fi
 
 echo "Update stow"
 mkdir -p ~/.config/kitty
 if [[ $OS_TYPE == "linux" ]]; then
-  stow -d stow_packages/kitty -t ~/.config/kitty "--$MODE" "linux"
+  stow -d stow_packages/kitty -t ~/.config/kitty "--$STOW_MODE" "linux"
 else
-  stow -d stow_packages/kitty -t ~/.config/kitty "--$MODE" "macos"
+  stow -d stow_packages/kitty -t ~/.config/kitty "--$STOW_MODE" "macos"
 fi

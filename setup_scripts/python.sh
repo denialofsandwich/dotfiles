@@ -6,7 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install pipx
+brew $MODE pipx
 
 type ipython || pipx install ipython
 type poetry || pipx install poetry
@@ -15,4 +15,4 @@ type pre-commit || pipx install pre-commit
 
 echo "Update stow"
 mkdir -p ~/.config/pypoetry
-stow -d stow_packages -t ~/.config/pypoetry "--$MODE" poetry
+stow -d stow_packages -t ~/.config/pypoetry "--$STOW_MODE" poetry

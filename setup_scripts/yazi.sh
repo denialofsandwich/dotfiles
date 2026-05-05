@@ -6,7 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa
+brew $MODE yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa
 brew link ffmpeg-full imagemagick-full -f --overwrite
 
 ya pkg add yazi-rs/plugins:chmod || true
@@ -15,4 +15,4 @@ ya pkg add dreammaomao/searchjump || true
 
 echo "Update stow"
 mkdir -p ~/.config/yazi
-stow -d stow_packages -t ~/.config/yazi "--$MODE" "$name"
+stow -d stow_packages -t ~/.config/yazi "--$STOW_MODE" "$name"

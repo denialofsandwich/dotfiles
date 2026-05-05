@@ -7,7 +7,7 @@ name=$(basename -s .sh "$0")
 echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS_TYPE == "linux" ]]; then
-  brew install dysk
+  brew $MODE dysk
 else
   echo No-op for macos
   exit 0

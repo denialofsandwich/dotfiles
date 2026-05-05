@@ -6,7 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-brew install tmux
+brew $MODE tmux
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"
@@ -19,4 +19,4 @@ else
 fi
 
 echo "Update stow"
-stow -d stow_packages -t ~ "--$MODE" "$name"
+stow -d stow_packages -t ~ "--$STOW_MODE" "$name"

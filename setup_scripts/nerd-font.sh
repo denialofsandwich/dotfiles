@@ -21,5 +21,5 @@ if [[ $OS_TYPE == "linux" ]]; then
     fc-cache -fv
   fi
 else
-  brew install --cask font-hack-nerd-font
+  brew $MODE --cask font-hack-nerd-font
 fi
