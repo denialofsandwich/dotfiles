@@ -10,16 +10,11 @@
 # - yazi.sh - To use the yazi file manager integration (optional)
 # - zsh.sh - Configured as the default shell
 
-set -euo pipefail
-name=$(basename -s .sh "$0")
-
-echo -e "\033[33m### SETUP $name\033[0m"
-
-brew $MODE luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli
+brew "$MODE" luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli fzf gemini-cli
 
 [[ -d ~/.local/nvim/venv ]] || uv venv ~/.local/nvim/venv
 uv pip install --python ~/.local/nvim/venv/bin/python pynvim
 
 echo "Update stow"
 mkdir -p ~/.config
-stow -d stow_packages -t ~/.config "--$STOW_MODE" "$name"
+stow -d stow_packages -t ~/.config "--$STOW_MODE" neovim

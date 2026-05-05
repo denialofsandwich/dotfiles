@@ -26,7 +26,6 @@ fi
 DEFAULT_MODULES="
   core,
   bash,
-  fzf,
   oh-my-posh,
   zsh,
   screen,
@@ -38,8 +37,7 @@ DEFAULT_MODULES="
   yazi,
   kitty,
   dysk,
-  xonsh,
-  gemini-cli
+  xonsh
 "
 
 export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
@@ -61,8 +59,13 @@ fi
 
 MODULES=${MODULES:-$(echo "$DEFAULT_MODULES" | tr -d '[:space:]')}
 
-for script in ${MODULES//,/ }; do
-  bash "./setup_scripts/${script}.sh"
+for module in ${MODULES//,/ }; do
+  (
+    set -euo pipefail
+    echo -e "\033[33m### SETUP ${module}\033[0m"
+    export MODULE=$module
+    source "./setup_scripts/${module}.sh"
+  )
 done
 
 popd || exit 1

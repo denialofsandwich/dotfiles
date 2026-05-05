@@ -1,12 +1,7 @@
 #!/bin/bash
 # Setup tmux, a terminal multiplexer that enables you to switch easily between several programs in one terminal. It also allows you to detach and reattach sessions.
 
-set -euo pipefail
-name=$(basename -s .sh "$0")
-
-echo -e "\033[33m### SETUP $name\033[0m"
-
-brew $MODE tmux
+brew "$MODE" tmux
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"
@@ -19,4 +14,4 @@ else
 fi
 
 echo "Update stow"
-stow -d stow_packages -t ~ "--$STOW_MODE" "$name"
+stow -d stow_packages -t ~ "--$STOW_MODE" tmux

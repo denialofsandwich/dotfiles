@@ -1,12 +1,7 @@
 #!/bin/bash
 # Setup Python and its ecosystem, including pipx, ipython, and poetry. This script ensures you have a robust environment for Python development.
 
-set -euo pipefail
-name=$(basename -s .sh "$0")
-
-echo -e "\033[33m### SETUP $name\033[0m"
-
-brew $MODE pipx
+brew "$MODE" pipx
 
 type ipython || pipx install ipython
 type poetry || pipx install poetry

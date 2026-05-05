@@ -1,11 +1,6 @@
 #!/bin/bash
 # Setup Nerd Fonts, which patches developer targeted fonts with a high number of glyphs (icons). It's essential for a visually rich terminal experience.
 
-set -euo pipefail
-name=$(basename -s .sh "$0")
-
-echo -e "\033[33m### SETUP $name\033[0m"
-
 if [[ $OS_TYPE == "linux" ]]; then
   if test -f ~/.local/share/fonts/HackNerdFont-Regular.ttf; then
     echo "HackNF already installed"
@@ -21,5 +16,5 @@ if [[ $OS_TYPE == "linux" ]]; then
     fc-cache -fv
   fi
 else
-  brew $MODE --cask font-hack-nerd-font
+  brew "$MODE" --cask font-hack-nerd-font
 fi

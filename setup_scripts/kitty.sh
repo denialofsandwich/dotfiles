@@ -1,14 +1,9 @@
 #!/bin/bash
 # Setup kitty, a fast gpu-based terminal emulator
 
-set -euo pipefail
-name=$(basename -s .sh "$0")
-
-echo -e "\033[33m### SETUP $name\033[0m"
-
 if [[ $OS_TYPE == "linux" ]]; then
   if [[ $MODE == "install" ]]; then
-    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
     ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/
     cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
     cp ~/.local/kitty.app/share/applications/kitty-open.desktop ~/.local/share/applications/
@@ -20,7 +15,7 @@ if [[ $OS_TYPE == "linux" ]]; then
     rm ~/.local/share/applications/kitty*.desktop
   fi
 else
-  brew $MODE kitty
+  brew "$MODE" kitty
   ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/ || true
 fi
 
