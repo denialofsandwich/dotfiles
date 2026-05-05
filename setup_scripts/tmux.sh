@@ -6,11 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  sudo $LINUX_PKG_MGR install -y tmux
-else
-  brew install tmux
-fi
+brew install tmux
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"

@@ -6,11 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  sudo $LINUX_PKG_MGR install -y pipx
-else
-  brew install pipx
-fi
+brew install pipx
 
 type ipython || pipx install ipython
 type poetry || pipx install poetry

@@ -1,7 +1,6 @@
 # Initialize homebrew if it's installed
-if [[ -f "/opt/homebrew/bin/brew" ]] then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
+[[ -f "/opt/homebrew/bin/brew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
+[[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
 
 # Set the directory we want to store zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -37,11 +36,6 @@ if command -v gcloud &> /dev/null; then
     zinit ice wait lucid
     zinit snippet OMZP::gcloud
 fi
-
-export NVM_LAZY_LOAD=true
-export NVM_COMPLETION=true
-zinit ice wait lucid
-zinit light lukechilds/zsh-nvm
 
 # Load completions
 autoload -Uz compinit

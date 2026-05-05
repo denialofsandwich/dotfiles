@@ -7,10 +7,7 @@ name=$(basename -s .sh "$0")
 echo -e "\033[33m### SETUP $name\033[0m"
 
 if [[ $OS_TYPE == "linux" ]]; then
-  pushd "$HOME/.local/bin"
-  curl -LO https://dystroy.org/dysk/download/x86_64-linux/dysk
-  chmod +x dysk
-  popd
+  brew install dysk
 else
   echo No-op for macos
   exit 0

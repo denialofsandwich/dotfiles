@@ -34,7 +34,6 @@ DEFAULT_MODULES="
   tmux,
   vim,
   python,
-  nvm,
   neovim,
   lazygit,
   yazi,
@@ -43,6 +42,8 @@ DEFAULT_MODULES="
   xonsh,
   gemini-cli
 "
+
+export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
 
 # possible modes are: stow, delete, restow
 export MODE="${MODE:-stow}"

@@ -9,11 +9,4 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-  npm install -g @google/gemini-cli
-else
-  brew install gemini-cli
-fi
+brew install gemini-cli

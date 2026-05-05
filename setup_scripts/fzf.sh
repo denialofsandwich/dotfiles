@@ -6,16 +6,4 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  if test -d ~/.local/fzf; then
-    echo "fzf is already installed."
-    pushd ~/.local/fzf
-    git pull
-    popd
-  else
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.local/fzf
-    ~/.local/fzf/install --bin
-  fi
-else
-  brew install fzf
-fi
+brew install fzf

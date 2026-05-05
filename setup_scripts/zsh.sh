@@ -6,12 +6,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  sudo $LINUX_PKG_MGR install -y \
-    zsh lsd ripgrep bat curl zoxide
-else
-  brew install zsh lsd bat ripgrep zoxide
-fi
+brew install zsh lsd ripgrep bat zoxide
 
 echo "Update stow"
 stow -d stow_packages -t ~ "--$MODE" "$name"

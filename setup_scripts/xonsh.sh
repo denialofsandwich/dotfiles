@@ -8,12 +8,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  sudo $LINUX_PKG_MGR install -y \
-    lsd ripgrep bat curl zoxide
-else
-  brew install lsd bat ripgrep zoxide
-fi
+brew install lsd bat ripgrep zoxide
 
 pipx install xonsh
 pipx inject xonsh xontrib-fzf-completions xontrib-vox prompt_toolkit gnureadline pygments

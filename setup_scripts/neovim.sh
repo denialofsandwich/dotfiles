@@ -15,28 +15,7 @@ name=$(basename -s .sh "$0")
 
 echo -e "\033[33m### SETUP $name\033[0m"
 
-if [[ $OS_TYPE == "linux" ]]; then
-  [[ $OS == "ubuntu" ]] && sudo apt-get install -y \
-    luarocks fd-find ripgrep nodejs npm xclip wl-clipboard imagemagick texlive-latex-base
-  [[ $OS == "fedora" ]] && sudo dnf install -y \
-    luarocks fd-find ripgrep nodejs npm xclip wl-clipboard ImageMagick
-
-  # Workaround if nvm was installed recently and the env vars not set yet
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-  npm install -g tree-sitter-cli
-  npm install -g @mermaid-js/mermaid-cli
-
-  echo INSTALL neovim
-  pushd "$HOME/.local/bin" || exit 1
-  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
-  chmod u+x nvim-linux-x86_64.appimage
-  mv nvim-linux-x86_64.appimage nvim
-  popd
-else
-  brew install luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim python@3.12 imagemagick-full mermaid-cli
-fi
+brew install luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli
 
 [[ -d ~/.local/nvim/venv ]] || uv venv ~/.local/nvim/venv
 uv pip install --python ~/.local/nvim/venv/bin/python pynvim
