@@ -26,7 +26,6 @@ fi
 DEFAULT_MODULES="
   core,
   bash,
-  nerd-font,
   fzf,
   oh-my-posh,
   zsh,
