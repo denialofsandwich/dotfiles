@@ -1,7 +1,10 @@
 #!/bin/bash
 # Install core tools for my dotfiles
 
-command -v brew &>/dev/null || /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if ! command -v brew &>/dev/null; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
 
 if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
   sudo $LINUX_PKG_MGR install -y \
