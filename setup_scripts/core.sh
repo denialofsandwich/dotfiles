@@ -1,9 +1,11 @@
 #!/bin/bash
 # Install core tools for my dotfiles
 
-if ! command -v brew &>/dev/null; then
+if [[ "$MODE" == "install" ]] && ! command -v brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+elif [[ $OS_TYPE == "linux" && "$MODE" == "uninstall" ]]; then
+  sudo rm -rf /home/linuxbrew
 fi
 
 if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then

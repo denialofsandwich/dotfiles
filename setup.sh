@@ -60,6 +60,15 @@ fi
 
 MODULES=${MODULES:-$(echo "$DEFAULT_MODULES" | tr -d '[:space:]')}
 
+if [[ "$MODE" == "uninstall" ]]; then
+  MODULES=$(
+    echo "$MODULES" |
+      tr ',' '\n' |
+      tac |
+      paste -sd ',' -
+  )
+fi
+
 for module in ${MODULES//,/ }; do
   (
     set -euo pipefail
