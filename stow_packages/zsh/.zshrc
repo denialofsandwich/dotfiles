@@ -2,6 +2,9 @@
 [[ -f "/opt/homebrew/bin/brew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
 
+[[ -f ~/.profile ]] && . ~/.profile
+
+
 # Set the directory we want to store zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
@@ -103,8 +106,22 @@ if command -v yazi &> /dev/null; then
 fi
 
 # SSH Agent, so identities and passwords to unlock them are saved
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    eval "$(ssh-agent -s)"
+SSH_ENV="$HOME/.ssh/ssh-agent.env"
+function start_agent {
+  ssh-agent -s >"${SSH_ENV}"
+  chmod 600 "${SSH_ENV}"
+  . "${SSH_ENV}"
+}
+
+if [ -n "${SSH_AUTH_SOCK-}" ] && [ -S "${SSH_AUTH_SOCK}" ]; then
+  :
+elif [ -f "${SSH_ENV}" ]; then
+  . "${SSH_ENV}" >/dev/null
+  if [ ! -S "${SSH_AUTH_SOCK}" ]; then
+    start_agent
+  fi
+else
+  start_agent
 fi
 
 # Host specific scripts that should not be versioned

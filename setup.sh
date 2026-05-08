@@ -15,6 +15,9 @@ elif [[ -f /etc/os-release ]]; then
   fedora)
     export OS="fedora"
     ;;
+  steamos)
+    export OS="steamos"
+    ;;
   esac
 fi
 

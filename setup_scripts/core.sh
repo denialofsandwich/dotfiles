@@ -17,6 +17,14 @@ brew "$MODE" htop lsof curl jq stow zip git
 
 if [[ $OS_TYPE == "macos" ]]; then
   brew "$MODE" telnet
+elif [[ $OS == "steamos" ]]; then
+  brew "$MODE" glibc gcc
+  mkdir -p ~/.env_scripts
+  cat >~/.env_scripts/gcc_fix.sh <<EOF
+export CC="$(brew --prefix gcc)/bin/gcc-15"
+export CXX="$(brew --prefix gcc)/bin/g++-15"
+EOF
+  chmod +x ~/.env_scripts/gcc_fix.sh
 fi
 
 git config --global rerere.enabled true

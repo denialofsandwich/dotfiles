@@ -66,14 +66,15 @@ xterm* | rxvt*)
 *) ;;
 esac
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
   elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
+  fi
+
+  if [ -f ~/.profile ]; then
+    . ~/.profile
   fi
 fi
 
@@ -128,8 +129,22 @@ if test -d "$HOME/.bash_completions"; then
 fi
 
 # SSH Agent, so identities and passwords to unlock them are saved
-if ! pgrep -u "$USER" ssh-agent >/dev/null; then
-  eval "$(ssh-agent -s)"
+SSH_ENV="$HOME/.ssh/ssh-agent.env"
+function start_agent {
+  ssh-agent -s >"${SSH_ENV}"
+  chmod 600 "${SSH_ENV}"
+  . "${SSH_ENV}"
+}
+
+if [ -n "${SSH_AUTH_SOCK-}" ] && [ -S "${SSH_AUTH_SOCK}" ]; then
+  :
+elif [ -f "${SSH_ENV}" ]; then
+  . "${SSH_ENV}" >/dev/null
+  if [ ! -S "${SSH_AUTH_SOCK}" ]; then
+    start_agent
+  fi
+else
+  start_agent
 fi
 
 # Host specific scripts that should not be versioned
@@ -143,6 +158,9 @@ fi
 if [[ -f ".local_env/activate.sh" ]]; then
   source .local_env/activate.sh
 fi
+
+# Fix prompt command, which may break if something strange is happening in /etc/bash.bashrc
+export PROMPT_COMMAND=$(echo -n "$PROMPT_COMMAND" | sed 's/;;/;/g; s/^;//; s/;$//')
 
 # Fancy prompt, if available
 fc-list | grep -i nerd 2>&1 >/dev/null && export USER_NERD=1
