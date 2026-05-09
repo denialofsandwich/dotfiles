@@ -6,7 +6,22 @@ Contains all dotfiles for my machines.
 
 Here I collect manual steps required to setup the OS after a fresh install.
 
+### General
+
+#### Setup git
+
+```bash
+git config --global user.email "nameyour1337@email.addr"
+git config --global user.name "Your Name"
+```
+
 ### Fedora
+
+#### Set hostname
+
+```bash
+hostnamectl set-hostname rf-pc
+```
 
 #### Enable Additional repos
 
