@@ -110,7 +110,7 @@ alias x='xonsh'
 
 # Kittys TERM string is not widely available by default this is leading
 # to problems on other machines, this alias injects the required infos
-[[ "$TERM" == "xterm-kitty" ]] && alias ssh='kitten ssh'
+[[ "$TERM" == "xterm-kitty" ]] && alias ssh='TERM=xterm-color ssh'
 
 if command -v yazi &>/dev/null; then
   function y() {
