@@ -41,6 +41,23 @@ return {
         },
       },
 
+      sources = {
+        providers = {
+          buffer = {
+            opts = {
+              get_bufnrs = function()
+                return vim
+                  .iter(vim.api.nvim_list_wins())
+                  :map(function(win)
+                    return vim.api.nvim_win_get_buf(win)
+                  end)
+                  :totable()
+              end,
+            },
+          },
+        },
+      },
+
       completion = {
         list = {
           selection = {
