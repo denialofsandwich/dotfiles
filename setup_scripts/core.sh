@@ -10,10 +10,10 @@ fi
 
 if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
   sudo $LINUX_PKG_MGR install -y \
-    htop lsof curl jq git vim screen tmux bash zsh btop
+    htop lsof curl jq git vim screen tmux bash zsh btop croc
 fi
 
-brew "$MODE" htop lsof curl jq stow zip git btop
+brew "$MODE" htop lsof curl jq stow zip git btop croc
 
 if [[ $OS_TYPE == "macos" ]]; then
   brew "$MODE" telnet
