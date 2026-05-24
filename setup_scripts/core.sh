@@ -13,7 +13,7 @@ if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
     htop lsof curl jq git vim screen tmux bash zsh btop croc
 fi
 
-brew "$MODE" htop lsof curl jq stow zip git btop croc
+brew "$MODE" htop lsof curl jq stow zip git btop croc lazysql
 
 if [[ $OS_TYPE == "macos" ]]; then
   brew "$MODE" telnet
