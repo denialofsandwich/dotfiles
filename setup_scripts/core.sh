@@ -10,7 +10,7 @@ fi
 
 if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
   sudo $LINUX_PKG_MGR install -y \
-    htop lsof curl jq git vim screen tmux bash zsh btop croc
+    htop lsof curl jq git vim screen tmux bash zsh croc
 fi
 
 brew "$MODE" htop lsof curl jq stow zip git btop croc lazysql

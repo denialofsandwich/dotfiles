@@ -39,6 +39,7 @@ DEFAULT_MODULES="
   neovim,
   lazygit,
   yazi,
+  btop,
   kitty,
   dysk,
   xonsh
