@@ -108,6 +108,7 @@ fi
 # SSH Agent, so identities and passwords to unlock them are saved
 SSH_ENV="$HOME/.ssh/ssh-agent.env"
 function start_agent {
+  mkdir -p "$(dirname "$SSH_ENV")"
   ssh-agent -s >"${SSH_ENV}"
   chmod 600 "${SSH_ENV}"
   . "${SSH_ENV}"
