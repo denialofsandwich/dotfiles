@@ -15,7 +15,9 @@ fi
 
 brew "$MODE" htop lsof curl jq stow zip git btop croc lazysql
 
-if [[ $OS_TYPE == "macos" ]]; then
+if [[ $OS_TYPE == "linux" ]]; then
+  brew "$MODE" dysk
+elif [[ $OS_TYPE == "macos" ]]; then
   brew "$MODE" telnet
 elif [[ $OS == "steamos" ]]; then
   brew "$MODE" glibc gcc

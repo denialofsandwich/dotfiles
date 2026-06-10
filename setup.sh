@@ -41,7 +41,6 @@ DEFAULT_MODULES="
   yazi,
   btop,
   kitty,
-  dysk,
   xonsh
 "
 
