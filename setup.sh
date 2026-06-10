@@ -40,8 +40,7 @@ DEFAULT_MODULES="
   lazygit,
   yazi,
   btop,
-  kitty,
-  xonsh
+  kitty
 "
 
 export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
