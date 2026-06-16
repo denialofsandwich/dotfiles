@@ -91,6 +91,19 @@ alias ipy='ipython'
 alias nv='nvim'
 alias x='xonsh'
 
+delhist() {
+  local entries=$(fc -ln 1 | fzf -m --query="$1")
+  if [ -n "$entries" ]; then
+    echo "$entries" | sed 's/^[[:space:]]*//' > /tmp/to_delete
+    grep -vxFf /tmp/to_delete "$HISTFILE" > "${HISTFILE}.tmp"
+    mv "${HISTFILE}.tmp" "$HISTFILE"
+    fc -R "$HISTFILE"
+    local count=$(echo "$entries" | wc -l)
+    echo "$count entry(ies) removed from history."
+    rm /tmp/to_delete
+  fi
+}
+
 # Kittys TERM string is not widely available by default this is leading
 # to problems on other machines, this alias injects the required infos
 [[ "$TERM" == "xterm-kitty" ]] && alias ssh='TERM=xterm-color ssh'
