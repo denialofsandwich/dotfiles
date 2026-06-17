@@ -153,41 +153,14 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-function fzf-tab-disable() {
-  zstyle ':completion:*:descriptions' format "$fg[yellow]%B--- %d%b"
-  zstyle ':fzf-tab:*' disabled-on any
-}
-
-function fzf-tab-enable() {
-  zstyle ':completion:*:descriptions' format ""
-  zstyle ':fzf-tab:*' disabled-on none
-}
-
-function fzf-tab-toggle() {
-  if test "$(zstyle | grep fzf-tab | grep any)"; then
-    echo "Enabling fzf-tab"
-    fzf-tab-enable
-  else
-    echo "Disabling fzf-tab"
-    fzf-tab-disable
-  fi
-}
-
-alias tt='fzf-tab-toggle'
-
-zstyle ':completion:*' menu select
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*' verbose yes
-zstyle ':completion:*' special-dirs true
-zstyle ':completion:*:messages' format '%d'
-zstyle ':completion:*:warnings' format "$fg[red]No matches for:$reset_color %d"
-zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
-zstyle ':completion:*' group-name ''
-
-zstyle ':fzf-tab:*' fzf-flags --height=~40 --bind "tab:ignore,btab:ignore,ctrl-space:ignore"
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:*' fzf-flags --bind "tab:down,btab:up"
+zstyle ':fzf-tab:*' switch-group '<' '>'
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
-fzf-tab-disable
 
 # key bindings
 bindkey "\e[1~" beginning-of-line
