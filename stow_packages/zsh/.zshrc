@@ -14,40 +14,26 @@ if [ ! -d "$ZINIT_HOME" ]; then
    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 
-# Source/Load zinit
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Add in zsh plugins
-zinit light zsh-users/zsh-completions
+autoload -Uz compinit
+compinit
 
+zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 
 zinit ice wait lucid
 zinit light Aloxaf/fzf-tab
 
 zinit ice wait lucid
-zinit snippet OMZP::sudo
+zinit for OMZP::sudo OMZP::command-not-found
 
-zinit ice wait lucid
-zinit snippet OMZP::command-not-found
+zinit ice wait lucid atload"zicdreplay"
+zinit snippet OMZP::gcloud
 
 source ~/.zsh_syntax_highlighting.zsh
 zinit ice wait'0b' lucid atinit'zpcompinit'
 zinit light zsh-users/zsh-syntax-highlighting
-
-if command -v gcloud &> /dev/null; then
-    zinit ice wait lucid
-    zinit snippet OMZP::gcloud
-fi
-
-# Load completions
-autoload -Uz compinit
-# Compinit caching
-if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-  compinit;
-else
-  compinit -C;
-fi
 
 zinit cdreplay -q
 
