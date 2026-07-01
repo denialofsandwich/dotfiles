@@ -6,7 +6,7 @@ brew link ffmpeg-full imagemagick-full -f --overwrite
 
 ya pkg add yazi-rs/plugins:chmod || true
 ya pkg add yazi-rs/plugins:mount || true
-ya pkg add dreammaomao/searchjump || true
+ya pkg add denialofsandwich/searchjump || true
 
 echo "Update stow"
 mkdir -p ~/.config/yazi
