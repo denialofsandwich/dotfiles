@@ -1,12 +1,11 @@
 #!/bin/bash
 # Setup Python and its ecosystem, including pipx, ipython, and poetry. This script ensures you have a robust environment for Python development.
 
-brew "$MODE" -y pipx
+brew "$MODE" -y uv
 
-type ipython || pipx install ipython
-type poetry || pipx install poetry
-type uv || pipx install uv
-type pre-commit || pipx install pre-commit
+type ipython || uv tool install ipython
+type pre-commit || uv tool install pre-commit
+type poetry || uv tool install poetry
 
 echo "Update stow"
 mkdir -p ~/.config/pypoetry
