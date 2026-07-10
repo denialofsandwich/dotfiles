@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup tmux, a terminal multiplexer that enables you to switch easily between several programs in one terminal. It also allows you to detach and reattach sessions.
 
-brew "$MODE" tmux
+brew "$MODE" -y tmux
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"

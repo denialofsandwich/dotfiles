@@ -15,7 +15,7 @@ if [[ $OS_TYPE == "linux" ]]; then
     rm ~/.local/share/applications/kitty*.desktop
   fi
 else
-  brew "$MODE" kitty
+  brew "$MODE" -y kitty
   ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/ || true
 fi
 

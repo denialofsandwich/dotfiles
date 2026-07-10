@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup yazi a terminal based file browser
 
-brew "$MODE" yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa
+brew "$MODE" -y yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa
 brew link ffmpeg-full imagemagick-full -f --overwrite
 
 ya pkg add yazi-rs/plugins:chmod || true

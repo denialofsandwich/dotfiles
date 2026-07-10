@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup lazygit, a simple terminal UI for git commands. It provides a more intuitive way to manage your git repositories.
 
-brew "$MODE" lazygit delta
+brew "$MODE" -y lazygit delta
 
 echo "Update stow"
 if [[ $OS == "ubuntu" ]]; then

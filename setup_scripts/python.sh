@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup Python and its ecosystem, including pipx, ipython, and poetry. This script ensures you have a robust environment for Python development.
 
-brew "$MODE" pipx
+brew "$MODE" -y pipx
 
 type ipython || pipx install ipython
 type poetry || pipx install poetry

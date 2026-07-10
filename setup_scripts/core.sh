@@ -13,14 +13,14 @@ if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
     htop lsof curl jq git vim screen tmux bash zsh croc
 fi
 
-brew "$MODE" htop lsof curl jq stow zip git croc lazysql
+brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql
 
 if [[ $OS_TYPE == "linux" ]]; then
-  brew "$MODE" dysk
+  brew "$MODE" -y dysk
 elif [[ $OS_TYPE == "macos" ]]; then
-  brew "$MODE" telnet
+  brew "$MODE" -y telnet
 elif [[ $OS == "steamos" ]]; then
-  brew "$MODE" glibc gcc
+  brew "$MODE" -y glibc gcc
   mkdir -p ~/.env_scripts
   cat >~/.env_scripts/gcc_fix.sh <<EOF
 export CC="$(brew --prefix gcc)/bin/gcc-15"
