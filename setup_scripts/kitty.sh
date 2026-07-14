@@ -19,6 +19,8 @@ else
   ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/ || true
 fi
 
+mkdir ~/.kitty-sessions
+
 echo "Update stow"
 mkdir -p ~/.config/kitty
 if [[ $OS_TYPE == "linux" ]]; then
