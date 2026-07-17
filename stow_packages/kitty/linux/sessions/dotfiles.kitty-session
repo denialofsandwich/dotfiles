@@ -2,7 +2,6 @@ new_tab !dotfiles
 layout tall:bias=60;full_size=1;mirrored=false
 enabled_layouts tall:bias=60;full_size=1;mirrored=false,fat:bias=60;full_size=1;mirrored=false,stack
 set_layout_state {"main_bias": [0.6, 0.4], "biased_map": {}, "opts": {"full_size": 1, "bias": 60, "mirrored": "n"}, "class": "Tall", "all_windows": {"active_group_idx": 0, "active_group_history": [6], "window_groups": [{"id": 6, "window_ids": [11]}]}}
-cd ~/dev/private/dotfiles
 
-launch zsh -i -c "nvim -c \"autocmd VimEnter * call feedkeys('s')\"; exec zsh"
+launch zsh -i -c "cd \"$(zoxide query dotfiles)\"; nvim -c \"autocmd VimEnter * call feedkeys('s')\"; exec zsh"
 focus
