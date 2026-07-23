@@ -2,18 +2,31 @@
 linemode = "permissions"
 
 [opener]
-edit = [
-	{ run = 'nvim "$1"', block = true, desc = "neovim" },
-]
+edit = [{ run = 'nvim "$1"', block = true, desc = "neovim" }]
 open = [
-	{ run = 'xdg-open "$@"', orphan = true, desc = "open" , for = "linux" },
-	{ run = 'open "$@"' , orphan = true, desc = "open" , for = "macos"},
+  { run = 'xdg-open "$@"', orphan = true, desc = "open", for = "linux" },
+  { run = 'open "$@"', orphan = true, desc = "open", for = "macos" },
   { run = '''dbus-send --session --print-reply --dest=org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1.ShowItems array:string:"file://$(realpath "$1")" string:""''', desc = "reveal", for = "linux" },
-	{ run = 'open -R "$@"' , orphan = true, desc = "reveal" , for = "macos"},
+  { run = 'open -R "$@"', orphan = true, desc = "reveal", for = "macos" },
 ]
 
 [open]
 rules = [
-	{ url = "*/", use = ["open", "edit"] },
-	{ mime = "*", use = ["open", "edit"] },
+  { url = "*/", use = [
+    "open",
+    "edit",
+  ] },
+  { mime = "*", use = [
+    "open",
+    "edit",
+  ] },
+]
+
+[plugin]
+prepend_spotters = [
+  { mime = "video/*", run = "spot-video" },
+  { mime = "audio/*", run = "spot-audio" },
+  { mime = "image/*", run = "spot-image" },
+  { url = "*/", run = "spot" },
+  { url = "*", run = "spot" },
 ]
