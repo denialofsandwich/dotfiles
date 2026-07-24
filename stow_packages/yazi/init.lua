@@ -11,4 +11,10 @@ require("searchjump"):setup({
 	auto_exit_when_unmatch = false,
 	enable_capital_label = true,
 	search_patterns = {},
+	keys_label = {
+		"a", "s", "d", "f", "g", "q", "w", "e", "r", "t", "y", "x", "c", "v", "b",
+		"h", "j", "k", "l", "z", "u", "i", "o", "p", "n", "m",
+		"A", "S", "D", "F", "G", "Q", "W", "E", "R", "T", "Y", "X", "C", "V", "B",
+		"H", "J", "K", "L", "Z", "U", "I", "O", "P", "N", "M",
+	},
 })
