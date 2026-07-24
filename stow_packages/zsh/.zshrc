@@ -14,6 +14,7 @@ fi
 
 source "${ZINIT_HOME}/zinit.zsh"
 
+fpath+=~/.zfunc
 autoload -Uz compinit
 compinit
 
