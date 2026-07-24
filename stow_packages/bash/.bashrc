@@ -6,6 +6,8 @@ export PROMPT_COMMAND=${PROMPT_COMMAND:-:}
 [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
 [ -z "${XDG_CONFIG_HOME}" ] && export XDG_CONFIG_HOME=$HOME/.config
 
+export PATH="$PATH:$HOME/.local/bin"
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -73,8 +75,6 @@ fi
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
-
-export PATH="$PATH:$HOME/.local/bin"
 
 # FZF
 test -d ~/.local/fzf/bin && PATH="$PATH:$HOME/.local/fzf/bin"
