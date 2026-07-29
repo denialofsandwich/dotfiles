@@ -4,7 +4,7 @@
 brew "$MODE" -y lazygit delta
 
 echo "Update stow"
-if [[ $OS == "ubuntu" ]]; then
+if [[ $OS_TYPE == "linux" ]]; then
   mkdir -p ~/.config/lazygit
   stow -d stow_packages -t ~/.config/lazygit "--$STOW_MODE" "$MODULE"
 else
