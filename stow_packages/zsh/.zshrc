@@ -20,8 +20,6 @@ compinit
 
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
-
-zinit ice wait lucid
 zinit light Aloxaf/fzf-tab
 
 zinit ice wait lucid
@@ -184,8 +182,6 @@ bindkey "\eOF" end-of-line
 # for freebsd console
 bindkey "\e[H" beginning-of-line
 bindkey "\e[F" end-of-line
-# completion in the middle of a line
-bindkey '^i' expand-or-complete-prefix
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
