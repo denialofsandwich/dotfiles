@@ -15,11 +15,19 @@ fi
 
 brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql
 
+WANTED_SHELL="$(command -v zsh)"
+if [[ "$SHELL" != "$WANTED_SHELL" ]]; then
+  grep "$WANTED_SHELL" /etc/shells || echo "$WANTED_SHELL" | sudo tee -a /etc/shells
+  chsh -s "$WANTED_SHELL"
+fi
+
 if [[ $OS_TYPE == "linux" ]]; then
   brew "$MODE" -y dysk
 elif [[ $OS_TYPE == "macos" ]]; then
   brew "$MODE" -y telnet
-elif [[ $OS == "steamos" ]]; then
+fi
+
+if [[ $OS == "steamos" ]]; then
   brew "$MODE" -y glibc gcc
   mkdir -p ~/.env_scripts
   cat >~/.env_scripts/gcc_fix.sh <<EOF
