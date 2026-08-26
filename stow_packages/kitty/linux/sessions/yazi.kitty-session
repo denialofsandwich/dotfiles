@@ -1,0 +1,3 @@
+new_tab !yazi
+cd ~
+launch zsh -c yazi
