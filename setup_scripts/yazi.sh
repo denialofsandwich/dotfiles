@@ -12,6 +12,7 @@ ya pkg add AminurAlam/yazi-plugins:spot-video || true
 ya pkg add AminurAlam/yazi-plugins:spot-audio || true
 ya pkg add AminurAlam/yazi-plugins:spot-image || true
 ya pkg add denialofsandwich/searchjump || true
+ya pkg upgrade
 
 echo "Update stow"
 mkdir -p ~/.config/yazi
