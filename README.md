@@ -57,15 +57,10 @@ brew install --cask easy-move-plus-resize
 xattr -dr com.apple.quarantine /Applications/Easy\ Move+Resize.app
 ```
 
-#### Install Mac Mouse Fix
+#### Fix mouse
 
-```bash
-brew install mac-mouse-fix
-```
-
-#### Fix scrolling
-
-- system > mouse -> disable "Natural scrolling"
+- system > mouse > advanced disable "Pointer acceleration"
+- system > mouse > disable "Natural scrolling"
 - Install:
 
   ```bash
