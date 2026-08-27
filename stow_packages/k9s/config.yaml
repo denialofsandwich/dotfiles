@@ -1,0 +1,7 @@
+k9s:
+  liveViewAutoRefresh: true
+  refreshRate: 2
+  ui:
+    enableMouse: true
+    reactive: true
+    skin: dracula

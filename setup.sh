@@ -26,23 +26,6 @@ if [[ "$OS" == "unknown" ]]; then
   exit 1
 fi
 
-DEFAULT_MODULES="
-  core,
-  bash,
-  nerd-font,
-  oh-my-posh,
-  zsh,
-  screen,
-  tmux,
-  vim,
-  python,
-  neovim,
-  lazygit,
-  yazi,
-  btop,
-  kitty
-"
-
 export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
 
 # possible modes are: install, uninstall
@@ -60,18 +43,19 @@ if [[ $OS == "fedora" ]]; then
   export LINUX_PKG_MGR=dnf
 fi
 
-MODULES=${MODULES:-$(echo "$DEFAULT_MODULES" | tr -d '[:space:]')}
-
-if [[ "$MODE" == "uninstall" ]]; then
-  MODULES=$(
-    echo "$MODULES" |
-      tr ',' '\n' |
-      tac |
-      paste -sd ',' -
-  )
+if [[ -f custom_modules.txt ]]; then
+  MODULES_FILE=$(cat custom_modules.txt)
+else
+  MODULES_FILE=$(cat default_modules.txt)
 fi
 
-for module in ${MODULES//,/ }; do
+MODULES=${MODULES:-$(echo "$MODULES_FILE" | sed 's/\s+/ /g')}
+
+if [[ "$MODE" == "uninstall" ]]; then
+  MODULES=$(echo "$MODULES" | tr ' ' '\n' | tac | paste -sd ' ' -)
+fi
+
+for module in $MODULES; do
   (
     set -euo pipefail
     echo -e "\033[33m### SETUP ${module}\033[0m"

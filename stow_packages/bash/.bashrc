@@ -7,6 +7,8 @@ export PROMPT_COMMAND=${PROMPT_COMMAND:-:}
 [ -z "${XDG_CONFIG_HOME}" ] && export XDG_CONFIG_HOME=$HOME/.config
 
 export PATH="$PATH:$HOME/.local/bin"
+# Installed from coreutils on macos and the export allows using it without prefix
+command -v gcat &>/dev/null && export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 
 # If not running interactively, don't do anything
 case $- in

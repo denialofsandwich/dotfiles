@@ -1,0 +1,14 @@
+core
+bash
+nerd-font
+oh-my-posh
+zsh
+screen
+tmux
+vim
+python
+neovim
+lazygit
+yazi
+btop
+kitty

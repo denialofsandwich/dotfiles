@@ -35,6 +35,8 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit cdreplay -q
 
 export PATH="$PATH:$HOME/.local/bin"
+# Installed from coreutils on macos and the export allows using it without prefix
+command -v gcat &> /dev/null && export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
 
 # FZF
 [[ -d ~/.local/fzf/bin ]] && PATH="$HOME/.local/fzf/bin:$PATH"

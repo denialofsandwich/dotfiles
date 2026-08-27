@@ -17,6 +17,9 @@ brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql
 
 WANTED_SHELL="$(command -v zsh)"
 if [[ "$SHELL" != "$WANTED_SHELL" ]]; then
+  echo "Current shell: $SHELL"
+  echo "Wanted shell: $WANTED_SHELL"
+  echo "Attempting to set the new shell..."
   grep "$WANTED_SHELL" /etc/shells || echo "$WANTED_SHELL" | sudo tee -a /etc/shells
   chsh -s "$WANTED_SHELL"
 fi
@@ -24,7 +27,7 @@ fi
 if [[ $OS_TYPE == "linux" ]]; then
   brew "$MODE" -y dysk
 elif [[ $OS_TYPE == "macos" ]]; then
-  brew "$MODE" -y telnet
+  brew "$MODE" -y telnet coreutils
 fi
 
 if [[ $OS == "steamos" ]]; then
