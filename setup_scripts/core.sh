@@ -5,7 +5,8 @@ if [[ "$MODE" == "install" ]] && ! command -v brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 elif [[ $OS_TYPE == "linux" && "$MODE" == "uninstall" ]]; then
-  sudo rm -rf /home/linuxbrew
+  brew list | xargs brew uninstall -y
+  rm -rf /home/linuxbrew
 fi
 
 if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
@@ -13,16 +14,7 @@ if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
     htop lsof curl jq git vim screen tmux bash zsh croc
 fi
 
-brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql
-
-WANTED_SHELL="$(command -v zsh)"
-if [[ "$SHELL" != "$WANTED_SHELL" ]]; then
-  echo "Current shell: $SHELL"
-  echo "Wanted shell: $WANTED_SHELL"
-  echo "Attempting to set the new shell..."
-  grep "$WANTED_SHELL" /etc/shells || echo "$WANTED_SHELL" | sudo tee -a /etc/shells
-  chsh -s "$WANTED_SHELL"
-fi
+brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql yq jinja2-cli
 
 if [[ $OS_TYPE == "linux" ]]; then
   brew "$MODE" -y dysk

@@ -23,8 +23,7 @@ mkdir -p ~/.kitty-sessions
 
 echo "Update stow"
 mkdir -p ~/.config/kitty
-if [[ $OS_TYPE == "linux" ]]; then
-  stow -d stow_packages/kitty -t ~/.config/kitty "--$STOW_MODE" "linux"
-else
-  stow -d stow_packages/kitty -t ~/.config/kitty "--$STOW_MODE" "macos"
-fi
+pushd stow_packages/kitty/templates >/dev/null || exit 1
+jinja2 -D "FORCE_ZSH=$FORCE_ZSH" -D "OS_TYPE=$OS_TYPE" kitty.conf.j2 >../configs/kitty.conf
+popd >/dev/null || exit 1
+stow -d stow_packages/kitty -t ~/.config/kitty "--$STOW_MODE" configs

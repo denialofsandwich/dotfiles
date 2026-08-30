@@ -5,13 +5,17 @@ brew "$MODE" -y tmux
 
 if test -d ~/.tmux/plugins/tpm; then
   echo "tmux plugin manager is already installed"
-  pushd ~/.tmux/plugins/tpm
+  pushd ~/.tmux/plugins/tpm >/dev/null || exit 1
   git pull
-  popd
+  popd >/dev/null || exit 1
 else
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
   # To install plugins run <starter>I in tmux
 fi
 
 echo "Update stow"
-stow -d stow_packages -t ~ "--$STOW_MODE" tmux
+mkdir -p stow_packages/tmux/configs
+pushd stow_packages/tmux/templates >/dev/null || exit 1
+jinja2 -D "FORCE_ZSH=$FORCE_ZSH" .tmux.conf.j2 >../configs/.tmux.conf
+popd >/dev/null || exit 1
+stow -d stow_packages/tmux -t ~ "--$STOW_MODE" configs

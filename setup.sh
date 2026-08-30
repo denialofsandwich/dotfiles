@@ -3,22 +3,9 @@
 set -euo pipefail
 pushd "$(dirname "$0")" || exit 1
 
-export OS="unknown"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  export OS="macos"
-elif [[ -f /etc/os-release ]]; then
-  . /etc/os-release
-  case "$ID" in
-  ubuntu)
-    export OS="ubuntu"
-    ;;
-  fedora)
-    export OS="fedora"
-    ;;
-  steamos)
-    export OS="steamos"
-    ;;
-  esac
+source default_vars.sh
+if [[ -f custom_vars.sh ]]; then
+  source custom_vars.sh
 fi
 
 if [[ "$OS" == "unknown" ]]; then
@@ -26,30 +13,7 @@ if [[ "$OS" == "unknown" ]]; then
   exit 1
 fi
 
-export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
-
-# possible modes are: install, uninstall
-export MODE="${MODE:-install}"
-[[ "$MODE" == "install" ]] && export STOW_MODE="stow"
-[[ "$MODE" == "uninstall" ]] && export STOW_MODE="delete"
-
-export OS_TYPE="linux"
-if [[ "$OS" == "macos" ]]; then
-  export OS_TYPE="macos"
-fi
-
-export LINUX_PKG_MGR=apt-get
-if [[ $OS == "fedora" ]]; then
-  export LINUX_PKG_MGR=dnf
-fi
-
-if [[ -f custom_modules.txt ]]; then
-  MODULES_FILE=$(cat custom_modules.txt)
-else
-  MODULES_FILE=$(cat default_modules.txt)
-fi
-
-MODULES=${MODULES:-$(echo "$MODULES_FILE" | sed 's/\s+/ /g')}
+MODULES=${MODULES:-$DEFAULT_MODULES}
 
 if [[ "$MODE" == "uninstall" ]]; then
   MODULES=$(echo "$MODULES" | tr ' ' '\n' | tac | paste -sd ' ' -)

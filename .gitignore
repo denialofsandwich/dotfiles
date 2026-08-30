@@ -1,3 +1,5 @@
 custom.lua
 lazy-lock.json
-custom_modules.txt
+custom_vars.sh
+.tmux.conf
+kitty.conf
