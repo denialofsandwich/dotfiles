@@ -5,7 +5,6 @@
 # - fzf.sh - Used by fzf-find plugin for anything search related
 # - lazygit.sh - Configured as the default git manager (optional)
 # - nerd-font.sh - Complex icon support
-# - nvm.sh (ubuntu) - For the ast parser tree-sitter-cli
 # - python.sh - For python based plugins. But currently unused (optional)
 # - yazi.sh - To use the yazi file manager integration (optional)
 # - zsh.sh - Configured as the default shell
