@@ -9,7 +9,7 @@
 # - yazi.sh - To use the yazi file manager integration (optional)
 # - zsh.sh - Configured as the default shell
 
-brew "$MODE" -y luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli fzf gemini-cli
+brew "$MODE" -y luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli fzf
 
 [[ -d ~/.local/nvim/venv ]] || uv venv ~/.local/nvim/venv
 uv pip install --python ~/.local/nvim/venv/bin/python pynvim
