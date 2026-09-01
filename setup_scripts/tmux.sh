@@ -10,7 +10,6 @@ if test -d ~/.tmux/plugins/tpm; then
   popd >/dev/null || exit 1
 else
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-  # To install plugins run <starter>I in tmux
 fi
 
 echo "Update stow"
@@ -19,3 +18,9 @@ pushd stow_packages/tmux/templates >/dev/null || exit 1
 jinja2 -D "FORCE_ZSH=$FORCE_ZSH" .tmux.conf.j2 >../configs/.tmux.conf
 popd >/dev/null || exit 1
 stow -d stow_packages/tmux -t ~ "--$STOW_MODE" configs
+
+if [[ "$MODE" == "install" ]]; then
+  echo "Update tmux plugins"
+  ~/.tmux/plugins/tpm/bin/install_plugins
+  ~/.tmux/plugins/tpm/bin/update_plugins all
+fi

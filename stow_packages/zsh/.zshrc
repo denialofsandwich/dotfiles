@@ -16,7 +16,17 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 fpath+=~/.zfunc
 autoload -Uz compinit
-compinit
+# Only run the full (slow) compaudit + dump rebuild once a day; otherwise
+# trust the existing dump and skip straight to loading it.
+zcompdump="${ZDOTDIR:-$HOME}/.zcompdump"
+if () {
+  setopt local_options extendedglob
+  [[ -n "$zcompdump"(#qN.mh+24) || ! -s "$zcompdump" ]]
+}; then
+  compinit
+else
+  compinit -C
+fi
 
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
