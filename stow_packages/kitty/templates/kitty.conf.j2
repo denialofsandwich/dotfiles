@@ -6,12 +6,10 @@ allow_remote_control yes
 listen_on unix:/tmp/kitty
 shell_integration enabled
 
-{%- if FORCE_ZSH == "yes" %}
-
+{% if FORCE_ZSH == "yes" -%}
 ### Dynamically selected if FORCE_ZSH=yes
 shell zsh
-
-{% endif -%}
+{%- endif %}
 
 enable_audio_bell no
 visual_bell_duration 0.0
@@ -24,7 +22,7 @@ tab_bar_edge top
 tab_powerline_style slanted
 tab_title_template "{custom}"
 
-enabled_layouts tall:bias=60;full_size=1;mirrored=false,fat:bias=60;full_size=1;mirrored=false,stack
+enabled_layouts tall:bias=60,fat:bias=60,stack
 window_border_width 1.5pt
 draw_minimal_borders no
 
@@ -39,7 +37,7 @@ map kitty_mod+down next_window
 map kitty_mod+s move_window_to_top
 map kitty_mod+enter new_window_with_cwd
 map kitty_mod+ä set_tab_title
-map kitty_mod+# combine : first_window : toggle_layout stack
+map kitty_mod+# kitten zoom_toggle.py
 map kitty_mod+ü macos_cycle_through_os_windows
 
 action_alias kitty_scrollback_nvim kitten '~/.local/share/nvim/lazy/kitty-scrollback.nvim/python/kitty_scrollback_nvim.py'
@@ -69,8 +67,7 @@ map kitty_mod+a>w save_as_session --use-foreground-process --base-dir ~/.kitty-s
 # Fix issue with virtual keyboards and multi-key shortcuts
 wayland_enable_ime no
 
-{%- if OS_TYPE == "macos" %}
-
+{% if OS_TYPE == "macos" -%}
 ### From here dynamically selected if OS_TYPE=macos
 font_size 11.0
 
@@ -118,4 +115,4 @@ map cmd+backspace send_key ctrl+backspace
 map alt+backspace send_key ctrl+backspace
 map alt+left      send_key ctrl+left
 map alt+right     send_key ctrl+right
-{% endif -%}
+{%- endif %}

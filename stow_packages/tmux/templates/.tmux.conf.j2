@@ -14,12 +14,10 @@ set -g mouse on
 # don't rename windows automatically
 set-option -g allow-rename off
 
-{%- if FORCE_ZSH == "yes" %}
-
+{% if FORCE_ZSH == "yes" -%}
 ### Dynamically set shell if FORCE_ZSH=yes
 set -g default-shell /bin/zsh
-
-{% endif -%}
+{%- endif %}
 
 # split panes using | and -
 bind | split-window -h
