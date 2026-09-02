@@ -14,7 +14,7 @@ if [[ "$MODE" == "install" ]]; then
   fi
 
   echo "Update zinit plugins"
-  zsh -c "
+  PAGER=cat GIT_PAGER=cat zsh -c "
     source '$ZINIT_HOME/zinit.zsh'
     fpath+=~/.zfunc
     zinit self-update -q

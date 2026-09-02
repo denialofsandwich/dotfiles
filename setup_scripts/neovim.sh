@@ -23,7 +23,7 @@ if [[ "$MODE" == "install" ]]; then
   nvim --headless "+Lazy! sync" +qa
 
   echo "Update mason.nvim packages"
-  nvim --headless -c "luafile misc/nvim-mason-update.lua" -c "qa"
+  nvim --headless -c "luafile misc/neovim-mason-update.lua" -c "qa"
 
   echo "Update nvim-treesitter parsers"
   nvim --headless "+TSUpdate" +qa
