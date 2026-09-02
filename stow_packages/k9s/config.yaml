@@ -1,6 +1,7 @@
 k9s:
   liveViewAutoRefresh: true
   refreshRate: 2
+  noExitOnCtrlC: true
   ui:
     enableMouse: true
     reactive: true
