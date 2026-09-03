@@ -199,6 +199,15 @@ bindkey "\e[F" end-of-line
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
+# Show fastfetch once per tab start in kitty
+if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" ]] \
+  && command -v fastfetch &> /dev/null && command -v jq &> /dev/null; then
+  windows_in_tab="$(kitty @ ls --match-tab "window_id:$KITTY_WINDOW_ID" 2>/dev/null \
+    | jq -r '.[0].tabs[0].windows | length' 2>/dev/null)"
+  [[ "$windows_in_tab" == "1" ]] && fastfetch
+  unset windows_in_tab
+fi
+
 # Fancy prompt
 export USER_NERD=1
 test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1

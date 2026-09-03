@@ -14,7 +14,7 @@ if [[ $ROOT_PACKAGES == "yes" && $OS_TYPE == "linux" ]]; then
     htop lsof curl jq git vim screen tmux bash zsh croc
 fi
 
-brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql yq jinja2-cli
+brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql yq jinja2-cli fastfetch
 
 if [[ $OS_TYPE == "linux" ]]; then
   brew "$MODE" -y dysk
