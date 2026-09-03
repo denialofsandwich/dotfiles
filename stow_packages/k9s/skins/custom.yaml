@@ -1,20 +1,20 @@
 # -----------------------------------------------------------------------------
-# Dracula skin
+# Tokyo Night skin
 # -----------------------------------------------------------------------------
 
 # Styles...
-foreground: &foreground "#f8f8f2"
-background: &background "#282a36"
-current_line: &current_line "#44475a"
-selection: &selection "#44475a"
-comment: &comment "#6272a4"
-cyan: &cyan "#8be9fd"
-green: &green "#50fa7b"
-orange: &orange "#ffb86c"
-pink: &pink "#ff79c6"
-purple: &purple "#bd93f9"
-red: &red "#ff5555"
-yellow: &yellow "#f1fa8c"
+foreground: &foreground "#c0caf5"
+background: &background "#1e212f"
+current_line: &current_line "#292e42"
+selection: &selection "#3b4261"
+comment: &comment "#565f89"
+cyan: &cyan "#7dcfff"
+green: &green "#9ece6a"
+orange: &orange "#ff9e64"
+pink: &pink "#bb9af7"
+purple: &purple "#7aa2f7"
+red: &red "#f7768e"
+yellow: &yellow "#e0af68"
 
 # Skin...
 k9s:
