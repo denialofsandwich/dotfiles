@@ -6,6 +6,7 @@ brew link ffmpeg-full imagemagick-full -f --overwrite
 
 ya pkg add yazi-rs/plugins:chmod || true
 ya pkg add yazi-rs/plugins:mount || true
+ya pkg add uhs-robert/sshfs
 ya pkg add AminurAlam/yazi-plugins:spot || true
 ya pkg add AminurAlam/yazi-plugins:spot-video || true
 ya pkg add AminurAlam/yazi-plugins:spot-audio || true
