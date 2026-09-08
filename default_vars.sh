@@ -1,5 +1,5 @@
-DEFAULT_MODULES="core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit yazi btop kitty"
-FORCE_ZSH=yes
+export DEFAULT_MODULES="core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit yazi btop kitty"
+export FORCE_ZSH=yes
 
 export OS="unknown"
 if [[ "$OSTYPE" == "darwin"* ]]; then
