@@ -22,7 +22,7 @@ brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql yq jinja2-cli fastfe
 if [[ "$OS_TYPE" == "linux" ]]; then
   brew "$MODE" -y dysk
 elif [[ "$OS_TYPE" == "macos" ]]; then
-  brew "$MODE" -y telnet coreutils
+  brew "$MODE" -y telnet coreutils wget
 fi
 
 # Steam OS is shipping without build essentials and because it's an immutable OS
