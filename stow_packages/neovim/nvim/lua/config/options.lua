@@ -14,3 +14,4 @@ vim.g.root_spec = { "cwd" }
 vim.g.mapleader = " "
 vim.g.maplocalleader = "ö"
 vim.opt.conceallevel = 0
+vim.opt.exrc = true
