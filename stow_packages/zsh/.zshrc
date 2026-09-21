@@ -145,6 +145,18 @@ if [[ -f ".local_env/activate.sh" ]]; then
   source .local_env/activate.sh
 fi
 
+# Enable kitty-scrollback.nvim command line edit feature
+# Press <C-e> to trigger
+autoload -Uz edit-command-line
+zle -N edit-command-line
+
+function kitty_scrollback_edit_command_line() {
+  local VISUAL="$HOME/.local/share/nvim/lazy/kitty-scrollback.nvim/scripts/edit_command_line.sh"
+  zle edit-command-line
+  zle kill-whole-line
+}
+zle -N kitty_scrollback_edit_command_line
+
 export VISUAL=nvim
 export EDITOR="$VISUAL"
 CASE_SENSITIVE="true"
@@ -179,6 +191,7 @@ bindkey "\e[3~" delete-char
 bindkey "^H" backward-delete-word
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+bindkey '^e' kitty_scrollback_edit_command_line
 
 # Show fastfetch once per tab start in kitty
 if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" ]] \
