@@ -1,4 +1,5 @@
 # Initialize homebrew if it's installed
+export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 [[ -f "/opt/homebrew/bin/brew" ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
 [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
 

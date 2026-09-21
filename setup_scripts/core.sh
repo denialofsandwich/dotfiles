@@ -3,6 +3,7 @@
 
 if [[ "$MODE" == "install" ]] && ! command -v brew &>/dev/null; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 elif [[ "$MODE" == "uninstall" && "$OS_TYPE" == "linux" ]]; then
   # Uninstall works slightly differently and requires root on macos

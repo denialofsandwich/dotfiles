@@ -16,7 +16,6 @@ if [[ $OS_TYPE == "linux" ]]; then
   fi
 else
   brew "$MODE" -y kitty
-  ln -s /opt/homebrew/Cellar/kitty/*/Kitty.app /Applications/ || echo Not an error. Continuing...
 fi
 
 mkdir -p ~/.kitty-sessions
