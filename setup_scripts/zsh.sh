@@ -1,10 +1,8 @@
 #!/bin/bash
-# Setup Zsh, a shell designed for interactive use with many features like advanced tab completion and globbing. It's a powerful alternative to Bash.
+# Setup Zsh, a shell designed for interactive use with many features like advanced tab completion and globbing.
 
 brew "$MODE" -y zsh lsd ripgrep bat zoxide fzf
-
-echo "Update stow"
-stow -d stow_packages -t ~ "--$STOW_MODE" zsh
+stow_update_simple ~
 
 if [[ "$MODE" == "install" ]]; then
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"

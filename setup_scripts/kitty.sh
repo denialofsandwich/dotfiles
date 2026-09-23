@@ -20,9 +20,4 @@ fi
 
 mkdir -p ~/.kitty-sessions
 
-echo "Update stow"
-mkdir -p ~/.config/kitty
-pushd stow_packages/kitty/templates >/dev/null || exit 1
-jinja2 -D "FORCE_ZSH=$FORCE_ZSH" -D "OS_TYPE=$OS_TYPE" kitty.conf.j2 >../configs/kitty.conf
-popd >/dev/null || exit 1
-stow -d stow_packages/kitty -t ~/.config/kitty "--$STOW_MODE" configs
+stow_update_templated ~/.config/kitty

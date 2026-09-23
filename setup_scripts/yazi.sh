@@ -3,6 +3,7 @@
 
 brew "$MODE" -y yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa exiftool
 brew link ffmpeg-full imagemagick-full -f --overwrite
+stow_update_simple ~/.config/yazi
 
 ya pkg add yazi-rs/plugins:chmod || true
 ya pkg add yazi-rs/plugins:mount || true
@@ -13,7 +14,3 @@ ya pkg add AminurAlam/yazi-plugins:spot-audio || true
 ya pkg add AminurAlam/yazi-plugins:spot-image || true
 ya pkg add denialofsandwich/searchjump || true
 ya pkg upgrade
-
-echo "Update stow"
-mkdir -p ~/.config/yazi
-stow -d stow_packages -t ~/.config/yazi "--$STOW_MODE" yazi

@@ -2,7 +2,4 @@
 # Setup btop, an even more fancy version of top
 
 brew "$MODE" -y btop
-
-echo "Update stow"
-mkdir -p ~/.config/btop
-stow -d stow_packages -t ~/.config/btop "--$STOW_MODE" btop
+stow_update_simple ~/.config/btop

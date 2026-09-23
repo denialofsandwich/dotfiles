@@ -16,14 +16,16 @@ fi
 MODULES=${MODULES:-$DEFAULT_MODULES}
 
 if [[ "$MODE" == "uninstall" ]]; then
+  # Revert order on uninstall
   MODULES=$(echo "$MODULES" | tr ' ' '\n' | tac | paste -sd ' ' -)
 fi
 
 for module in $MODULES; do
   (
     set -euo pipefail
-    echo -e "\033[33m### SETUP ${module}\033[0m"
+    echo -e "${YELLOW}### SETUP ${module}${NC}"
     export MODULE=$module
+    source "./setup_scripts/_utils.sh"
     source "./setup_scripts/${module}.sh"
   )
 done

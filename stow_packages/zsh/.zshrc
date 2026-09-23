@@ -4,7 +4,7 @@ export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 [[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
 
 
-# Set the directory we want to store zinit and plugins
+# Set the directory to store zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 # Download Zinit, if it's not there yet
@@ -114,7 +114,7 @@ if command -v yazi &> /dev/null; then
   }
 fi
 
-# SSH Agent, so identities and passwords to unlock them are saved
+# Start or load SSH Agent if not done already
 SSH_ENV="$HOME/.ssh/ssh-agent.env"
 function start_agent {
   mkdir -p "$(dirname "$SSH_ENV")"

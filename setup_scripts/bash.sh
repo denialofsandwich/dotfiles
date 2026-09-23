@@ -1,7 +1,5 @@
 #!/bin/bash
-# Setup Bash, the Bourne Again SHell. It's the default command language for most Linux distributions.
+# Setup Bash, the Bourne Again SHell.
 
 brew "$MODE" -y bash
-
-echo "Update stow"
-stow -d stow_packages -t ~ "--$STOW_MODE" bash
+stow_update_simple ~
