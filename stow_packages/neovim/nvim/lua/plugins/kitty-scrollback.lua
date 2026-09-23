@@ -1,5 +1,5 @@
 return {
-  "denialofsandwich/kitty-scrollback.nvim",
+  "mikesmithgh/kitty-scrollback.nvim",
   enabled = true,
   lazy = true,
   cmd = { "KittyScrollbackGenerateKittens", "KittyScrollbackCheckHealth", "KittyScrollbackGenerateCommandLineEditing" },
