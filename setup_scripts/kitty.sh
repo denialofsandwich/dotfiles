@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup kitty, a fast gpu-based terminal emulator
 
-brew "$MODE" -y kitty
+brew_manage kitty
 
 if [[ $OS_TYPE == "linux" ]]; then
   # The brew cask installs the kitty binary and app data, but doesn't register
@@ -19,4 +19,4 @@ if [[ $OS_TYPE == "linux" ]]; then
   mkdir -p ~/.kitty-sessions
 fi
 
-stow_update_templated ~/.config/kitty
+stow_manage_templated ~/.config/kitty

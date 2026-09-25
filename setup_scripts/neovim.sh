@@ -1,8 +1,8 @@
 #!/bin/bash
 # Setup Neovim, a Vim-based text editor engineered for extensibility and usability.
 
-brew "$MODE" -y luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli fzf
-stow_update_simple ~/.config
+brew_manage luarocks fd ripgrep nodejs npm tree-sitter tree-sitter-cli neovim imagemagick-full mermaid-cli fzf
+stow_manage_simple ~/.config
 
 if [[ "$MODE" == "install" ]]; then
   [[ -d ~/.local/nvim/venv ]] || uv venv ~/.local/nvim/venv

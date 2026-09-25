@@ -1,8 +1,8 @@
 #!/bin/bash
 # Setup tmux, a terminal multiplexer
 
-brew "$MODE" -y tmux
-stow_update_templated ~
+brew_manage tmux
+stow_manage_templated ~
 
 if [[ "$MODE" == "install" ]]; then
   if test -d ~/.tmux/plugins/tpm; then

@@ -1,17 +1,21 @@
 #!/bin/bash
 
-stow_update_simple() {
+brew_manage() {
+  brew "$MODE" -y $@
+}
+
+stow_manage_simple() {
   base_path=$1
 
-  echo "Update stow"
+  echo "${YELLOW}Update stow${NC}"
   mkdir -p "$base_path"
   stow -d stow_packages -t "$base_path" "--$STOW_MODE" "$MODULE"
 }
 
-stow_update_templated() {
+stow_manage_templated() {
   base_path=$1
 
-  echo "Update stow"
+  echo "${YELLOW}Update stow${NC}"
   if [[ "$MODE" == "install" ]]; then
     mkdir -p "stow_packages/$MODULE/configs"
     pushd "stow_packages/$MODULE/templates" >/dev/null || exit 1

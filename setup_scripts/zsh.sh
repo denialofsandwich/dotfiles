@@ -1,8 +1,8 @@
 #!/bin/bash
 # Setup Zsh, a shell designed for interactive use with many features like advanced tab completion and globbing.
 
-brew "$MODE" -y zsh lsd ripgrep bat zoxide fzf
-stow_update_simple ~
+brew_manage zsh lsd ripgrep bat zoxide fzf
+stow_manage_simple ~
 
 if [[ "$MODE" == "install" ]]; then
   ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"

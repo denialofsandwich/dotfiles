@@ -20,26 +20,29 @@ if [[ "$ROOT_PACKAGES" == "yes" && "$OS_TYPE" == "linux" ]]; then
     htop lsof curl jq git vim screen tmux bash zsh croc
 fi
 
-brew "$MODE" -y htop lsof curl jq stow zip git croc lazysql yq jinja2-cli fastfetch
+brew_manage htop lsof curl jq stow zip git croc lazysql yq jinja2-cli fastfetch
 
 # OS specific packages
 if [[ "$OS_TYPE" == "linux" ]]; then
-  brew "$MODE" -y dysk
+  brew_manage dysk
 elif [[ "$OS_TYPE" == "macos" ]]; then
-  brew "$MODE" -y telnet coreutils wget
+  brew_manage telnet coreutils wget
 fi
 
 # Steam OS is shipping without build essentials and because it's an immutable OS
-# It can't be installed system-wide. This workaround installs them user-wide
+# it can't be installed system-wide. This workaround installs them user-wide
 # to allow building packages from source.
 if [[ "$OS" == "steamos" ]]; then
-  brew "$MODE" -y glibc gcc
-  mkdir -p ~/.env_scripts
-  cat >~/.env_scripts/gcc_fix.sh <<EOF
+  brew_manage glibc gcc
+
+  if [[ "$MODE" == "install" ]] && ! command -v brew &>/dev/null; then
+    mkdir -p ~/.env_scripts
+    cat >~/.env_scripts/gcc_fix.sh <<EOF
 export CC="$(brew --prefix gcc)/bin/gcc-15"
 export CXX="$(brew --prefix gcc)/bin/g++-15"
 EOF
-  chmod +x ~/.env_scripts/gcc_fix.sh
+    chmod +x ~/.env_scripts/gcc_fix.sh
+  fi
 fi
 
 git config --global rerere.enabled true
