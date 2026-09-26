@@ -31,6 +31,7 @@ shopt -s histappend
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
+HISTFILE="${DEVC_HISTORY_DIR:-$HOME}/.bash_history"
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -102,7 +103,8 @@ alias lt='lsd --tree -la'
 
 alias ipy='ipython'
 alias nv='nvim'
-alias x='xonsh'
+alias lg='lazygit'
+alias d='devc'
 
 delhist() {
   local entries=$(history | fzf -m --query="$1" | sed 's/^[ ]*[0-9]*[ ]*//')

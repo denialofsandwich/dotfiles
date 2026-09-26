@@ -85,7 +85,8 @@ fi
 alias cl="cd $@ ; ls -lh"
 alias ipy='ipython'
 alias nv='nvim'
-alias x='xonsh'
+alias lg='lazygit'
+alias d='devc'
 
 delhist() {
   local entries=$(fc -ln 1 | fzf -m --query="$1")
@@ -164,7 +165,7 @@ CASE_SENSITIVE="true"
 
 # History
 HISTSIZE=5000
-HISTFILE=~/.zsh_history
+HISTFILE="${DEVC_HISTORY_DIR:-$HOME}/.zsh_history"
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
 setopt appendhistory

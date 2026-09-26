@@ -32,13 +32,10 @@ blocks:
         leading_diamond: 
         trailing_diamond: 
         template: '{{ if ne .Name "zsh" }} {{ .Name }} {{ end }}'
-        properties:
+        options:
           mapped_shell_names:
             pwsh: ps
       - type: git
-        properties:
-          fetch_status: true
-          fetch_upstream_icon: true
         background: "235"
         foreground: "11"
         style: diamond
@@ -61,6 +58,13 @@ blocks:
         template: "  {{ .Venv }} "
       - type: text
         background: "235"
+        foreground: "14"
+        style: diamond
+        leading_diamond: 
+        trailing_diamond: 
+        template: " {{ if .Env.DEVC_SESSION_NAME }} {{ .Env.DEVC_SESSION_NAME }}{{ end }} "
+      - type: text
+        background: "235"
         foreground: "17"
         style: diamond
         leading_diamond: 
@@ -68,7 +72,7 @@ blocks:
         template: " {{ if .Env.OMP_CUSTOM1 }}{{ .Env.OMP_CUSTOM1 }}{{ end }} "
       - type: text
         background: "235"
-        foreground: "14"
+        foreground: "15"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
@@ -82,7 +86,7 @@ blocks:
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        properties:
+        options:
           status_template: "{{ reason .Code }}"
       - type: executiontime
         background: "235"
@@ -90,7 +94,7 @@ blocks:
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        properties:
+        options:
           threshold: 500
           style: round
         template: " {{ .FormattedMs }}  "
@@ -100,7 +104,7 @@ blocks:
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        properties:
+        options:
           time_format: "15:04:05"
         template: " {{ .CurrentDate | date .Format }}  "
   - type: prompt
@@ -113,7 +117,7 @@ blocks:
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        properties:
+        options:
           home_icon: "<4><b>~</b></>"
           right_format: "<4><b>%s</b></>"
           style: full
@@ -127,7 +131,7 @@ blocks:
         foreground_templates:
           - "{{ if gt .Code 0 }}9{{ end }}"
         style: plain
-        properties:
+        options:
           always_enabled: true
         template: "❯ "
 version: 3

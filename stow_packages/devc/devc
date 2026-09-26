@@ -1,0 +1,439 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pydantic>=2", "pyyaml>=6", "typer>=0.12"]
+# ///
+"""Run a command (default: zsh) inside a per-project dev container."""
+
+import fcntl
+import hashlib
+import os
+import platform
+import signal
+import subprocess
+import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass
+from functools import cached_property
+from pathlib import Path, PurePosixPath
+from types import FrameType
+from typing import Annotated, Any, NamedTuple, Self
+
+import typer
+import yaml
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+)
+
+IMAGE = "dotfiles-dev:latest"
+CONTAINER_HOME = PurePosixPath("/home/dev")
+
+# Mounted read-only, so the container can't tamper with activate.sh or the config
+LOCAL_ENV = ".local_env"
+CONFIG_FILE = "devc_config.yaml"
+
+# Mounted read-only if present, so the container can't rewrite history or plant hooks
+GIT_DIR = ".git"
+
+# Container home subdirectory -> volume component, persisted per project
+PERSISTED_DIRS = {
+    ".cache": "cache",
+    ".claude": "claude",
+    ".local/share/nvim": "nvim",
+    ".local/state": "state",
+}
+
+# Shell history is kept per project inside the persisted state volume
+HISTORY_DIR = CONTAINER_HOME / ".local/state"
+
+COPIED_FILES = [".ssh/config", ".gitconfig"]
+
+# Set on the host-side podman exec, must match stow_packages/kitty/configs/devc_window.py
+PROJECT_ENV = "DEVC_PROJECT"
+
+HOME = Path.home()
+EXIT_SIGNALS = {signal.SIGHUP, signal.SIGTERM}
+
+
+class DevcError(Exception):
+    """A user-facing error, reported without a traceback."""
+
+
+def info(msg: str) -> None:
+    # The terminal may already be gone during cleanup (e.g. closed kitty window)
+    try:
+        print(msg, file=sys.stderr)
+    except OSError:
+        pass
+
+
+def contains_home(path: Path) -> bool:
+    return path == HOME or path in HOME.parents
+
+
+# --- podman ------------------------------------------------------------------
+
+
+def podman(
+    *args: str, check: bool = True, **kwargs: Any
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(["podman", *args], check=check, text=True, **kwargs)
+
+
+def podman_output(*args: str) -> str:
+    return podman(*args, check=False, capture_output=True).stdout.strip()
+
+
+def podman_quiet(*args: str) -> None:
+    """Run podman for its side effect only, ignoring output and failure."""
+    podman(*args, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def ensure_podman_machine() -> None:
+    if platform.system() != "Darwin":
+        return
+    if not podman_output("machine", "list", "--format", "{{.Name}}"):
+        info("No podman machine found, initializing...")
+        podman("machine", "init")
+    running = podman_output("machine", "list", "--format", "{{.Running}}").splitlines()
+    if not running or running[0] != "true":
+        info("Starting podman machine...")
+        podman("machine", "start")
+
+
+def ensure_image(build: bool) -> None:
+    if not build and podman("image", "exists", IMAGE, check=False).returncode == 0:
+        return
+    script_dir = Path(__file__).resolve().parent
+    dotfiles_root = Path(
+        subprocess.run(
+            ["git", "-C", script_dir, "rev-parse", "--show-toplevel"],
+            check=True,
+            text=True,
+            capture_output=True,
+        ).stdout.strip()
+    )
+    info(f"Building image {IMAGE}...")
+    podman(
+        "build",
+        "-t",
+        IMAGE,
+        "-f",
+        str(dotfiles_root / "Dockerfile"),
+        str(dotfiles_root),
+    )
+
+
+def image_user() -> tuple[str, str]:
+    """Return the (uid, gid) of the image's default user."""
+    output = podman(
+        "run",
+        "--rm",
+        IMAGE,
+        "sh",
+        "-c",
+        'echo "$(id -u) $(id -g)"',
+        capture_output=True,
+    ).stdout
+    uid, gid = output.split()
+    return uid, gid
+
+
+def is_running(container: str) -> bool:
+    return (
+        podman_output(
+            "container", "inspect", container, "--format", "{{.State.Running}}"
+        )
+        == "true"
+    )
+
+
+# --- project -----------------------------------------------------------------
+
+
+class Mount(NamedTuple):
+    source: Path
+    dest: Path
+
+
+def _check_mount(entry: Path, info: ValidationInfo) -> Path:
+    """Turn a mount entry into an absolute path, relative to the project."""
+    project: Path = info.context["project"]
+    # Keep the path as written (no symlink resolution), so symlinks pointing there resolve
+    dest = Path(os.path.normpath(project / entry.expanduser()))
+    source = dest.resolve()
+    if ":" in str(dest) or ":" in str(source):
+        raise ValueError(f"mount path must not contain ':': {dest}")
+    if not source.exists():
+        raise ValueError(f"mount path does not exist: {dest}")
+    if contains_home(dest) or contains_home(source):
+        raise ValueError(f"refusing to mount {dest}: it contains your home directory")
+    return dest
+
+
+class Config(BaseModel):
+    """Per-project settings, read from <project>/.local_env/devc_config.yaml."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    # Extra paths (absolute or relative to the project) mounted read-only
+    mounts: list[Annotated[Path, AfterValidator(_check_mount)]] = []
+
+    @field_validator("mounts", mode="before")
+    @classmethod
+    def _null_as_empty(cls, value: object) -> object:
+        # A bare `mounts:` key parses as null
+        return [] if value is None else value
+
+    @classmethod
+    def load(cls, path: Path, project: Path) -> Self:
+        if not path.is_file():
+            return cls()
+        try:
+            data = yaml.safe_load(path.read_text()) or {}
+        except yaml.YAMLError as e:
+            raise DevcError(f"{path}: invalid YAML: {e}") from e
+        try:
+            return cls.model_validate(data, context={"project": project})
+        except ValidationError as e:
+            lines = (
+                f"  {'.'.join(map(str, err['loc'])) or '<root>'}: {err['msg']}"
+                for err in e.errors()
+            )
+            raise DevcError(f"{path}: invalid config:\n" + "\n".join(lines)) from e
+
+    def extra_mounts(self) -> list[Mount]:
+        return [Mount(source=dest.resolve(), dest=dest) for dest in self.mounts]
+
+
+@dataclass(frozen=True)
+class Project:
+    path: Path
+
+    @classmethod
+    def from_cwd(cls) -> Self:
+        # Prefer the logical $PWD (like the shell), so symlinked paths hash as written
+        cwd = Path.cwd()
+        pwd = Path(os.environ.get("PWD", ""))
+        if pwd.is_absolute():
+            try:
+                if pwd.samefile(cwd):
+                    return cls(Path(os.path.normpath(pwd)))
+            except OSError:
+                pass
+        return cls(cwd)
+
+    @cached_property
+    def hash(self) -> str:
+        return hashlib.sha256(str(self.path).encode()).hexdigest()[:16]
+
+    @property
+    def container(self) -> str:
+        return f"devc-{self.hash}"
+
+    def volume(self, component: str) -> str:
+        return f"devc-{component}-{self.hash}"
+
+    @property
+    def local_env(self) -> Path:
+        return self.path / LOCAL_ENV
+
+    @property
+    def git_dir(self) -> Path:
+        return self.path / GIT_DIR
+
+    def load_config(self) -> Config:
+        return Config.load(self.local_env / CONFIG_FILE, self.path)
+
+
+# --- container lifecycle -----------------------------------------------------
+
+
+def start_container(project: Project) -> None:
+    info("Starting dev container...")
+
+    config = project.load_config()
+    if not (project.local_env.exists() or project.local_env.is_symlink()):
+        project.local_env.mkdir()
+    uid, gid = image_user()
+
+    podman_quiet("rm", "-f", project.container)
+
+    run_args = [
+        "-d",
+        "--init",
+        "--name", project.container,
+        f"--userns=keep-id:uid={uid},gid={gid}",
+        "-e", f"HOME={CONTAINER_HOME}",
+        "-e", f"DEVC_HISTORY_DIR={HISTORY_DIR}",
+        "-v", f"{project.path}:{project.path}:z",
+        "-v", f"{project.local_env}:{project.local_env}:ro,z",
+    ]  # fmt: skip
+    # A file for worktrees and submodules, mounted the same way
+    if project.git_dir.exists():
+        run_args += ["-v", f"{project.git_dir}:{project.git_dir}:ro,z"]
+    for dir_path, component in PERSISTED_DIRS.items():
+        run_args += ["-v", f"{project.volume(component)}:{CONTAINER_HOME / dir_path}"]
+    for mount in config.extra_mounts():
+        run_args += ["-v", f"{mount.source}:{mount.dest}:ro,z"]
+
+    podman("run", *run_args, IMAGE, "sleep", "infinity", stdout=subprocess.DEVNULL)
+
+    for file in COPIED_FILES:
+        host_path = HOME / file
+        if host_path.is_file():
+            container_path = CONTAINER_HOME / file
+            podman("exec", project.container, "mkdir", "-p", str(container_path.parent))
+            podman(
+                "cp",
+                str(host_path),
+                f"{project.container}:{container_path}",
+                stdout=subprocess.DEVNULL,
+            )
+
+
+def reset_container(project: Project) -> None:
+    info("Resetting persisted volumes for this project...")
+    podman_quiet("rm", "-f", project.container)
+    for component in PERSISTED_DIRS.values():
+        podman_quiet("volume", "rm", "-f", project.volume(component))
+
+
+class SessionCounter:
+    """Counts the devc sessions attached to a container, so the last one to exit stops it."""
+
+    def __init__(self, container: str) -> None:
+        state_dir = Path(os.environ.get("XDG_RUNTIME_DIR") or "/tmp") / "devc"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        self._lock_file = state_dir / f"{container}.lock"
+        self._count_file = state_dir / f"{container}.count"
+
+    @contextmanager
+    def locked(self) -> Iterator[None]:
+        with self._lock_file.open("w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
+
+    def get(self, default: int) -> int:
+        try:
+            return int(self._count_file.read_text().strip())
+        except (OSError, ValueError):
+            return default
+
+    def set(self, count: int) -> None:
+        self._count_file.write_text(f"{count}\n")
+
+    def clear(self) -> None:
+        self._count_file.unlink(missing_ok=True)
+
+
+def _exit_on_signal(signum: int, _frame: FrameType | None) -> None:
+    sys.exit(128 + signum)
+
+
+@contextmanager
+def session(project: Project, reset: bool) -> Iterator[None]:
+    """Start the container if needed and keep it running for the duration of the block."""
+    sessions = SessionCounter(project.container)
+    for sig in EXIT_SIGNALS:
+        signal.signal(sig, _exit_on_signal)
+
+    with sessions.locked():
+        if reset:
+            reset_container(project)
+            sessions.clear()
+        if not is_running(project.container):
+            start_container(project)
+            sessions.set(0)
+        # Defer exit signals until the try below, so the session is always released
+        signal.pthread_sigmask(signal.SIG_BLOCK, EXIT_SIGNALS)
+        sessions.set(sessions.get(0) + 1)
+
+    try:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, EXIT_SIGNALS)
+        yield
+    finally:
+        for sig in EXIT_SIGNALS:
+            signal.signal(sig, signal.SIG_IGN)
+        with sessions.locked():
+            remaining = sessions.get(1) - 1
+            if remaining <= 0:
+                info("Stopping container...")
+                podman_quiet("rm", "-f", project.container)
+                sessions.clear()
+            else:
+                sessions.set(remaining)
+
+
+def exec_in_container(project: Project, command: list[str]) -> int:
+    # Ctrl-C is meant for the command inside the container. A no-op handler
+    # rather than SIG_IGN, since ignored signals are inherited by podman
+    signal.signal(signal.SIGINT, lambda *_: None)
+    exec_args = [
+        "--workdir", str(project.path),
+        "--env", f"TERM={os.environ.get('TERM') or 'xterm'}",
+        "--env", f"DEVC_SESSION_NAME={project.path.name}",
+        "-it" if sys.stdin.isatty() and sys.stdout.isatty() else "-i",
+    ]  # fmt: skip
+    # Lets kitty's devc_window.py recognize devc windows and find their project
+    env = {**os.environ, PROJECT_ENV: str(project.path)}
+    return podman(
+        "exec", *exec_args, project.container, *command, check=False, env=env
+    ).returncode
+
+
+# --- cli ---------------------------------------------------------------------
+
+app = typer.Typer(add_completion=False, pretty_exceptions_enable=False)
+
+
+# Stop option parsing at the command, so its own flags are passed through
+@app.command(
+    context_settings={"allow_interspersed_args": False, "ignore_unknown_options": True}
+)
+def main(
+    command: Annotated[
+        list[str] | None,
+        typer.Argument(help="Command to run inside the container.", show_default="zsh"),
+    ] = None,
+    reset: Annotated[
+        bool,
+        typer.Option("--reset", help="Delete the project's persisted volumes first."),
+    ] = False,
+    build: Annotated[
+        bool, typer.Option("--build", help="Rebuild the image, even if it exists.")
+    ] = False,
+) -> None:
+    """Run a command (default: zsh) inside a per-project dev container."""
+    try:
+        project = Project.from_cwd()
+        if contains_home(project.path):
+            raise DevcError(
+                f"Refusing to run in {project.path}: it contains your home directory"
+            )
+
+        ensure_podman_machine()
+        ensure_image(build)
+
+        with session(project, reset):
+            returncode = exec_in_container(project, command or ["zsh"])
+    except DevcError as e:
+        info(str(e))
+        raise typer.Exit(1) from e
+    except subprocess.CalledProcessError as e:
+        # podman already reported the error
+        raise typer.Exit(e.returncode) from e
+    raise typer.Exit(returncode)
+
+
+if __name__ == "__main__":
+    app()

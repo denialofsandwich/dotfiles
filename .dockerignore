@@ -1,6 +1,6 @@
+.git
 custom.lua
 lazy-lock.json
 custom_vars.sh
 .tmux.conf
 kitty.conf
-__pycache__
