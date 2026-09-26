@@ -1,4 +1,4 @@
-export DEFAULT_MODULES="core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit yazi btop kitty"
+export DEFAULT_MODULES="core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop kitty"
 # If yes, it explicitly sets the kitty and tmux shell to zsh
 export FORCE_ZSH=yes
 
@@ -34,11 +34,4 @@ export OS_TYPE="linux"
 if [[ "$OS" == "macos" ]]; then
   export OS_TYPE="macos"
   export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
-fi
-
-# If yes, it installs the core packages system wide (linux only)
-export ROOT_PACKAGES="${ROOT_PACKAGES:-no}"
-export LINUX_PKG_MGR=apt-get
-if [[ $OS == "fedora" ]]; then
-  export LINUX_PKG_MGR=dnf
 fi

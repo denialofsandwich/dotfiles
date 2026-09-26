@@ -14,19 +14,10 @@ elif [[ "$MODE" == "uninstall" ]]; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
 fi
 
-# If some packages need to be globally available on linux
-if [[ "$ROOT_PACKAGES" == "yes" && "$OS_TYPE" == "linux" ]]; then
-  sudo "$LINUX_PKG_MGR" install -y \
-    htop lsof curl jq git vim screen tmux bash zsh croc
-fi
+brew_manage curl jq stow zip git yq jinja2-cli
 
-brew_manage htop lsof curl jq stow zip git croc lazysql yq jinja2-cli fastfetch
-
-# OS specific packages
-if [[ "$OS_TYPE" == "linux" ]]; then
-  brew_manage dysk
-elif [[ "$OS_TYPE" == "macos" ]]; then
-  brew_manage telnet coreutils wget
+if [[ "$OS_TYPE" == "macos" ]]; then
+  brew_manage coreutils wget
 fi
 
 # Steam OS is shipping without build essentials and because it's an immutable OS
