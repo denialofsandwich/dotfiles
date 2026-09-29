@@ -12,7 +12,12 @@ if [[ "$MODE" == "install" ]]; then
   fi
 
   echo "Install zinit plugins"
-  PAGER=cat GIT_PAGER=cat script -qec "TERM=xterm zsh -i -c 'sleep 30; exit 0'" /dev/null >/dev/null
+  if [[ "$OS_TYPE" == "macos" ]]; then
+    # BSD script: no -c/-e, command follows the output file
+    PAGER=cat GIT_PAGER=cat TERM=xterm script -q /dev/null zsh -i -c 'sleep 30; exit 0' >/dev/null
+  else
+    PAGER=cat GIT_PAGER=cat script -qec "TERM=xterm zsh -i -c 'sleep 30; exit 0'" /dev/null >/dev/null
+  fi
 
   echo "Update zinit plugins"
   PAGER=cat GIT_PAGER=cat zsh -c "
