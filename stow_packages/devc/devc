@@ -7,8 +7,10 @@
 
 import fcntl
 import hashlib
+import json
 import os
 import platform
+import re
 import signal
 import subprocess
 import sys
@@ -18,7 +20,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path, PurePosixPath
 from types import FrameType
-from typing import Annotated, Any, NamedTuple, Self
+from typing import Annotated, Any, Literal, Self
 
 import typer
 import yaml
@@ -29,6 +31,7 @@ from pydantic import (
     ValidationError,
     ValidationInfo,
     field_validator,
+    model_validator,
 )
 
 IMAGE = "dotfiles-dev:latest"
@@ -41,7 +44,7 @@ CONFIG_FILE = "devc_config.yaml"
 # Mounted read-only if present, so the container can't rewrite history or plant hooks
 GIT_DIR = ".git"
 
-# Container home subdirectory -> volume component, persisted per project
+# Container home subdirectory -> volume component, persisted per project and namespace
 PERSISTED_DIRS = {
     ".cache": "cache",
     ".claude": "claude",
@@ -54,8 +57,19 @@ HISTORY_DIR = CONTAINER_HOME / ".local/state"
 
 COPIED_FILES = [".ssh/config", ".gitconfig"]
 
+# Namespaces allow several independent containers for the same project
+DEFAULT_NAMESPACE = "main"
+# Must be valid in container and volume names
+NAMESPACE_PATTERN = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*")
+
+# Set on containers and volumes, so projects can be listed
+PROJECT_LABEL = "devc.project"
+NAMESPACE_LABEL = "devc.namespace"
+
 # Set on the host-side podman exec, must match stow_packages/kitty/configs/devc_window.py
 PROJECT_ENV = "DEVC_PROJECT"
+NAMESPACE_ENV = "DEVC_NAMESPACE"
+WORKDIR_ENV = "DEVC_WORKDIR"
 
 HOME = Path.home()
 EXIT_SIGNALS = {signal.SIGHUP, signal.SIGTERM}
@@ -75,6 +89,24 @@ def info(msg: str) -> None:
 
 def contains_home(path: Path) -> bool:
     return path == HOME or path in HOME.parents
+
+
+def logical_cwd() -> Path:
+    # Prefer the logical $PWD (like the shell), so symlinked paths hash as written
+    cwd = Path.cwd()
+    pwd = Path(os.environ.get("PWD", ""))
+    if pwd.is_absolute():
+        try:
+            if pwd.samefile(cwd):
+                return Path(os.path.normpath(pwd))
+        except OSError:
+            pass
+    return cwd
+
+
+def logical_path(path: Path, base: Path) -> Path:
+    """Make a path absolute (relative to base) without resolving symlinks."""
+    return Path(os.path.normpath(base / path.expanduser()))
 
 
 # --- podman ------------------------------------------------------------------
@@ -157,16 +189,11 @@ def is_running(container: str) -> bool:
 # --- project -----------------------------------------------------------------
 
 
-class Mount(NamedTuple):
-    source: Path
-    dest: Path
-
-
 def _check_mount(entry: Path, info: ValidationInfo) -> Path:
-    """Turn a mount entry into an absolute path, relative to the project."""
+    """Turn a mount path into an absolute path, relative to the project."""
     project: Path = info.context["project"]
     # Keep the path as written (no symlink resolution), so symlinks pointing there resolve
-    dest = Path(os.path.normpath(project / entry.expanduser()))
+    dest = logical_path(entry, project)
     source = dest.resolve()
     if ":" in str(dest) or ":" in str(source):
         raise ValueError(f"mount path must not contain ':': {dest}")
@@ -177,13 +204,39 @@ def _check_mount(entry: Path, info: ValidationInfo) -> Path:
     return dest
 
 
+class Mount(BaseModel):
+    """An extra mount, given as `{path: ..., mode: ro|rw}` or just its path (read-only)."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    # Absolute or relative to the project, mounted at the same path in the container
+    path: Annotated[Path, AfterValidator(_check_mount)]
+    mode: Literal["ro", "rw"] = "ro"
+
+    @model_validator(mode="before")
+    @classmethod
+    def _path_shorthand(cls, value: object) -> object:
+        return {"path": value} if isinstance(value, str) else value
+
+    @property
+    def source(self) -> Path:
+        return self.path.resolve()
+
+    def podman_args(self) -> list[str]:
+        args = ["-v", f"{self.source}:{self.path}:{self.mode},z"]
+        # Like the project's, so the container can't rewrite history or plant hooks
+        git_dir = self.source / GIT_DIR
+        if self.mode == "rw" and git_dir.exists():
+            args += ["-v", f"{git_dir}:{self.path / GIT_DIR}:ro,z"]
+        return args
+
+
 class Config(BaseModel):
     """Per-project settings, read from <project>/.local_env/devc_config.yaml."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    # Extra paths (absolute or relative to the project) mounted read-only
-    mounts: list[Annotated[Path, AfterValidator(_check_mount)]] = []
+    mounts: list[Mount] = []
 
     @field_validator("mounts", mode="before")
     @classmethod
@@ -208,26 +261,14 @@ class Config(BaseModel):
             )
             raise DevcError(f"{path}: invalid config:\n" + "\n".join(lines)) from e
 
-    def extra_mounts(self) -> list[Mount]:
-        return [Mount(source=dest.resolve(), dest=dest) for dest in self.mounts]
-
 
 @dataclass(frozen=True)
 class Project:
     path: Path
+    namespace: str = DEFAULT_NAMESPACE
 
-    @classmethod
-    def from_cwd(cls) -> Self:
-        # Prefer the logical $PWD (like the shell), so symlinked paths hash as written
-        cwd = Path.cwd()
-        pwd = Path(os.environ.get("PWD", ""))
-        if pwd.is_absolute():
-            try:
-                if pwd.samefile(cwd):
-                    return cls(Path(os.path.normpath(pwd)))
-            except OSError:
-                pass
-        return cls(cwd)
+    def __str__(self) -> str:
+        return f"{self.path} ({self.namespace})"
 
     @cached_property
     def hash(self) -> str:
@@ -235,43 +276,81 @@ class Project:
 
     @property
     def container(self) -> str:
-        return f"devc-{self.hash}"
+        return f"devc-{self.hash}-{self.namespace}"
 
     def volume(self, component: str) -> str:
-        return f"devc-{component}-{self.hash}"
+        return f"devc-{component}-{self.hash}-{self.namespace}"
+
+    @property
+    def volumes(self) -> list[str]:
+        return [self.volume(component) for component in PERSISTED_DIRS.values()]
+
+    @property
+    def label_args(self) -> list[str]:
+        return [
+            "--label", f"{PROJECT_LABEL}={self.path}",
+            "--label", f"{NAMESPACE_LABEL}={self.namespace}",
+        ]  # fmt: skip
+
+    @property
+    def session_name(self) -> str:
+        if self.namespace == DEFAULT_NAMESPACE:
+            return self.path.name
+        return f"{self.path.name}:{self.namespace}"
 
     @property
     def local_env(self) -> Path:
         return self.path / LOCAL_ENV
 
     @property
+    def config_file(self) -> Path:
+        return self.local_env / CONFIG_FILE
+
+    @property
     def git_dir(self) -> Path:
         return self.path / GIT_DIR
 
     def load_config(self) -> Config:
-        return Config.load(self.local_env / CONFIG_FILE, self.path)
+        return Config.load(self.config_file, self.path)
+
+    def check_workdir(self, workdir: Path, config: Config) -> None:
+        """Ensure the container can open in workdir, i.e. it's mounted there."""
+        roots = [self.path, *(mount.path for mount in config.mounts)]
+        if not any(workdir.is_relative_to(root) for root in roots):
+            raise DevcError(
+                f"{workdir} is not mounted in the container of {self.path}, "
+                f"add it to the mounts in {self.config_file}"
+            )
 
 
 # --- container lifecycle -----------------------------------------------------
 
 
-def start_container(project: Project) -> None:
+def start_container(project: Project, config: Config) -> None:
     info("Starting dev container...")
 
-    config = project.load_config()
     if not (project.local_env.exists() or project.local_env.is_symlink()):
         project.local_env.mkdir()
     uid, gid = image_user()
 
     podman_quiet("rm", "-f", project.container)
+    # Created up front rather than by `podman run`, to carry the labels
+    for volume in project.volumes:
+        if podman("volume", "exists", volume, check=False).returncode != 0:
+            podman(
+                "volume", "create", *project.label_args, volume,
+                stdout=subprocess.DEVNULL,
+            )  # fmt: skip
 
     run_args = [
         "-d",
         "--init",
         "--name", project.container,
+        *project.label_args,
         f"--userns=keep-id:uid={uid},gid={gid}",
         "-e", f"HOME={CONTAINER_HOME}",
         "-e", f"DEVC_HISTORY_DIR={HISTORY_DIR}",
+        *git_safe_directory_args([project.path, *(m.path for m in config.mounts)]),
         "-v", f"{project.path}:{project.path}:z",
         "-v", f"{project.local_env}:{project.local_env}:ro,z",
     ]  # fmt: skip
@@ -280,8 +359,8 @@ def start_container(project: Project) -> None:
         run_args += ["-v", f"{project.git_dir}:{project.git_dir}:ro,z"]
     for dir_path, component in PERSISTED_DIRS.items():
         run_args += ["-v", f"{project.volume(component)}:{CONTAINER_HOME / dir_path}"]
-    for mount in config.extra_mounts():
-        run_args += ["-v", f"{mount.source}:{mount.dest}:ro,z"]
+    for mount in config.mounts:
+        run_args += mount.podman_args()
 
     podman("run", *run_args, IMAGE, "sleep", "infinity", stdout=subprocess.DEVNULL)
 
@@ -298,11 +377,27 @@ def start_container(project: Project) -> None:
             )
 
 
-def reset_container(project: Project) -> None:
-    info("Resetting persisted volumes for this project...")
+def git_safe_directory_args(paths: list[Path]) -> list[str]:
+    """Let git trust the repos in and below the given paths, whatever their owner.
+
+    Mounted files can appear owned by another user (e.g. through the podman machine
+    on macOS), which git refuses as dubious ownership.
+    """
+    values = [value for path in paths for value in (str(path), f"{path}/*")]
+    args = ["-e", f"GIT_CONFIG_COUNT={len(values)}"]
+    for i, value in enumerate(values):
+        args += [
+            "-e", f"GIT_CONFIG_KEY_{i}=safe.directory",
+            "-e", f"GIT_CONFIG_VALUE_{i}={value}",
+        ]  # fmt: skip
+    return args
+
+
+def remove_container(project: Project) -> None:
+    """Remove the project's container and persisted volumes."""
     podman_quiet("rm", "-f", project.container)
-    for component in PERSISTED_DIRS.values():
-        podman_quiet("volume", "rm", "-f", project.volume(component))
+    for volume in project.volumes:
+        podman_quiet("volume", "rm", "-f", volume)
 
 
 class SessionCounter:
@@ -341,7 +436,7 @@ def _exit_on_signal(signum: int, _frame: FrameType | None) -> None:
 
 
 @contextmanager
-def session(project: Project, reset: bool) -> Iterator[None]:
+def session(project: Project, config: Config, reset: bool) -> Iterator[None]:
     """Start the container if needed and keep it running for the duration of the block."""
     sessions = SessionCounter(project.container)
     for sig in EXIT_SIGNALS:
@@ -349,10 +444,11 @@ def session(project: Project, reset: bool) -> Iterator[None]:
 
     with sessions.locked():
         if reset:
-            reset_container(project)
+            info("Resetting persisted volumes for this project...")
+            remove_container(project)
             sessions.clear()
         if not is_running(project.container):
-            start_container(project)
+            start_container(project, config)
             sessions.set(0)
         # Defer exit signals until the try below, so the session is always released
         signal.pthread_sigmask(signal.SIG_BLOCK, EXIT_SIGNALS)
@@ -374,26 +470,111 @@ def session(project: Project, reset: bool) -> Iterator[None]:
                 sessions.set(remaining)
 
 
-def exec_in_container(project: Project, command: list[str]) -> int:
+def exec_in_container(project: Project, workdir: Path, command: list[str]) -> int:
     # Ctrl-C is meant for the command inside the container. A no-op handler
     # rather than SIG_IGN, since ignored signals are inherited by podman
     signal.signal(signal.SIGINT, lambda *_: None)
     exec_args = [
-        "--workdir", str(project.path),
+        "--workdir", str(workdir),
         "--env", f"TERM={os.environ.get('TERM') or 'xterm'}",
-        "--env", f"DEVC_SESSION_NAME={project.path.name}",
+        "--env", f"DEVC_SESSION_NAME={project.session_name}",
         "-it" if sys.stdin.isatty() and sys.stdout.isatty() else "-i",
     ]  # fmt: skip
-    # Lets kitty's devc_window.py recognize devc windows and find their project
-    env = {**os.environ, PROJECT_ENV: str(project.path)}
+    # Lets kitty's devc_window.py recognize devc windows and open another one like it
+    env = {
+        **os.environ,
+        PROJECT_ENV: str(project.path),
+        NAMESPACE_ENV: project.namespace,
+        WORKDIR_ENV: str(workdir),
+    }
     return podman(
         "exec", *exec_args, project.container, *command, check=False, env=env
     ).returncode
 
 
+# --- project management ------------------------------------------------------
+
+
+def list_projects() -> None:
+    volumes = json.loads(
+        podman_output(
+            "volume", "ls", "--filter", f"label={PROJECT_LABEL}", "--format", "json"
+        )
+        or "[]"
+    )
+    projects = sorted(
+        {
+            Project(Path(v["Labels"][PROJECT_LABEL]), v["Labels"][NAMESPACE_LABEL])
+            for v in volumes
+        },
+        key=lambda p: (str(p.path), p.namespace),
+    )
+    if not projects:
+        info("No devc projects found")
+        return
+
+    rows = [("PROJECT", "NAMESPACE", "STATUS")]
+    for project in projects:
+        if is_running(project.container):
+            count = SessionCounter(project.container).get(0)
+            status = f"running ({count} session{'s' * (count != 1)})"
+        else:
+            status = "stopped"
+        if not project.path.is_dir():
+            status += ", directory missing"
+        rows.append((str(project.path), project.namespace, status))
+    widths = [max(len(row[i]) for row in rows) for i in range(2)]
+    for path, namespace, status in rows:
+        print(f"{path:<{widths[0]}}  {namespace:<{widths[1]}}  {status}")
+
+
+def remove_project(project: Project) -> None:
+    sessions = SessionCounter(project.container)
+    with sessions.locked():
+        if is_running(project.container):
+            raise DevcError(f"{project} is running, exit its sessions first")
+        existing = [
+            volume
+            for volume in project.volumes
+            if podman("volume", "exists", volume, check=False).returncode == 0
+        ]
+        if not existing:
+            raise DevcError(f"No devc project {project}")
+        info(f"Removing {project}...")
+        remove_container(project)
+        sessions.clear()
+
+
 # --- cli ---------------------------------------------------------------------
 
 app = typer.Typer(add_completion=False, pretty_exceptions_enable=False)
+
+
+def _check_namespace(value: str) -> str:
+    if not NAMESPACE_PATTERN.fullmatch(value):
+        raise typer.BadParameter(
+            "must start with a letter or digit, followed by letters, digits, '_', '.' or '-'"
+        )
+    return value
+
+
+def run(
+    project: Project, workdir: Path, command: list[str], reset: bool, build: bool
+) -> int:
+    if not project.path.is_dir():
+        raise DevcError(f"Project directory {project.path} does not exist")
+    if contains_home(project.path):
+        raise DevcError(
+            f"Refusing to run in {project.path}: it contains your home directory"
+        )
+    config = project.load_config()
+    project.check_workdir(workdir, config)
+
+    ensure_podman_machine()
+    ensure_image(build)
+
+    with session(project, config, reset):
+        return exec_in_container(project, workdir, command)
 
 
 # Stop option parsing at the command, so its own flags are passed through
@@ -405,6 +586,25 @@ def main(
         list[str] | None,
         typer.Argument(help="Command to run inside the container.", show_default="zsh"),
     ] = None,
+    project_dir: Annotated[
+        Path | None,
+        typer.Option(
+            "--project",
+            "-p",
+            help="Project directory whose container to use. The command still runs"
+            " in the current directory, which must be mounted.",
+            show_default="current directory",
+        ),
+    ] = None,
+    namespace: Annotated[
+        str,
+        typer.Option(
+            "--namespace",
+            "-n",
+            help="Independent container and volumes for the same project.",
+            callback=_check_namespace,
+        ),
+    ] = DEFAULT_NAMESPACE,
     reset: Annotated[
         bool,
         typer.Option("--reset", help="Delete the project's persisted volumes first."),
@@ -412,20 +612,36 @@ def main(
     build: Annotated[
         bool, typer.Option("--build", help="Rebuild the image, even if it exists.")
     ] = False,
+    list_: Annotated[
+        bool, typer.Option("--list", help="List all projects and their namespaces.")
+    ] = False,
+    remove: Annotated[
+        bool,
+        typer.Option(
+            "--rm", help="Delete the project's container and volumes in the namespace."
+        ),
+    ] = False,
 ) -> None:
     """Run a command (default: zsh) inside a per-project dev container."""
+    returncode = 0
     try:
-        project = Project.from_cwd()
-        if contains_home(project.path):
-            raise DevcError(
-                f"Refusing to run in {project.path}: it contains your home directory"
-            )
+        if list_ and (remove or command or project_dir or reset or build):
+            raise DevcError("--list can't be combined with other options or a command")
+        if remove and (command or reset or build):
+            raise DevcError("--rm can only be combined with --project and --namespace")
 
-        ensure_podman_machine()
-        ensure_image(build)
+        workdir = logical_cwd()
+        project_path = logical_path(project_dir, workdir) if project_dir else workdir
+        project = Project(project_path, namespace)
 
-        with session(project, reset):
-            returncode = exec_in_container(project, command or ["zsh"])
+        if list_:
+            ensure_podman_machine()
+            list_projects()
+        elif remove:
+            ensure_podman_machine()
+            remove_project(project)
+        else:
+            returncode = run(project, workdir, command or ["zsh"], reset, build)
     except DevcError as e:
         info(str(e))
         raise typer.Exit(1) from e

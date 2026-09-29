@@ -9,6 +9,8 @@ from kitty.child import environ_of_process
 from kitty.window import Window
 
 PROJECT_ENV = "DEVC_PROJECT"
+NAMESPACE_ENV = "DEVC_NAMESPACE"
+WORKDIR_ENV = "DEVC_WORKDIR"
 
 
 def main(args: list[str]) -> str:
@@ -44,11 +46,14 @@ def handle_result(
         return
 
     project = env[PROJECT_ENV]
+    workdir = env.get(WORKDIR_ENV, project)
     path = _session_path(env)
     boss.launch(
         "--type=window",
-        f"--cwd={project}",
-        "--env", f"PWD={project}",
+        f"--cwd={workdir}",
+        "--env", f"PWD={workdir}",
         "--env", f"PATH={path}",
         shutil.which("devc", path=path) or "devc",
+        "--project", project,
+        "--namespace", env.get(NAMESPACE_ENV, "main"),
     )  # fmt: skip
