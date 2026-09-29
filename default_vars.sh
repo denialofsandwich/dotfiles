@@ -1,4 +1,4 @@
-export DEFAULT_MODULES="core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit misc devc yazi btop kitty"
+export DEFAULT_MODULES=${DEFAULT_MODULES:-core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit misc devc yazi btop kitty}
 # If yes, it explicitly sets the kitty and tmux shell to zsh
 export FORCE_ZSH=${FORCE_ZSH:-yes}
 

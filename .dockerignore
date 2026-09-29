@@ -1,6 +1,7 @@
 .git
 custom.lua
 lazy-lock.json
-custom_vars.sh
+
+# Generated using a jinja2 template
 .tmux.conf
 kitty.conf

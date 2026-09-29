@@ -40,7 +40,7 @@ USER $USERNAME
 WORKDIR /home/$USERNAME/dotfiles
 
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/$USERNAME/.local/bin:${PATH}" \
-    MODULES="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop claude"
+    DEFAULT_MODULES="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop"
 RUN ./setup.sh \
     && rm -f /home/$USERNAME/.ssh/ssh-agent.env \
     && curl -fsSL https://raw.githubusercontent.com/kovidgoyal/kitty/master/terminfo/kitty.terminfo \
