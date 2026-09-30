@@ -13,11 +13,11 @@ if [[ "$OS" == "unknown" ]]; then
   exit 1
 fi
 
-MODULES=${MODULES:-$DEFAULT_MODULES}
+export MODULES=${MODULES:-$DEFAULT_MODULES}
 
 if [[ "$MODE" == "uninstall" ]]; then
   # Revert order on uninstall
-  MODULES=$(echo "$MODULES" | tr ' ' '\n' | tac | paste -sd ' ' -)
+  export MODULES=$(echo "$MODULES" | tr ' ' '\n' | tac | paste -sd ' ' -)
 fi
 
 for module in $MODULES; do

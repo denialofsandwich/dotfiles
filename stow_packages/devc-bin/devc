@@ -18,6 +18,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
+from ipaddress import IPv4Address, IPv6Address
 from pathlib import Path, PurePosixPath
 from types import FrameType
 from typing import Annotated, Any, Literal, Self
@@ -27,7 +28,11 @@ import yaml
 from pydantic import (
     AfterValidator,
     BaseModel,
+    BeforeValidator,
     ConfigDict,
+    Discriminator,
+    Field,
+    Tag,
     ValidationError,
     ValidationInfo,
     field_validator,
@@ -39,27 +44,26 @@ CONTAINER_HOME = PurePosixPath("/home/dev")
 
 # Mounted read-only, so the container can't tamper with activate.sh or the config
 LOCAL_ENV = ".local_env"
-CONFIG_FILE = "devc_config.yaml"
+CONFIG_FILE = "devc.yaml"
+
+# Applies to all projects, merged with the project's config
+GLOBAL_CONFIG_FILE = (
+    Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+    / "devc"
+    / CONFIG_FILE
+)
 
 # Mounted read-only if present, so the container can't rewrite history or plant hooks
 GIT_DIR = ".git"
 
-# Container home subdirectory -> volume component, persisted per project and namespace
-PERSISTED_DIRS = {
-    ".cache": "cache",
-    ".claude": "claude",
-    ".local/share/nvim": "nvim",
-    ".local/state": "state",
-}
-
-# Shell history is kept per project inside the persisted state volume
+# Shell history is kept per project, if persisted by a mount in the config
 HISTORY_DIR = CONTAINER_HOME / ".local/state"
 
 COPIED_FILES = [".ssh/config", ".gitconfig"]
 
 # Namespaces allow several independent containers for the same project
 DEFAULT_NAMESPACE = "main"
-# Must be valid in container and volume names
+# Must be valid in container and volume names, also used for persistent mount names
 NAMESPACE_PATTERN = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*")
 
 # Set on containers and volumes, so projects can be listed
@@ -211,8 +215,36 @@ def _check_mount_source(entry: Path, info: ValidationInfo) -> Path:
     return dest
 
 
-class Mount(BaseModel):
-    """An extra mount, given as `{path: ..., mode: ro|rw}` or just its path (read-only)."""
+def _check_container_path(entry: Path, info: ValidationInfo) -> PurePosixPath:
+    """Turn a container path into an absolute path, with ~ as the container's home."""
+    project: Path = info.context["project"]
+    parts = PurePosixPath(entry).parts
+    if parts and parts[0] == "~":
+        path = CONTAINER_HOME.joinpath(*parts[1:])
+    elif parts and parts[0].startswith("~"):
+        raise ValueError(f"only ~ is supported, not ~user: {entry}")
+    else:
+        path = PurePosixPath(project) / entry
+    path = PurePosixPath(os.path.normpath(path))
+    if ":" in str(path):
+        raise ValueError(f"mount path must not contain ':': {path}")
+    if path in {CONTAINER_HOME, *CONTAINER_HOME.parents}:
+        raise ValueError(
+            f"refusing to mount over {path}: it contains the home directory"
+        )
+    return path
+
+
+def _check_volume_name(name: str) -> str:
+    if not NAMESPACE_PATTERN.fullmatch(name):
+        raise ValueError(
+            "must start with a letter or digit, followed by letters, digits, '_', '.' or '-'"
+        )
+    return name
+
+
+class BindMount(BaseModel):
+    """A host path, mounted read-only or read-write."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -221,37 +253,163 @@ class Mount(BaseModel):
     destination: Annotated[Path | None, AfterValidator(_check_mount_destination)] = None
     mode: Literal["ro", "rw"] = "ro"
 
-    @model_validator(mode="before")
-    @classmethod
-    def _path_shorthand(cls, value: object) -> object:
-        return {"path": value} if isinstance(value, str) else value
-
     @property
     def source(self) -> Path:
         return self.path.resolve()
 
-    def podman_args(self) -> list[str]:
-        destination = self.destination or self.path
-        args = ["-v", f"{self.source}:{destination}:{self.mode},z"]
+    @property
+    def target(self) -> Path:
+        return self.destination or self.path
+
+    def podman_args(self, project: "Project") -> list[str]:
+        args = ["-v", f"{self.source}:{self.target}:{self.mode},z"]
         # Like the project's, so the container can't rewrite history or plant hooks
         git_dir = self.source / GIT_DIR
         if self.mode == "rw" and git_dir.exists():
-            args += ["-v", f"{git_dir}:{self.path / GIT_DIR}:ro,z"]
+            args += ["-v", f"{git_dir}:{self.target / GIT_DIR}:ro,z"]
         return args
 
 
-class Config(BaseModel):
-    """Per-project settings, read from <project>/.local_env/devc_config.yaml."""
+class PersistentMount(BaseModel):
+    """A volume persisted per project and namespace."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    mounts: list[Mount] = []
+    # Path in the container, absolute, relative to the project or starting with ~
+    path: Annotated[PurePosixPath, AfterValidator(_check_container_path)]
+    mode: Literal["persistent"]
+    # Volume component, defaults to one derived from the path
+    name: Annotated[str | None, AfterValidator(_check_volume_name)] = None
 
-    @field_validator("mounts", mode="before")
+    def volume_component(self, project: Path) -> str:
+        if self.name:
+            return self.name
+        # Relative to the home or project, e.g. ~/.claude -> claude, ~/.a/b -> a-b
+        path = self.path
+        for base in (CONTAINER_HOME, PurePosixPath(project)):
+            if path.is_relative_to(base):
+                path = path.relative_to(base)
+                break
+        parts = (part.lstrip(".") for part in path.parts if part != "/")
+        return re.sub(r"[^a-zA-Z0-9_.-]", "-", "-".join(p for p in parts if p))
+
+    def podman_args(self, project: "Project") -> list[str]:
+        volume = project.volume(self.volume_component(project.path))
+        return ["-v", f"{volume}:{self.path}"]
+
+
+def _mount_kind(value: object) -> str:
+    mode = (
+        value.get("mode") if isinstance(value, dict) else getattr(value, "mode", None)
+    )
+    return "persistent" if mode == "persistent" else "bind"
+
+
+def _mount_shorthand(value: object) -> object:
+    """Allow just a path, for a read-only bind mount."""
+    return {"path": value} if isinstance(value, str) else value
+
+
+# Given as `{path: ..., mode: ro|rw|persistent}` or just its path (read-only)
+Mount = Annotated[
+    Annotated[BindMount, Tag("bind")] | Annotated[PersistentMount, Tag("persistent")],
+    Discriminator(_mount_kind),
+]
+
+
+PORT_PATTERN = re.compile(
+    r"(?:(?P<host>\d+):)?(?P<container>\d+)(?:/(?P<protocol>\w+))?"
+)
+
+PortNumber = Annotated[int, Field(ge=1, le=65535)]
+
+
+class Port(BaseModel):
+    """A port forwarding, given as `{container: ..., host: ...}` or `[host:]container[/tcp|udp]`."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    container: PortNumber
+    # Defaults to the container port
+    host: PortNumber | None = None
+    # Only reachable from this machine by default
+    host_ip: IPv4Address | IPv6Address = IPv4Address("127.0.0.1")
+    protocol: Literal["tcp", "udp"] = "tcp"
+
+    @model_validator(mode="before")
+    @classmethod
+    def _shorthand(cls, value: object) -> object:
+        if isinstance(value, int):
+            return {"container": value}
+        if isinstance(value, str):
+            match = PORT_PATTERN.fullmatch(value)
+            if not match:
+                raise ValueError(f"expected [host:]container[/tcp|udp], got {value!r}")
+            return {k: v for k, v in match.groupdict().items() if v is not None}
+        return value
+
+    def podman_args(self) -> list[str]:
+        host_ip = (
+            f"[{self.host_ip}]" if self.host_ip.version == 6 else str(self.host_ip)
+        )
+        host = self.host or self.container
+        return ["-p", f"{host_ip}:{host}:{self.container}/{self.protocol}"]
+
+
+class Config(BaseModel):
+    """Settings, read from the global config and <project>/.local_env/devc_config.yaml.
+
+    Both are merged, global entries first. Relative paths are relative to the project.
+    Example:
+
+        mounts:
+          - ../shared                                    # read-only, same path
+          - {path: ../lib, destination: /work/lib, mode: rw}
+          - {path: ~/.claude, mode: persistent}          # ~ = the container's home
+          - {path: node_modules, mode: persistent}       # inside the project
+          - {path: /opt/cache, mode: persistent, name: optcache}
+        ports:
+          - 3000                                         # 127.0.0.1:3000 -> 3000
+          - "8080:80"                                    # host:container
+          - "53/udp"
+          - {container: 9000, host: 9001, host_ip: "0.0.0.0"}
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    mounts: list[Annotated[Mount, BeforeValidator(_mount_shorthand)]] = []
+    ports: list[Port] = []
+
+    @field_validator("mounts", "ports", mode="before")
     @classmethod
     def _null_as_empty(cls, value: object) -> object:
         # A bare `mounts:` key parses as null
         return [] if value is None else value
+
+    @property
+    def bind_mounts(self) -> list[BindMount]:
+        return [mount for mount in self.mounts if isinstance(mount, BindMount)]
+
+    @property
+    def persistent_mounts(self) -> list[PersistentMount]:
+        return [mount for mount in self.mounts if isinstance(mount, PersistentMount)]
+
+    def merge(self, other: Self) -> Self:
+        return type(self).model_construct(
+            mounts=[*self.mounts, *other.mounts], ports=[*self.ports, *other.ports]
+        )
+
+    def check_volumes(self, project: Path) -> None:
+        """Ensure each persistent mount gets its own volume."""
+        paths: dict[str, PurePosixPath] = {}
+        for mount in self.persistent_mounts:
+            component = mount.volume_component(project)
+            other = paths.setdefault(component, mount.path)
+            if other != mount.path:
+                raise DevcError(
+                    f"persistent mounts {other} and {mount.path} share the volume name"
+                    f" {component!r}, give one of them another `name`"
+                )
 
     @classmethod
     def load(cls, path: Path, project: Path) -> Self:
@@ -265,10 +423,17 @@ class Config(BaseModel):
             return cls.model_validate(data, context={"project": project})
         except ValidationError as e:
             lines = (
-                f"  {'.'.join(map(str, err['loc'])) or '<root>'}: {err['msg']}"
+                f"  {'.'.join(map(str, _error_loc(err['loc']))) or '<root>'}: {err['msg']}"
                 for err in e.errors()
             )
             raise DevcError(f"{path}: invalid config:\n" + "\n".join(lines)) from e
+
+
+def _error_loc(loc: tuple[int | str, ...]) -> tuple[int | str, ...]:
+    """Drop the tag of the mount kind, which isn't part of the config."""
+    if loc[:1] == ("mounts",) and len(loc) > 2 and loc[2] in {"bind", "persistent"}:
+        return loc[:2] + loc[3:]
+    return loc
 
 
 @dataclass(frozen=True)
@@ -290,9 +455,20 @@ class Project:
     def volume(self, component: str) -> str:
         return f"devc-{component}-{self.hash}-{self.namespace}"
 
-    @property
-    def volumes(self) -> list[str]:
-        return [self.volume(component) for component in PERSISTED_DIRS.values()]
+    def volumes(self, config: Config) -> list[str]:
+        """The volumes to mount, as configured."""
+        return [
+            self.volume(mount.volume_component(self.path))
+            for mount in config.persistent_mounts
+        ]
+
+    def existing_volumes(self) -> list[str]:
+        """All volumes of the project, including ones no longer configured."""
+        return podman_output(
+            "volume", "ls", "--format", "{{.Name}}",
+            "--filter", f"label={PROJECT_LABEL}={self.path}",
+            "--filter", f"label={NAMESPACE_LABEL}={self.namespace}",
+        ).splitlines()  # fmt: skip
 
     @property
     def label_args(self) -> list[str]:
@@ -320,11 +496,14 @@ class Project:
         return self.path / GIT_DIR
 
     def load_config(self) -> Config:
-        return Config.load(self.config_file, self.path)
+        global_config = Config.load(GLOBAL_CONFIG_FILE, self.path)
+        config = global_config.merge(Config.load(self.config_file, self.path))
+        config.check_volumes(self.path)
+        return config
 
     def check_workdir(self, workdir: Path, config: Config) -> None:
         """Ensure the container can open in workdir, i.e. it's mounted there."""
-        roots = [self.path, *(mount.path for mount in config.mounts)]
+        roots = [self.path, *(mount.path for mount in config.bind_mounts)]
         if not any(workdir.is_relative_to(root) for root in roots):
             raise DevcError(
                 f"{workdir} is not mounted in the container of {self.path}, "
@@ -344,7 +523,7 @@ def start_container(project: Project, config: Config) -> None:
 
     podman_quiet("rm", "-f", project.container)
     # Created up front rather than by `podman run`, to carry the labels
-    for volume in project.volumes:
+    for volume in project.volumes(config):
         if podman("volume", "exists", volume, check=False).returncode != 0:
             podman(
                 "volume", "create", *project.label_args, volume,
@@ -359,17 +538,17 @@ def start_container(project: Project, config: Config) -> None:
         f"--userns=keep-id:uid={uid},gid={gid}",
         "-e", f"HOME={CONTAINER_HOME}",
         "-e", f"DEVC_HISTORY_DIR={HISTORY_DIR}",
-        *git_safe_directory_args([project.path, *(m.path for m in config.mounts)]),
+        *git_safe_directory_args([project.path, *(m.target for m in config.bind_mounts)]),
         "-v", f"{project.path}:{project.path}:z",
         "-v", f"{project.local_env}:{project.local_env}:ro,z",
     ]  # fmt: skip
     # A file for worktrees and submodules, mounted the same way
     if project.git_dir.exists():
         run_args += ["-v", f"{project.git_dir}:{project.git_dir}:ro,z"]
-    for dir_path, component in PERSISTED_DIRS.items():
-        run_args += ["-v", f"{project.volume(component)}:{CONTAINER_HOME / dir_path}"]
     for mount in config.mounts:
-        run_args += mount.podman_args()
+        run_args += mount.podman_args(project)
+    for port in config.ports:
+        run_args += port.podman_args()
 
     podman("run", *run_args, IMAGE, "sleep", "infinity", stdout=subprocess.DEVNULL)
 
@@ -405,7 +584,7 @@ def git_safe_directory_args(paths: list[Path]) -> list[str]:
 def remove_container(project: Project) -> None:
     """Remove the project's container and persisted volumes."""
     podman_quiet("rm", "-f", project.container)
-    for volume in project.volumes:
+    for volume in project.existing_volumes():
         podman_quiet("volume", "rm", "-f", volume)
 
 
@@ -542,16 +721,29 @@ def remove_project(project: Project) -> None:
     with sessions.locked():
         if is_running(project.container):
             raise DevcError(f"{project} is running, exit its sessions first")
-        existing = [
-            volume
-            for volume in project.volumes
-            if podman("volume", "exists", volume, check=False).returncode == 0
-        ]
-        if not existing:
+        if not project.existing_volumes():
             raise DevcError(f"No devc project {project}")
         info(f"Removing {project}...")
         remove_container(project)
         sessions.clear()
+
+
+def prune_project(project: Project) -> None:
+    """Delete the project's volumes that are no longer used by its config."""
+    config = project.load_config()
+    sessions = SessionCounter(project.container)
+    with sessions.locked():
+        # The container may still use volumes from the config it was started with
+        if is_running(project.container):
+            raise DevcError(f"{project} is running, exit its sessions first")
+        configured = set(project.volumes(config))
+        orphaned = [v for v in project.existing_volumes() if v not in configured]
+        if not orphaned:
+            info(f"No unused volumes for {project}")
+            return
+        for volume in orphaned:
+            info(f"Removing {volume}...")
+        podman("volume", "rm", *orphaned, stdout=subprocess.DEVNULL)
 
 
 # --- cli ---------------------------------------------------------------------
@@ -630,14 +822,26 @@ def main(
             "--rm", help="Delete the project's container and volumes in the namespace."
         ),
     ] = False,
+    prune: Annotated[
+        bool,
+        typer.Option(
+            "--prune",
+            help="Delete the project's volumes in the namespace that its config"
+            " no longer uses, e.g. of removed persistent mounts.",
+        ),
+    ] = False,
 ) -> None:
     """Run a command (default: zsh) inside a per-project dev container."""
     returncode = 0
     try:
-        if list_ and (remove or command or project_dir or reset or build):
+        if list_ and (remove or prune or command or project_dir or reset or build):
             raise DevcError("--list can't be combined with other options or a command")
-        if remove and (command or reset or build):
+        if remove and (prune or command or reset or build):
             raise DevcError("--rm can only be combined with --project and --namespace")
+        if prune and (command or reset or build):
+            raise DevcError(
+                "--prune can only be combined with --project and --namespace"
+            )
 
         workdir = logical_cwd()
         project_path = logical_path(project_dir, workdir) if project_dir else workdir
@@ -649,6 +853,9 @@ def main(
         elif remove:
             ensure_podman_machine()
             remove_project(project)
+        elif prune:
+            ensure_podman_machine()
+            prune_project(project)
         else:
             returncode = run(project, workdir, command or ["zsh"], reset, build)
     except DevcError as e:

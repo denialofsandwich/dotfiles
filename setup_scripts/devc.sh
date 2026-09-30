@@ -6,4 +6,5 @@ if [[ "$OS_TYPE" == "macos" ]]; then
   brew_manage podman
 fi
 
-stow_manage_simple ~/.local/bin
+stow_manage_simple ~/.local/bin devc-bin
+stow_manage_templated ~/.config/devc

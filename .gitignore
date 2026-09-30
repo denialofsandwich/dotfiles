@@ -4,3 +4,4 @@ custom_vars.sh
 .tmux.conf
 kitty.conf
 __pycache__
+devc.yaml

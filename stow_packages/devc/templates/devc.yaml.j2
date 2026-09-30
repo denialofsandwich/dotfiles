@@ -1,0 +1,7 @@
+mounts:
+  - { path: ~/.cache, mode: persistent, name: cache }
+  - { path: ~/.local/share/nvim, mode: persistent, name: nvim }
+  - { path: ~/.local/state, mode: persistent, name: state }
+{%- if "claude" in DEFAULT_MODULES.split() %}
+  - { path: ~/.claude, mode: persistent, name: claude }
+{%- endif %}

@@ -6,19 +6,21 @@ brew_manage() {
 
 stow_manage_simple() {
   base_path=$1
+  package=${2:-$MODULE}
 
-  echo -e "${YELLOW}Update stow${NC}"
+  echo -e "${YELLOW}Update stow package $package ${NC}"
   mkdir -p "$base_path"
-  stow -d stow_packages -t "$base_path" "--$STOW_MODE" "$MODULE"
+  stow -d stow_packages -t "$base_path" "--$STOW_MODE" "$package"
 }
 
 stow_manage_templated() {
   base_path=$1
+  package=${2:-$MODULE}
 
-  echo -e "${YELLOW}Update stow${NC}"
+  echo -e "${YELLOW}Update stow package $package ${NC}"
   if [[ "$MODE" == "install" ]]; then
-    mkdir -p "stow_packages/$MODULE/configs"
-    pushd "stow_packages/$MODULE/templates" >/dev/null || exit 1
+    mkdir -p "stow_packages/$package/configs"
+    pushd "stow_packages/$package/templates" >/dev/null || exit 1
 
     ENV_ARGS=()
     while IFS='=' read -r key val; do
