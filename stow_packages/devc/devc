@@ -189,7 +189,7 @@ def is_running(container: str) -> bool:
 # --- project -----------------------------------------------------------------
 
 
-def _check_mount(entry: Path, info: ValidationInfo) -> Path:
+def _check_mount_destination(entry: Path, info: ValidationInfo) -> Path:
     """Turn a mount path into an absolute path, relative to the project."""
     project: Path = info.context["project"]
     # Keep the path as written (no symlink resolution), so symlinks pointing there resolve
@@ -197,10 +197,17 @@ def _check_mount(entry: Path, info: ValidationInfo) -> Path:
     source = dest.resolve()
     if ":" in str(dest) or ":" in str(source):
         raise ValueError(f"mount path must not contain ':': {dest}")
-    if not source.exists():
-        raise ValueError(f"mount path does not exist: {dest}")
     if contains_home(dest) or contains_home(source):
         raise ValueError(f"refusing to mount {dest}: it contains your home directory")
+    return dest
+
+
+def _check_mount_source(entry: Path, info: ValidationInfo) -> Path:
+    """Turn a mount path into an absolute path, relative to the project."""
+    dest = _check_mount_destination(entry, info)
+    source = dest.resolve()
+    if not source.exists():
+        raise ValueError(f"mount path does not exist: {dest}")
     return dest
 
 
@@ -210,7 +217,8 @@ class Mount(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     # Absolute or relative to the project, mounted at the same path in the container
-    path: Annotated[Path, AfterValidator(_check_mount)]
+    path: Annotated[Path, AfterValidator(_check_mount_source)]
+    destination: Annotated[Path | None, AfterValidator(_check_mount_destination)] = None
     mode: Literal["ro", "rw"] = "ro"
 
     @model_validator(mode="before")
@@ -223,7 +231,8 @@ class Mount(BaseModel):
         return self.path.resolve()
 
     def podman_args(self) -> list[str]:
-        args = ["-v", f"{self.source}:{self.path}:{self.mode},z"]
+        destination = self.destination or self.path
+        args = ["-v", f"{self.source}:{destination}:{self.mode},z"]
         # Like the project's, so the container can't rewrite history or plant hooks
         git_dir = self.source / GIT_DIR
         if self.mode == "rw" and git_dir.exists():
