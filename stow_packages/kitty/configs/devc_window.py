@@ -11,6 +11,7 @@ from kitty.window import Window
 PROJECT_ENV = "DEVC_PROJECT"
 NAMESPACE_ENV = "DEVC_NAMESPACE"
 WORKDIR_ENV = "DEVC_WORKDIR"
+KRUN_ENV = "DEVC_KRUN"
 
 
 def main(args: list[str]) -> str:
@@ -56,4 +57,5 @@ def handle_result(
         shutil.which("devc", path=path) or "devc",
         "--project", project,
         "--namespace", env.get(NAMESPACE_ENV, "main"),
+        *(["--krun"] if env.get(KRUN_ENV) else []),
     )  # fmt: skip

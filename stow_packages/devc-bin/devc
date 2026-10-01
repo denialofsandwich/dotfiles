@@ -11,6 +11,7 @@ import json
 import os
 import platform
 import re
+import secrets
 import shlex
 import signal
 import subprocess
@@ -65,11 +66,17 @@ NAMESPACE_PATTERN = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*")
 # Set on containers and volumes, so projects can be listed
 PROJECT_LABEL = "devc.project"
 NAMESPACE_LABEL = "devc.namespace"
+# Set on microVMs, several of which may run per project and namespace
+MICROVM_LABEL = "devc.microvm"
 
 # Set on the host-side podman exec, must match stow_packages/kitty/configs/devc_window.py
 PROJECT_ENV = "DEVC_PROJECT"
 NAMESPACE_ENV = "DEVC_NAMESPACE"
 WORKDIR_ENV = "DEVC_WORKDIR"
+KRUN_ENV = "DEVC_KRUN"
+
+# OCI runtime of crun-krun, which runs the container as a microVM
+KRUN_RUNTIME = "krun"
 
 HOME = Path.home()
 EXIT_SIGNALS = {signal.SIGHUP, signal.SIGTERM}
@@ -448,6 +455,28 @@ class Project:
     def container(self) -> str:
         return f"devc-{self.hash}-{self.namespace}"
 
+    def new_microvm(self) -> str:
+        """A unique name for another microVM.
+
+        Starting with "vm" rather than the hash, so it can't clash with the container
+        of another namespace.
+        """
+        return f"devc-vm-{self.hash}-{self.namespace}-{secrets.token_hex(4)}"
+
+    def microvms(self, *, active: bool = True) -> list[str]:
+        """The project's microVMs, by default only those starting or running."""
+        status = ["--filter", "status=created", "--filter", "status=running"]
+        return podman_output(
+            "ps", "-a", "--format", "{{.Names}}",
+            "--filter", f"label={PROJECT_LABEL}={self.path}",
+            "--filter", f"label={NAMESPACE_LABEL}={self.namespace}",
+            "--filter", f"label={MICROVM_LABEL}",
+            *(status if active else []),
+        ).splitlines()  # fmt: skip
+
+    def in_use(self) -> bool:
+        return is_running(self.container) or bool(self.microvms())
+
     def volume(self, component: str) -> str:
         # Readable, but still unique per project path thanks to the hash
         name = re.sub(r"[^a-zA-Z0-9_.-]", "-", self.path.name)
@@ -512,14 +541,12 @@ class Project:
 # --- container lifecycle -----------------------------------------------------
 
 
-def start_container(project: Project, config: Config) -> None:
-    info("Starting dev container...")
-
+def prepare_container(project: Project, config: Config) -> tuple[str, str]:
+    """Create the local env and the volumes, returning the image's user."""
     if not (project.local_env.exists() or project.local_env.is_symlink()):
         project.local_env.mkdir()
     uid, gid = image_user()
 
-    podman_quiet("rm", "-f", project.container)
     # Created up front rather than by `podman run`, to carry the labels
     for volume in project.volumes(config):
         if podman("volume", "exists", volume, check=False).returncode != 0:
@@ -527,8 +554,25 @@ def start_container(project: Project, config: Config) -> None:
                 "volume", "create", *project.label_args, volume,
                 stdout=subprocess.DEVNULL,
             )  # fmt: skip
+    return uid, gid
 
+
+def start_container(project: Project, config: Config) -> None:
+    info("Starting dev container...")
+    uid, gid = prepare_container(project, config)
+    podman_quiet("rm", "-f", project.container)
     podman(*run_command(project, config, uid, gid), stdout=subprocess.DEVNULL)
+
+
+def create_microvm(
+    project: Project, config: Config, name: str, workdir: Path, command: list[str]
+) -> None:
+    info("Starting dev microVM...")
+    uid, gid = prepare_container(project, config)
+    podman(
+        *krun_command(project, config, name, uid, gid, workdir, command),
+        stdout=subprocess.DEVNULL,
+    )
 
 
 def run_command(project: Project, config: Config, uid: str, gid: str) -> list[str]:
@@ -536,9 +580,67 @@ def run_command(project: Project, config: Config, uid: str, gid: str) -> list[st
     run_args = [
         "-d",
         "--init",
-        "--name", project.container,
+        *container_args(project, config, project.container, uid, gid),
+    ]
+    return ["run", *run_args, IMAGE, "sleep", "infinity"]
+
+
+def krun_command(
+    project: Project,
+    config: Config,
+    name: str,
+    uid: str,
+    gid: str,
+    workdir: Path,
+    command: list[str],
+) -> list[str]:
+    """The podman arguments that create a microVM of the project, running the command.
+
+    podman exec doesn't work with krun, so the command is the microVM's main process
+    rather than `sleep infinity`. Created rather than run, so it is already listed as
+    in use when the session lock is released.
+    """
+    create_args = [
+        "--runtime", KRUN_RUNTIME,
+        # Removed by podman when it exits, even if devc is killed
+        "--rm",
+        "--label", f"{MICROVM_LABEL}=true",
+        *container_args(project, config, name, uid, gid),
+        *session_args(project, workdir),
+    ]  # fmt: skip
+    return ["create", *create_args, IMAGE, *drop_privileges(uid, gid), *command]
+
+
+def drop_privileges(uid: str, gid: str) -> list[str]:
+    """The command prefix that runs a command as the image's user, without capabilities.
+
+    krun's init runs the command as root in the microVM, ignoring the image's user.
+    The podman options restricting privileges apply to the microVM process on the
+    host, not inside it, so they are applied to the command here.
+    """
+    return [
+        "setpriv",
+        f"--reuid={uid}",
+        f"--regid={gid}",
+        "--init-groups",
+        "--inh-caps=-all",
+        "--ambient-caps=-all",
+        "--bounding-set=-all",
+        "--no-new-privs",
+        "--",
+    ]
+
+
+def container_args(
+    project: Project, config: Config, name: str, uid: str, gid: str
+) -> list[str]:
+    """The podman arguments that set up a container of the project, for any runtime."""
+    run_args = [
+        "--name", name,
         *project.label_args,
         f"--userns=keep-id:uid={uid},gid={gid}",
+        "--cap-drop=all",
+        "--security-opt=no-new-privileges",
         *git_safe_directory_args([project.path, *(m.target for m in config.bind_mounts)]),
         "-v", f"{project.path}:{project.path}:z",
         "-v", f"{project.local_env}:{project.local_env}:ro,z",
@@ -550,7 +652,7 @@ def run_command(project: Project, config: Config, uid: str, gid: str) -> list[st
         run_args += mount.podman_args(project)
     for port in config.ports:
         run_args += port.podman_args()
-    return ["run", *run_args, IMAGE, "sleep", "infinity"]
+    return run_args
 
 
 def git_safe_directory_args(paths: list[Path]) -> list[str]:
@@ -570,8 +672,8 @@ def git_safe_directory_args(paths: list[Path]) -> list[str]:
 
 
 def remove_container(project: Project) -> None:
-    """Remove the project's container and persisted volumes."""
-    podman_quiet("rm", "-f", project.container)
+    """Remove the project's containers and persisted volumes."""
+    podman_quiet("rm", "-f", project.container, *project.microvms(active=False))
     for volume in project.existing_volumes():
         podman_quiet("volume", "rm", "-f", volume)
 
@@ -611,6 +713,16 @@ def _exit_on_signal(signum: int, _frame: FrameType | None) -> None:
     sys.exit(128 + signum)
 
 
+def reset_project(project: Project, sessions: SessionCounter) -> None:
+    """Remove the project's container and volumes, to be called with the lock held."""
+    # They would lose their volumes while still using them
+    if project.microvms():
+        raise DevcError(f"{project} has running microVMs, exit them first")
+    info("Resetting persisted volumes for this project...")
+    remove_container(project)
+    sessions.clear()
+
+
 @contextmanager
 def session(project: Project, config: Config, reset: bool) -> Iterator[None]:
     """Start the container if needed and keep it running for the duration of the block."""
@@ -620,9 +732,7 @@ def session(project: Project, config: Config, reset: bool) -> Iterator[None]:
 
     with sessions.locked():
         if reset:
-            info("Resetting persisted volumes for this project...")
-            remove_container(project)
-            sessions.clear()
+            reset_project(project, sessions)
         if not is_running(project.container):
             start_container(project, config)
             sessions.set(0)
@@ -646,7 +756,44 @@ def session(project: Project, config: Config, reset: bool) -> Iterator[None]:
                 sessions.set(remaining)
 
 
-def exec_in_container(project: Project, workdir: Path, command: list[str]) -> int:
+@contextmanager
+def microvm_session(
+    project: Project,
+    config: Config,
+    reset: bool,
+    workdir: Path,
+    command: list[str],
+) -> Iterator[str]:
+    """Create a microVM running the command, to be started in the block, and remove it after.
+
+    podman exec doesn't work with krun, so a microVM can't be shared between sessions
+    like a container. Instead, each session gets its own, with the same mounts.
+    """
+    sessions = SessionCounter(project.container)
+    for sig in EXIT_SIGNALS:
+        signal.signal(sig, _exit_on_signal)
+    name = project.new_microvm()
+
+    # Locked, so --reset, --rm or --prune can't remove the volumes meanwhile
+    with sessions.locked():
+        if reset:
+            reset_project(project, sessions)
+        # Defer exit signals until the try below, so the microVM is always removed
+        signal.pthread_sigmask(signal.SIG_BLOCK, EXIT_SIGNALS)
+        create_microvm(project, config, name, workdir, command)
+
+    try:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, EXIT_SIGNALS)
+        yield name
+    finally:
+        for sig in EXIT_SIGNALS:
+            signal.signal(sig, signal.SIG_IGN)
+        info("Stopping microVM...")
+        podman_quiet("rm", "-f", name)
+
+
+def attach(project: Project, workdir: Path, args: list[str], krun: bool) -> int:
+    """Run podman attached to the terminal, for a session in the project's container."""
     # Ctrl-C is meant for the command inside the container. A no-op handler
     # rather than SIG_IGN, since ignored signals are inherited by podman
     signal.signal(signal.SIGINT, lambda *_: None)
@@ -656,21 +803,29 @@ def exec_in_container(project: Project, workdir: Path, command: list[str]) -> in
         PROJECT_ENV: str(project.path),
         NAMESPACE_ENV: project.namespace,
         WORKDIR_ENV: str(workdir),
+        **({KRUN_ENV: "1"} if krun else {}),
     }
-    return podman(
-        *exec_command(project, workdir, command), check=False, env=env
-    ).returncode
+    return podman(*args, check=False, env=env).returncode
 
 
 def exec_command(project: Project, workdir: Path, command: list[str]) -> list[str]:
     """The podman arguments that run the command in the project's container."""
-    exec_args = [
+    return ["exec", *session_args(project, workdir), project.container, *command]
+
+
+def start_microvm_command(name: str) -> list[str]:
+    """The podman arguments that start the microVM, attached to it."""
+    return ["start", "--attach", "--interactive", name]
+
+
+def session_args(project: Project, workdir: Path) -> list[str]:
+    """The podman arguments for running a session's command, of exec or create."""
+    return [
         "--workdir", str(workdir),
         "--env", f"TERM={os.environ.get('TERM') or 'xterm'}",
         "--env", f"DEVC_SESSION_NAME={project.session_name}",
         "-it" if sys.stdin.isatty() and sys.stdout.isatty() else "-i",
     ]  # fmt: skip
-    return ["exec", *exec_args, project.container, *command]
 
 
 # --- project management ------------------------------------------------------
@@ -701,11 +856,13 @@ def list_projects() -> None:
 
     rows = [("PROJECT", "NAMESPACE", "STATUS")]
     for project in projects:
+        running = []
         if is_running(project.container):
             count = SessionCounter(project.container).get(0)
-            status = f"running ({count} session{'s' * (count != 1)})"
-        else:
-            status = "stopped"
+            running.append(f"{count} session{'s' * (count != 1)}")
+        if microvms := len(project.microvms()):
+            running.append(f"{microvms} microVM{'s' * (microvms != 1)}")
+        status = f"running ({', '.join(running)})" if running else "stopped"
         if not project.path.is_dir():
             status += ", directory missing"
         rows.append((str(project.path), project.namespace, status))
@@ -717,7 +874,7 @@ def list_projects() -> None:
 def remove_project(project: Project) -> None:
     sessions = SessionCounter(project.container)
     with sessions.locked():
-        if is_running(project.container):
+        if project.in_use():
             raise DevcError(f"{project} is running, exit its sessions first")
         if not project.existing_volumes():
             raise DevcError(f"No devc project {project}")
@@ -733,7 +890,7 @@ def remove_all_projects() -> None:
         info("No devc projects found")
         return
     # Checked up front, so nothing is removed if any of them is still in use
-    running = [project for project in projects if is_running(project.container)]
+    running = [project for project in projects if project.in_use()]
     if running:
         raise DevcError(
             "Exit the sessions of these projects first:\n"
@@ -753,8 +910,8 @@ def prune_project(project: Project) -> None:
     config = project.load_config()
     sessions = SessionCounter(project.container)
     with sessions.locked():
-        # The container may still use volumes from the config it was started with
-        if is_running(project.container):
+        # The containers may still use volumes from the config they were started with
+        if project.in_use():
             raise DevcError(f"{project} is running, exit its sessions first")
         configured = set(project.volumes(config))
         orphaned = [v for v in project.existing_volumes() if v not in configured]
@@ -780,7 +937,7 @@ def _check_namespace(value: str) -> str:
 
 
 def dry_run(
-    project: Project, workdir: Path, command: list[str], config: Config
+    project: Project, workdir: Path, command: list[str], config: Config, krun: bool
 ) -> None:
     """Print the podman commands that start the container and run the command."""
     ensure_podman_machine()
@@ -790,12 +947,23 @@ def dry_run(
     else:
         info(f"Image {IMAGE} not built yet, the user is a placeholder")
         uid, gid = "<uid>", "<gid>"
-    print(format_command(run_command(project, config, uid, gid)))
-    print(format_command(exec_command(project, workdir, command)))
+    if krun:
+        name = project.new_microvm()
+        print(
+            format_command(
+                krun_command(project, config, name, uid, gid, workdir, command)
+            )
+        )
+        print(format_command(start_microvm_command(name)))
+    else:
+        print(format_command(run_command(project, config, uid, gid)))
+        print(format_command(exec_command(project, workdir, command)))
 
 
 # Options of podman run and exec that take their value as the next argument
-VALUE_OPTIONS = {"--name", "--label", "-e", "--env", "-v", "-p", "--workdir"}
+VALUE_OPTIONS = {
+    "--name", "--label", "-e", "--env", "-v", "-p", "--workdir", "--runtime"
+}  # fmt: skip
 
 
 def format_command(args: list[str]) -> str:
@@ -820,6 +988,7 @@ def run(
     reset: bool,
     build: bool,
     dry: bool,
+    krun: bool,
 ) -> int:
     if not project.path.is_dir():
         raise DevcError(f"Project directory {project.path} does not exist")
@@ -831,14 +1000,17 @@ def run(
     project.check_workdir(workdir, config)
 
     if dry:
-        dry_run(project, workdir, command, config)
+        dry_run(project, workdir, command, config, krun)
         return 0
 
     ensure_podman_machine()
     ensure_image(build)
 
+    if krun:
+        with microvm_session(project, config, reset, workdir, command) as name:
+            return attach(project, workdir, start_microvm_command(name), krun)
     with session(project, config, reset):
-        return exec_in_container(project, workdir, command)
+        return attach(project, workdir, exec_command(project, workdir, command), krun)
 
 
 # Stop option parsing at the command, so its own flags are passed through
@@ -875,6 +1047,14 @@ def main(
     ] = False,
     build: Annotated[
         bool, typer.Option("--build", help="Rebuild the image, even if it exists.")
+    ] = False,
+    krun: Annotated[
+        bool,
+        typer.Option(
+            "--krun",
+            help="Run in a microVM with crun-krun. Each session gets its own,"
+            " with the same mounts.",
+        ),
     ] = False,
     list_: Annotated[
         bool, typer.Option("--list", help="List all projects and their namespaces.")
@@ -914,19 +1094,19 @@ def main(
     try:
         if list_ and (
             remove or prune or remove_all or dry or command or project_dir or reset
-            or build
+            or build or krun
         ):  # fmt: skip
             raise DevcError("--list can't be combined with other options or a command")
         if remove_all and (
             remove or prune or dry or command or project_dir or reset or build
-            or namespace != DEFAULT_NAMESPACE
+            or krun or namespace != DEFAULT_NAMESPACE
         ):  # fmt: skip
             raise DevcError(
                 "--rm-all can't be combined with other options or a command"
             )
-        if remove and (prune or dry or command or reset or build):
+        if remove and (prune or dry or command or reset or build or krun):
             raise DevcError("--rm can only be combined with --project and --namespace")
-        if prune and (dry or command or reset or build):
+        if prune and (dry or command or reset or build or krun):
             raise DevcError(
                 "--prune can only be combined with --project and --namespace"
             )
@@ -950,7 +1130,9 @@ def main(
             ensure_podman_machine()
             prune_project(project)
         else:
-            returncode = run(project, workdir, command or ["zsh"], reset, build, dry)
+            returncode = run(
+                project, workdir, command or ["zsh"], reset, build, dry, krun
+            )
     except DevcError as e:
         info(str(e))
         raise typer.Exit(1) from e
