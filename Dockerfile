@@ -39,6 +39,11 @@ COPY --chown=$USERNAME:$USERNAME . /home/$USERNAME/dotfiles
 USER $USERNAME
 WORKDIR /home/$USERNAME/dotfiles
 
+# HOME isn't left to podman, as --userns=keep-id may set it to the host's home.
+# Shell history is kept per project, if persisted by a mount in the devc config.
+ENV HOME=/home/$USERNAME \
+    DEVC_HISTORY_DIR=/home/$USERNAME/.local/state
+
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/$USERNAME/.local/bin:${PATH}" \
     DEFAULT_MODULES="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop"
 RUN ./setup.sh \
