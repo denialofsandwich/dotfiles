@@ -39,6 +39,9 @@ blocks:
         background: "235"
         foreground: "11"
         style: diamond
+        options:
+          ignore_submodules:
+            "*": all
         leading_diamond: 
         trailing_diamond: 
         template: >-

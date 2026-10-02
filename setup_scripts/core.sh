@@ -40,3 +40,4 @@ git config --global rerere.enabled true
 git config --global pull.rebase true
 git config --global rebase.autoStash true
 git config --global init.defaultBranch main
+git config --global core.trustctime false
