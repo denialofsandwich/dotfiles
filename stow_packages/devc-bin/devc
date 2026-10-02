@@ -44,38 +44,31 @@ from pydantic import (
 IMAGE = "dotfiles-dev:latest"
 CONTAINER_HOME = PurePosixPath("/home/dev")
 
-# Mounted read-only, so the container can't tamper with activate.sh or the config
+# Mounted read-only, so the container can't tamper with them
 LOCAL_ENV = ".local_env"
+GIT_DIR = ".git"
 CONFIG_FILE = "devc.yaml"
 
-# Applies to all projects, merged with the project's config
 GLOBAL_CONFIG_FILE = (
     Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
     / "devc"
     / CONFIG_FILE
 )
 
-# Mounted read-only if present, so the container can't rewrite history or plant hooks
-GIT_DIR = ".git"
 
-# Namespaces allow several independent containers for the same project
 DEFAULT_NAMESPACE = "main"
-# Must be valid in container and volume names, also used for persistent mount names
 NAMESPACE_PATTERN = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*")
 
 # Set on containers and volumes, so projects can be listed
 PROJECT_LABEL = "devc.project"
 NAMESPACE_LABEL = "devc.namespace"
-# Set on microVMs, several of which may run per project and namespace
 MICROVM_LABEL = "devc.microvm"
 
 # Set on the host-side podman exec, must match stow_packages/kitty/configs/devc_window.py
 PROJECT_ENV = "DEVC_PROJECT"
 NAMESPACE_ENV = "DEVC_NAMESPACE"
 WORKDIR_ENV = "DEVC_WORKDIR"
-KRUN_ENV = "DEVC_KRUN"
 
-# OCI runtime of crun-krun, which runs the container as a microVM
 KRUN_RUNTIME = "krun"
 
 HOME = Path.home()
@@ -265,12 +258,7 @@ class BindMount(BaseModel):
         return self.destination or self.path
 
     def podman_args(self, project: "Project") -> list[str]:
-        args = ["-v", f"{self.source}:{self.target}:{self.mode},z"]
-        # Like the project's, so the container can't rewrite history or plant hooks
-        git_dir = self.source / GIT_DIR
-        if self.mode == "rw" and git_dir.exists():
-            args += ["-v", f"{git_dir}:{self.target / GIT_DIR}:ro,z"]
-        return args
+        return ["-v", f"{self.source}:{self.target}:{self.mode},z"]
 
 
 class PersistentMount(BaseModel):
@@ -287,7 +275,7 @@ class PersistentMount(BaseModel):
     def volume_component(self, project: Path) -> str:
         if self.name:
             return self.name
-        # Relative to the home or project, e.g. ~/.claude -> claude, ~/.a/b -> a-b
+        # Relative to the home or project, e.g. ~/.config -> config, ~/.a/b -> a-b
         path = self.path
         for base in (CONTAINER_HOME, PurePosixPath(project)):
             if path.is_relative_to(base):
@@ -359,16 +347,38 @@ class Port(BaseModel):
         return ["-p", f"{host_ip}:{host}:{self.container}/{self.protocol}"]
 
 
+ENV_NAME_PATTERN = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")
+
+
+def _check_env_name(name: str) -> str:
+    if not ENV_NAME_PATTERN.fullmatch(name):
+        raise ValueError(
+            "must start with a letter or '_', followed by letters, digits or '_'"
+        )
+    return name
+
+
+def _env_value(value: object) -> object:
+    """Allow unquoted numbers, but not booleans, which YAML also parses from yes/no."""
+    if isinstance(value, int | float) and not isinstance(value, bool):
+        return str(value)
+    return value
+
+
+EnvName = Annotated[str, AfterValidator(_check_env_name)]
+EnvValue = Annotated[str, BeforeValidator(_env_value)]
+
+
 class Config(BaseModel):
-    """Settings, read from the global config and <project>/.local_env/devc_config.yaml.
+    """The settings of a container, one layer of them per config section.
 
-    Both are merged, global entries first. Relative paths are relative to the project.
-    Example:
+    Relative paths are relative to the project. Example:
 
+        krun: true                                       # run in a microVM
         mounts:
           - ../shared                                    # read-only, same path
           - {path: ../lib, destination: /work/lib, mode: rw}
-          - {path: ~/.claude, mode: persistent}          # ~ = the container's home
+          - {path: ~/.config, mode: persistent}          # ~ = the container's home
           - {path: node_modules, mode: persistent}       # inside the project
           - {path: /opt/cache, mode: persistent, name: optcache}
         ports:
@@ -376,18 +386,33 @@ class Config(BaseModel):
           - "8080:80"                                    # host:container
           - "53/udp"
           - {container: 9000, host: 9001, host_ip: "0.0.0.0"}
+        env:                                             # in podman inspect, no secrets
+          PIP_CACHE_DIR: /home/dev/.cache/pip            # literal, ~ isn't expanded
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    # Run in a microVM with crun-krun, each session gets its own with the same mounts.
+    # Unset inherits it from the previous layer
+    krun: bool | None = None
     mounts: list[Annotated[Mount, BeforeValidator(_mount_shorthand)]] = []
     ports: list[Port] = []
+    env: dict[EnvName, EnvValue] = {}
 
-    @field_validator("mounts", "ports", mode="before")
+    @field_validator("mounts", "ports", "env", mode="before")
     @classmethod
-    def _null_as_empty(cls, value: object) -> object:
-        # A bare `mounts:` key parses as null
-        return [] if value is None else value
+    def _null_as_empty(cls, value: object, info: ValidationInfo) -> object:
+        # A bare `mounts:` or `env:` key parses as null
+        if value is None:
+            return {} if info.field_name == "env" else []
+        # An aliased list (`- *mounts`) is spliced in, YAML can't do that itself
+        if isinstance(value, list):
+            return [
+                v
+                for item in value
+                for v in (item if isinstance(item, list) else [item])
+            ]
+        return value
 
     @property
     def bind_mounts(self) -> list[BindMount]:
@@ -398,8 +423,21 @@ class Config(BaseModel):
         return [mount for mount in self.mounts if isinstance(mount, PersistentMount)]
 
     def merge(self, other: Self) -> Self:
+        """Layer other on top: its settings win, its mounts, ports and env are added."""
         return type(self).model_construct(
-            mounts=[*self.mounts, *other.mounts], ports=[*self.ports, *other.ports]
+            krun=self.krun if other.krun is None else other.krun,
+            mounts=[*self.mounts, *other.mounts],
+            ports=[*self.ports, *other.ports],
+            env={**self.env, **other.env},
+        )
+
+    def override(self, other: Self) -> Self:
+        """Layer other on top: its settings win, its mounts, ports and env replace if set."""
+        return type(self).model_construct(
+            krun=self.krun if other.krun is None else other.krun,
+            mounts=other.mounts if "mounts" in other.model_fields_set else self.mounts,
+            ports=other.ports if "ports" in other.model_fields_set else self.ports,
+            env=other.env if "env" in other.model_fields_set else self.env,
         )
 
     def check_volumes(self, project: Path) -> None:
@@ -413,6 +451,53 @@ class Config(BaseModel):
                     f"persistent mounts {other} and {mount.path} share the volume name"
                     f" {component!r}, give one of them another `name`"
                 )
+
+
+# Used where no config sets them
+APP_DEFAULTS = Config(krun=False)
+
+
+def _null_as_empty(value: object) -> object:
+    # A bare `default:` or `<namespace>:` key parses as null
+    return {} if value is None else value
+
+
+NamespaceName = Annotated[str, AfterValidator(_check_volume_name)]
+
+
+class ConfigFile(BaseModel):
+    """A config file, the global one or <project>/.local_env/devc.yaml.
+
+    The settings for a namespace are its section layered on top of the default. Its
+    mounts, ports and env replace those of the default, which an anchor can reuse:
+
+        default:
+          mounts: &mounts
+            - {path: ~/.cache, mode: persistent}
+          env: &env
+            EDITOR: nvim
+        namespaces:
+          sandbox:
+            krun: true                                   # with the default mounts
+          agent:
+            mounts:
+              - *mounts
+              - {path: ~/.config, mode: persistent}
+            env:
+              <<: *env
+              RUST_LOG: debug
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    default: Annotated[Config, BeforeValidator(_null_as_empty)] = Config()
+    namespaces: Annotated[
+        dict[NamespaceName, Annotated[Config, BeforeValidator(_null_as_empty)]],
+        BeforeValidator(_null_as_empty),
+    ] = {}
+
+    def for_namespace(self, namespace: str) -> Config:
+        return self.default.override(self.namespaces.get(namespace, Config()))
 
     @classmethod
     def load(cls, path: Path, project: Path) -> Self:
@@ -434,8 +519,9 @@ class Config(BaseModel):
 
 def _error_loc(loc: tuple[int | str, ...]) -> tuple[int | str, ...]:
     """Drop the tag of the mount kind, which isn't part of the config."""
-    if loc[:1] == ("mounts",) and len(loc) > 2 and loc[2] in {"bind", "persistent"}:
-        return loc[:2] + loc[3:]
+    for i in range(len(loc) - 2):
+        if loc[i] == "mounts" and loc[i + 2] in {"bind", "persistent"}:
+            return loc[: i + 2] + loc[i + 3 :]
     return loc
 
 
@@ -523,8 +609,11 @@ class Project:
         return self.path / GIT_DIR
 
     def load_config(self) -> Config:
-        global_config = Config.load(GLOBAL_CONFIG_FILE, self.path)
-        config = global_config.merge(Config.load(self.config_file, self.path))
+        """The settings of the namespace, the project's config layered on the global one."""
+        config = APP_DEFAULTS
+        for path in (GLOBAL_CONFIG_FILE, self.config_file):
+            config_file = ConfigFile.load(path, self.path)
+            config = config.merge(config_file.for_namespace(self.namespace))
         config.check_volumes(self.path)
         return config
 
@@ -605,6 +694,7 @@ def krun_command(
         # Removed by podman when it exits, even if devc is killed
         "--rm",
         "--label", f"{MICROVM_LABEL}=true",
+        "--env", "DEVC_MICROVM=true",
         *container_args(project, config, name, uid, gid),
         *session_args(project, workdir),
     ]  # fmt: skip
@@ -644,14 +734,14 @@ def container_args(
         *git_safe_directory_args([project.path, *(m.target for m in config.bind_mounts)]),
         "-v", f"{project.path}:{project.path}:z",
         "-v", f"{project.local_env}:{project.local_env}:ro,z",
+        "-v", f"{project.git_dir}:{project.git_dir}:ro,z",
     ]  # fmt: skip
-    # A file for worktrees and submodules, mounted the same way
-    if project.git_dir.exists():
-        run_args += ["-v", f"{project.git_dir}:{project.git_dir}:ro,z"]
     for mount in config.mounts:
         run_args += mount.podman_args(project)
     for port in config.ports:
         run_args += port.podman_args()
+    for name, value in config.env.items():
+        run_args += ["--env", f"{name}={value}"]
     return run_args
 
 
@@ -792,7 +882,7 @@ def microvm_session(
         podman_quiet("rm", "-f", name)
 
 
-def attach(project: Project, workdir: Path, args: list[str], krun: bool) -> int:
+def attach(project: Project, workdir: Path, args: list[str]) -> int:
     """Run podman attached to the terminal, for a session in the project's container."""
     # Ctrl-C is meant for the command inside the container. A no-op handler
     # rather than SIG_IGN, since ignored signals are inherited by podman
@@ -803,7 +893,6 @@ def attach(project: Project, workdir: Path, args: list[str], krun: bool) -> int:
         PROJECT_ENV: str(project.path),
         NAMESPACE_ENV: project.namespace,
         WORKDIR_ENV: str(workdir),
-        **({KRUN_ENV: "1"} if krun else {}),
     }
     return podman(*args, check=False, env=env).returncode
 
@@ -937,7 +1026,7 @@ def _check_namespace(value: str) -> str:
 
 
 def dry_run(
-    project: Project, workdir: Path, command: list[str], config: Config, krun: bool
+    project: Project, workdir: Path, command: list[str], config: Config
 ) -> None:
     """Print the podman commands that start the container and run the command."""
     ensure_podman_machine()
@@ -947,7 +1036,7 @@ def dry_run(
     else:
         info(f"Image {IMAGE} not built yet, the user is a placeholder")
         uid, gid = "<uid>", "<gid>"
-    if krun:
+    if config.krun:
         name = project.new_microvm()
         print(
             format_command(
@@ -988,7 +1077,6 @@ def run(
     reset: bool,
     build: bool,
     dry: bool,
-    krun: bool,
 ) -> int:
     if not project.path.is_dir():
         raise DevcError(f"Project directory {project.path} does not exist")
@@ -1000,17 +1088,17 @@ def run(
     project.check_workdir(workdir, config)
 
     if dry:
-        dry_run(project, workdir, command, config, krun)
+        dry_run(project, workdir, command, config)
         return 0
 
     ensure_podman_machine()
     ensure_image(build)
 
-    if krun:
+    if config.krun:
         with microvm_session(project, config, reset, workdir, command) as name:
-            return attach(project, workdir, start_microvm_command(name), krun)
+            return attach(project, workdir, start_microvm_command(name))
     with session(project, config, reset):
-        return attach(project, workdir, exec_command(project, workdir, command), krun)
+        return attach(project, workdir, exec_command(project, workdir, command))
 
 
 # Stop option parsing at the command, so its own flags are passed through
@@ -1047,14 +1135,6 @@ def main(
     ] = False,
     build: Annotated[
         bool, typer.Option("--build", help="Rebuild the image, even if it exists.")
-    ] = False,
-    krun: Annotated[
-        bool,
-        typer.Option(
-            "--krun",
-            help="Run in a microVM with crun-krun. Each session gets its own,"
-            " with the same mounts.",
-        ),
     ] = False,
     list_: Annotated[
         bool, typer.Option("--list", help="List all projects and their namespaces.")
@@ -1094,19 +1174,19 @@ def main(
     try:
         if list_ and (
             remove or prune or remove_all or dry or command or project_dir or reset
-            or build or krun
+            or build
         ):  # fmt: skip
             raise DevcError("--list can't be combined with other options or a command")
         if remove_all and (
             remove or prune or dry or command or project_dir or reset or build
-            or krun or namespace != DEFAULT_NAMESPACE
+            or namespace != DEFAULT_NAMESPACE
         ):  # fmt: skip
             raise DevcError(
                 "--rm-all can't be combined with other options or a command"
             )
-        if remove and (prune or dry or command or reset or build or krun):
+        if remove and (prune or dry or command or reset or build):
             raise DevcError("--rm can only be combined with --project and --namespace")
-        if prune and (dry or command or reset or build or krun):
+        if prune and (dry or command or reset or build):
             raise DevcError(
                 "--prune can only be combined with --project and --namespace"
             )
@@ -1130,9 +1210,7 @@ def main(
             ensure_podman_machine()
             prune_project(project)
         else:
-            returncode = run(
-                project, workdir, command or ["zsh"], reset, build, dry, krun
-            )
+            returncode = run(project, workdir, command or ["zsh"], reset, build, dry)
     except DevcError as e:
         info(str(e))
         raise typer.Exit(1) from e

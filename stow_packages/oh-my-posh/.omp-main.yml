@@ -62,7 +62,7 @@ blocks:
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        template: " {{ if .Env.DEVC_SESSION_NAME }} {{ .Env.DEVC_SESSION_NAME }}{{ end }} "
+        template: " {{ if .Env.DEVC_SESSION_NAME }}{{ if .Env.DEVC_MICROVM }} {{ else }} {{ end }}{{ .Env.DEVC_SESSION_NAME }}{{ end }} "
       - type: text
         background: "235"
         foreground: "17"

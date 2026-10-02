@@ -13,7 +13,11 @@ if [[ "$OS" == "unknown" ]]; then
   exit 1
 fi
 
-export MODULES=${MODULES:-$DEFAULT_MODULES}
+# Modules to install
+export MODULES=${MODULES:-${DEVC_MODULES:-$DEFAULT_MODULES}}
+# Used for modules that need to be configured without actually installing them
+#   eg. modules only available in devc
+export MODULES_REQUESTED="$MODULES_REQUESTED $DEFAULT_MODULES"
 
 if [[ "$MODE" == "uninstall" ]]; then
   # Revert order on uninstall

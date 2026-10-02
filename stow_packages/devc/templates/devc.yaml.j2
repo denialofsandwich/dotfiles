@@ -1,7 +1,17 @@
-mounts:
-  - { path: ~/.cache, mode: persistent, name: cache }
-  - { path: ~/.local/share/nvim, mode: persistent, name: nvim }
-  - { path: ~/.local/state, mode: persistent, name: state }
-{%- if "claude" in DEFAULT_MODULES.split() %}
-  - { path: ~/.claude, mode: persistent, name: claude }
-{%- endif %}
+default:
+  mounts:
+    - { path: ~/.cache, mode: persistent, name: cache }
+    - { path: ~/.local/share/nvim, mode: persistent, name: nvim }
+    - { path: ~/.local/state, mode: persistent, name: state }
+namespaces:
+  {%- if "claude" in MODULES_REQUESTED.split() %}
+  agent:
+    {%- if OS == "fedora" %}
+    krun: true
+    {%- endif %}
+    mounts:
+      - { path: ~/.local/state, mode: persistent, name: state }
+      - { path: ~/.claude, mode: persistent, name: claude }
+    env:
+      CLAUDE_CONFIG_DIR: /home/dev/.claude
+  {%- endif %}
