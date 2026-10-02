@@ -3,6 +3,6 @@
 
 brew_manage uv
 
-type ipython || uv tool install ipython
-type pre-commit || uv tool install pre-commit
-type poetry || uv tool install poetry
+uv tool install ipython
+uv tool install pre-commit
+uv tool install poetry
