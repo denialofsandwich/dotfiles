@@ -16,6 +16,7 @@ import shlex
 import signal
 import subprocess
 import sys
+import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -42,6 +43,9 @@ from pydantic import (
 )
 
 IMAGE = "dotfiles-dev:latest"
+# Built on top of IMAGE from the configured Dockerfile instructions, one per project
+# and namespace, tagged like the volumes
+EXTENDED_IMAGE = "dotfiles-dev-ext"
 CONTAINER_HOME = PurePosixPath("/home/dev")
 
 # Mounted read-only, so the container can't tamper with them
@@ -59,10 +63,14 @@ GLOBAL_CONFIG_FILE = (
 DEFAULT_NAMESPACE = "main"
 NAMESPACE_PATTERN = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*")
 
-# Set on containers and volumes, so projects can be listed
+# Set on containers, volumes and extended images, so projects can be listed
 PROJECT_LABEL = "devc.project"
 NAMESPACE_LABEL = "devc.namespace"
 MICROVM_LABEL = "devc.microvm"
+# Set on extended images, the ID of the base image and the hash of the instructions
+# they were built from, to tell when they are outdated
+BASE_IMAGE_LABEL = "devc.base"
+INSTRUCTIONS_LABEL = "devc.instructions"
 
 # Set on the host-side podman exec, must match stow_packages/kitty/configs/devc_window.py
 PROJECT_ENV = "DEVC_PROJECT"
@@ -160,6 +168,64 @@ def ensure_image(build: bool) -> None:
         str(dotfiles_root / "Dockerfile"),
         str(dotfiles_root),
     )
+
+
+def extended_image(project: "Project", config: "Config") -> str:
+    """The image to run, the base one if the config doesn't extend it."""
+    if not config.dockerfile:
+        return IMAGE
+    return project.extended_image
+
+
+def instructions_digest(config: "Config") -> str:
+    return hashlib.sha256("\n".join(config.dockerfile).encode()).hexdigest()[:16]
+
+
+def extended_dockerfile(config: "Config") -> str:
+    """The Dockerfile of the extended image, the config's instructions on top of the base.
+
+    Ending as the base image's user, so instructions can switch to root to install
+    packages, without the container running as root.
+    """
+    user = podman_output("image", "inspect", "--format", "{{.Config.User}}", IMAGE)
+    return "\n".join(
+        [f"FROM {IMAGE}", *config.dockerfile, *([f"USER {user}"] if user else []), ""]
+    )
+
+
+def ensure_extended_image(project: "Project", config: "Config", build: bool) -> None:
+    """Build the extended image, if missing or outdated in its base image or instructions."""
+    image = extended_image(project, config)
+    if image == IMAGE:
+        return
+    base_id = podman_output("image", "inspect", "--format", "{{.Id}}", IMAGE)
+    digest = instructions_digest(config)
+    old_id = podman_output("image", "inspect", "--format", "{{.Id}}", image)
+    labels = podman_output("image", "inspect", "--format", "{{json .Labels}}", image)
+    built = json.loads(labels or "null") or {}
+    if (
+        not build
+        and built.get(BASE_IMAGE_LABEL) == base_id
+        and built.get(INSTRUCTIONS_LABEL) == digest
+    ):
+        return
+    info(f"Building image {image}...")
+    # An empty build context, the instructions can't COPY from the host
+    with tempfile.TemporaryDirectory() as context:
+        containerfile = Path(context) / "Containerfile"
+        containerfile.write_text(extended_dockerfile(config))
+        podman(
+            "build", "--pull=never",
+            *project.label_args,
+            "--label", f"{BASE_IMAGE_LABEL}={base_id}",
+            "--label", f"{INSTRUCTIONS_LABEL}={digest}",
+            "-t", image, "-f", str(containerfile), context,
+        )  # fmt: skip
+    # Left untagged by the build, unless it was fully cached. Fails while a running
+    # container still uses it, --prune removes it later
+    new_id = podman_output("image", "inspect", "--format", "{{.Id}}", image)
+    if old_id and old_id != new_id:
+        podman_quiet("rmi", old_id)
 
 
 def image_user() -> tuple[str, str]:
@@ -388,6 +454,9 @@ class Config(BaseModel):
           - {container: 9000, host: 9001, host_ip: "0.0.0.0"}
         env:                                             # in podman inspect, no secrets
           PIP_CACHE_DIR: /home/dev/.cache/pip            # literal, ~ isn't expanded
+        dockerfile: |                                    # appended to the base image's
+          USER root
+          RUN apt-get update && apt-get install -y postgresql-client
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -398,13 +467,18 @@ class Config(BaseModel):
     mounts: list[Annotated[Mount, BeforeValidator(_mount_shorthand)]] = []
     ports: list[Port] = []
     env: dict[EnvName, EnvValue] = {}
+    # Dockerfile instructions to build the image with, on top of the base image.
+    # Given as a string or a list of them, joined by newlines
+    dockerfile: list[str] = []
 
-    @field_validator("mounts", "ports", "env", mode="before")
+    @field_validator("mounts", "ports", "env", "dockerfile", mode="before")
     @classmethod
     def _null_as_empty(cls, value: object, info: ValidationInfo) -> object:
         # A bare `mounts:` or `env:` key parses as null
         if value is None:
             return {} if info.field_name == "env" else []
+        if isinstance(value, str) and info.field_name == "dockerfile":
+            return [value]
         # An aliased list (`- *mounts`) is spliced in, YAML can't do that itself
         if isinstance(value, list):
             return [
@@ -423,21 +497,27 @@ class Config(BaseModel):
         return [mount for mount in self.mounts if isinstance(mount, PersistentMount)]
 
     def merge(self, other: Self) -> Self:
-        """Layer other on top: its settings win, its mounts, ports and env are added."""
+        """Layer other on top: its settings win, its mounts, ports, env and dockerfile are added."""
         return type(self).model_construct(
             krun=self.krun if other.krun is None else other.krun,
             mounts=[*self.mounts, *other.mounts],
             ports=[*self.ports, *other.ports],
             env={**self.env, **other.env},
+            dockerfile=[*self.dockerfile, *other.dockerfile],
         )
 
     def override(self, other: Self) -> Self:
-        """Layer other on top: its settings win, its mounts, ports and env replace if set."""
+        """Layer other on top: its settings win, its mounts, ports, env and dockerfile replace if set."""
         return type(self).model_construct(
             krun=self.krun if other.krun is None else other.krun,
             mounts=other.mounts if "mounts" in other.model_fields_set else self.mounts,
             ports=other.ports if "ports" in other.model_fields_set else self.ports,
             env=other.env if "env" in other.model_fields_set else self.env,
+            dockerfile=(
+                other.dockerfile
+                if "dockerfile" in other.model_fields_set
+                else self.dockerfile
+            ),
         )
 
     def check_volumes(self, project: Path) -> None:
@@ -469,13 +549,16 @@ class ConfigFile(BaseModel):
     """A config file, the global one or <project>/.local_env/devc.yaml.
 
     The settings for a namespace are its section layered on top of the default. Its
-    mounts, ports and env replace those of the default, which an anchor can reuse:
+    mounts, ports, env and dockerfile replace those of the default, which an anchor
+    can reuse:
 
         default:
           mounts: &mounts
             - {path: ~/.cache, mode: persistent}
           env: &env
             EDITOR: nvim
+          dockerfile: &dockerfile
+            RUN brew install jq
         namespaces:
           sandbox:
             krun: true                                   # with the default mounts
@@ -486,6 +569,9 @@ class ConfigFile(BaseModel):
             env:
               <<: *env
               RUST_LOG: debug
+            dockerfile:
+              - *dockerfile
+              - RUN brew install ripgrep
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -541,6 +627,18 @@ class Project:
     def container(self) -> str:
         return f"devc-{self.hash}-{self.namespace}"
 
+    @property
+    def readable_name(self) -> str:
+        """The directory name, restricted to the characters podman names allow."""
+        return re.sub(r"[^a-zA-Z0-9_.-]", "-", self.path.name)
+
+    @property
+    def extended_image(self) -> str:
+        # Readable in `podman image ls`, but still unique per project path thanks to
+        # the hash. A tag can't start with "." or "-"
+        name = self.readable_name.lstrip(".-")
+        return f"{EXTENDED_IMAGE}:{name + '-' if name else ''}{self.hash[:8]}-{self.namespace}"
+
     def new_microvm(self) -> str:
         """A unique name for another microVM.
 
@@ -565,8 +663,7 @@ class Project:
 
     def volume(self, component: str) -> str:
         # Readable, but still unique per project path thanks to the hash
-        name = re.sub(r"[^a-zA-Z0-9_.-]", "-", self.path.name)
-        return f"devc-{name}-{self.hash[:8]}-{self.namespace}-{component}"
+        return f"devc-{self.readable_name}-{self.hash[:8]}-{self.namespace}-{component}"
 
     def volumes(self, config: Config) -> list[str]:
         """The volumes to mount, as configured."""
@@ -582,6 +679,23 @@ class Project:
             "--filter", f"label={PROJECT_LABEL}={self.path}",
             "--filter", f"label={NAMESPACE_LABEL}={self.namespace}",
         ).splitlines()  # fmt: skip
+
+    def existing_images(self) -> dict[str, str]:
+        """All extended images of the project by ID, with their name, including
+        untagged ones of outdated builds."""
+        images = json.loads(
+            podman_output(
+                "images", "--format", "json",
+                "--filter", f"label={PROJECT_LABEL}={self.path}",
+            )  # fmt: skip
+            or "[]"
+        )
+        # Filtered here, podman may match either label rather than both
+        return {
+            image["Id"]: (image.get("Names") or ["<none>"])[0]
+            for image in images
+            if (image.get("Labels") or {}).get(NAMESPACE_LABEL) == self.namespace
+        }
 
     @property
     def label_args(self) -> list[str]:
@@ -671,7 +785,7 @@ def run_command(project: Project, config: Config, uid: str, gid: str) -> list[st
         "--init",
         *container_args(project, config, project.container, uid, gid),
     ]
-    return ["run", *run_args, IMAGE, "sleep", "infinity"]
+    return ["run", *run_args, extended_image(project, config), "sleep", "infinity"]
 
 
 def krun_command(
@@ -698,7 +812,8 @@ def krun_command(
         *container_args(project, config, name, uid, gid),
         *session_args(project, workdir),
     ]  # fmt: skip
-    return ["create", *create_args, IMAGE, *drop_privileges(uid, gid), *command]
+    image = extended_image(project, config)
+    return ["create", *create_args, image, *drop_privileges(uid, gid), *command]
 
 
 def drop_privileges(uid: str, gid: str) -> list[str]:
@@ -740,8 +855,8 @@ def container_args(
         run_args += mount.podman_args(project)
     for port in config.ports:
         run_args += port.podman_args()
-    for name, value in config.env.items():
-        run_args += ["--env", f"{name}={value}"]
+    for name_, value in config.env.items():
+        run_args += ["--env", f"{name_}={value}"]
     return run_args
 
 
@@ -921,17 +1036,25 @@ def session_args(project: Project, workdir: Path) -> list[str]:
 
 
 def all_projects() -> list[Project]:
-    """All projects and namespaces that have volumes."""
-    volumes = json.loads(
-        podman_output(
-            "volume", "ls", "--filter", f"label={PROJECT_LABEL}", "--format", "json"
-        )
-        or "[]"
-    )
+    """All projects and namespaces that have volumes or extended images."""
+    resources = [
+        *json.loads(
+            podman_output(
+                "volume", "ls", "--filter", f"label={PROJECT_LABEL}", "--format", "json"
+            )
+            or "[]"
+        ),
+        *json.loads(
+            podman_output(
+                "images", "--filter", f"label={PROJECT_LABEL}", "--format", "json"
+            )
+            or "[]"
+        ),
+    ]
     return sorted(
         {
-            Project(Path(v["Labels"][PROJECT_LABEL]), v["Labels"][NAMESPACE_LABEL])
-            for v in volumes
+            Project(Path(r["Labels"][PROJECT_LABEL]), r["Labels"][NAMESPACE_LABEL])
+            for r in resources
         },
         key=lambda p: (str(p.path), p.namespace),
     )
@@ -965,15 +1088,18 @@ def remove_project(project: Project) -> None:
     with sessions.locked():
         if project.in_use():
             raise DevcError(f"{project} is running, exit its sessions first")
-        if not project.existing_volumes():
+        images = project.existing_images()
+        if not project.existing_volumes() and not images:
             raise DevcError(f"No devc project {project}")
         info(f"Removing {project}...")
         remove_container(project)
         sessions.clear()
+        if images:
+            podman_quiet("rmi", "-f", *images)
 
 
 def remove_all_projects() -> None:
-    """Delete the containers and volumes of all projects and namespaces."""
+    """Delete the containers, volumes and images of all projects and namespaces."""
     projects = all_projects()
     if not projects:
         info("No devc projects found")
@@ -985,7 +1111,7 @@ def remove_all_projects() -> None:
             "Exit the sessions of these projects first:\n"
             + "\n".join(f"  {project}" for project in running)
         )
-    info("This deletes the volumes of:")
+    info("This deletes the volumes and images of:")
     for project in projects:
         info(f"  {project}")
     if not typer.confirm("Continue?", err=True):
@@ -995,21 +1121,34 @@ def remove_all_projects() -> None:
 
 
 def prune_project(project: Project) -> None:
-    """Delete the project's volumes that are no longer used by its config."""
+    """Delete the project's volumes and images that are no longer used by its config."""
     config = project.load_config()
     sessions = SessionCounter(project.container)
     with sessions.locked():
-        # The containers may still use volumes from the config they were started with
+        # The containers may still use volumes and images from the config they were
+        # started with
         if project.in_use():
             raise DevcError(f"{project} is running, exit its sessions first")
         configured = set(project.volumes(config))
         orphaned = [v for v in project.existing_volumes() if v not in configured]
-        if not orphaned:
-            info(f"No unused volumes for {project}")
+        # Untagged ones are outdated builds, the tagged one is unused without
+        # instructions, or rebuilt on the next run if outdated
+        image = extended_image(project, config)
+        in_use = podman_output("image", "inspect", "--format", "{{.Id}}", image)
+        orphaned_images = {
+            id_: name for id_, name in project.existing_images().items() if id_ != in_use
+        }
+        if not orphaned and not orphaned_images:
+            info(f"No unused volumes or images for {project}")
             return
         for volume in orphaned:
             info(f"Removing {volume}...")
-        podman("volume", "rm", *orphaned, stdout=subprocess.DEVNULL)
+        if orphaned:
+            podman("volume", "rm", *orphaned, stdout=subprocess.DEVNULL)
+        for id_, name in orphaned_images.items():
+            info(f"Removing image {id_[:12] if name == '<none>' else name}...")
+        if orphaned_images:
+            podman("rmi", *orphaned_images, stdout=subprocess.DEVNULL)
 
 
 # --- cli ---------------------------------------------------------------------
@@ -1036,6 +1175,10 @@ def dry_run(
     else:
         info(f"Image {IMAGE} not built yet, the user is a placeholder")
         uid, gid = "<uid>", "<gid>"
+    image = extended_image(project, config)
+    if image != IMAGE and podman("image", "exists", image, check=False).returncode:
+        info(f"Image {image} not built yet, extending {IMAGE} by:")
+        info("\n".join(config.dockerfile))
     if config.krun:
         name = project.new_microvm()
         print(
@@ -1093,6 +1236,7 @@ def run(
 
     ensure_podman_machine()
     ensure_image(build)
+    ensure_extended_image(project, config, build)
 
     if config.krun:
         with microvm_session(project, config, reset, workdir, command) as name:
@@ -1142,22 +1286,24 @@ def main(
     remove: Annotated[
         bool,
         typer.Option(
-            "--rm", help="Delete the project's container and volumes in the namespace."
+            "--rm",
+            help="Delete the project's container, volumes and image in the namespace.",
         ),
     ] = False,
     prune: Annotated[
         bool,
         typer.Option(
             "--prune",
-            help="Delete the project's volumes in the namespace that its config"
-            " no longer uses, e.g. of removed persistent mounts.",
+            help="Delete the project's volumes and images in the namespace that its"
+            " config no longer uses, e.g. of removed persistent mounts.",
         ),
     ] = False,
     remove_all: Annotated[
         bool,
         typer.Option(
             "--rm-all",
-            help="Delete the containers and volumes of all projects and namespaces.",
+            help="Delete the containers, volumes and images of all projects and"
+            " namespaces.",
         ),
     ] = False,
     dry: Annotated[

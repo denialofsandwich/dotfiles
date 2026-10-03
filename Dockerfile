@@ -33,23 +33,19 @@ RUN mkdir -p /etc/skel-empty \
         --uid "$USER_UID" --gid "$USER_GID" "$USERNAME"
 
 RUN mkdir -p /home/linuxbrew && chown "$USERNAME:$USERNAME" /home/linuxbrew
-
 COPY --chown=$USERNAME:$USERNAME . /home/$USERNAME/dotfiles
 
 USER $USERNAME
-WORKDIR /home/$USERNAME/dotfiles
+WORKDIR /home/$USERNAME
 
-# HOME isn't left to podman, as --userns=keep-id may set it to the host's home.
-# Shell history is kept per project, if persisted by a mount in the devc config.
 ENV HOME=/home/$USERNAME \
     DEVC_HISTORY_DIR=/home/$USERNAME/.local/state
 
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/$USERNAME/.local/bin:${PATH}" \
-    DEVC_MODULES="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop"
-RUN ./setup.sh \
+    MODULES_DEFAULT="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop"
+RUN /home/$USERNAME/dotfiles/setup.sh \
     && rm -f /home/$USERNAME/.ssh/ssh-agent.env \
     && curl -fsSL https://raw.githubusercontent.com/kovidgoyal/kitty/master/terminfo/kitty.terminfo \
         | tic -x -o ~/.terminfo -
 
-WORKDIR /home/$USERNAME
 CMD ["zsh"]
