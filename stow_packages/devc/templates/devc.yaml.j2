@@ -4,8 +4,8 @@ default:
     - { path: ~/.local/share/nvim, mode: persistent, name: nvim }
     - { path: ~/.local/state, mode: persistent, name: state }
 namespaces:
-  {%- if "claude" in MODULES_REQUESTED.split() %}
-  agent:
+  {%- if "claude" in MODULES_CONFIGURED.split() %}
+  claude:
     {%- if OS == "fedora" %}
     krun: true
     {%- endif %}
@@ -14,4 +14,6 @@ namespaces:
       - { path: ~/.claude, mode: persistent, name: claude }
     env:
       CLAUDE_CONFIG_DIR: /home/dev/.claude
+    dockerfile: |
+      RUN MODULES="claude" ~/dotfiles/setup.sh
   {%- endif %}
