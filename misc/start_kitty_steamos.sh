@@ -31,4 +31,4 @@ if systemctl --user is-active --quiet gamescope-session.service; then
   kitty_args+=(-o 'map=alt+plus send_text all ~')
 fi
 
-exec /home/deck/.local/kitty.app/bin/kitty "${kitty_args[@]}"
+exec /home/linuxbrew/.linuxbrew/bin/kitty "${kitty_args[@]}"
