@@ -5,6 +5,7 @@
 allow_remote_control socket-only
 listen_on unix:/tmp/kitty
 shell_integration enabled
+clipboard_control write-clipboard read-clipboard
 
 {% if FORCE_ZSH == "yes" -%}
 ### Dynamically selected if FORCE_ZSH=yes
