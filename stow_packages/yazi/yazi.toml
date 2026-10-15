@@ -13,16 +13,24 @@ open = [
   { run = 'open -R %s1', orphan = true, desc = "reveal", for = "macos" },
 ]
 
+extract-tar = [{ run = 'tar -xf %s1', desc = "extract" }]
+extract-zip = [{ run = 'unzip %s1', desc = "extract" }]
+
+archive = [
+  { run = '~/.config/yazi/scripts/archive.sh tar.gz %s', desc = "archive: tar.gz" },
+  { run = '~/.config/yazi/scripts/archive.sh zip %s', desc = "archive: zip" },
+]
+
 [open]
 rules = [
-  { url = "*/", use = [
-    "open",
-    "edit",
-  ] },
-  { mime = "*", use = [
-    "open",
-    "edit",
-  ] },
+  # Archives
+  { url = "*.tar*", use = ["extract-tar", "open", "edit"] },
+  { url = "*.tgz", use = ["extract-tar", "open", "edit"] },
+  { url = "*.zip", use = ["extract-zip", "open", "edit"] },
+
+  # Dirs and other files
+  { url = "*/", use = ["open", "archive", "edit"] },
+  { mime = "*", use = ["open", "archive", "edit"] },
 ]
 
 [plugin]
