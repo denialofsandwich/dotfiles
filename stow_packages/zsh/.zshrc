@@ -196,7 +196,7 @@ bindkey "^[[1;5D" backward-word
 bindkey '^e' kitty_scrollback_edit_command_line
 
 # Show fastfetch once per tab start in kitty
-if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" ]] \
+if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" && "$SHLVL" -eq 1 ]] \
   && command -v fastfetch &> /dev/null && command -v jq &> /dev/null; then
   windows_in_tab="$(kitty @ ls --match-tab "window_id:$KITTY_WINDOW_ID" 2>/dev/null \
     | jq -r '.[0].tabs[0].windows | length' 2>/dev/null)"
