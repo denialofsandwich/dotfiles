@@ -208,6 +208,11 @@ if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" && "$SHLVL" -eq 1 ]] \
 fi
 
 # Fancy prompt
-export OMP_ENABLED=1
+if [[ ! -z "$KITTY_SSH" ]]; then
+  export OMP_CONFIG_PATH=~/.kitty_dotfiles/.omp-main.yml
+else
+  export OMP_CONFIG_PATH=~/.omp-main.yml
+fi
+
 test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
-eval "$(oh-my-posh init zsh --config ~/.omp-main.yml)"
+eval "$(oh-my-posh init zsh --config "$OMP_CONFIG_PATH")"

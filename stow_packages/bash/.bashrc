@@ -176,6 +176,15 @@ fi
 export PROMPT_COMMAND=$(echo -n "$PROMPT_COMMAND" | sed 's/;;/;/g; s/^;//; s/;$//')
 
 # Fancy prompt, if available
-fc-list | grep -i nerd 2>&1 >/dev/null && export OMP_ENABLED=1
-test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
-command -v oh-my-posh >/dev/null && test "$OMP_ENABLED" == 1 && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
+if command -v oh-my-posh >/dev/null; then
+  if [[ ! -z "$KITTY_SSH" ]]; then
+    export OMP_CONFIG_PATH=~/.kitty_dotfiles/.omp-main.yml
+  else
+    export OMP_CONFIG_PATH=~/.omp-main.yml
+  fi
+
+  if [[ -f "$OMP_CONFIG_PATH" ]]; then
+    test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
+    eval "$(oh-my-posh init bash --config "$OMP_CONFIG_PATH")"
+  fi
+fi
