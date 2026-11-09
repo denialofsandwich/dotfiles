@@ -13,18 +13,13 @@ blocks:
         template: "{{ if .WSL }}WSL at {{ end }}{{ .Icon }} "
       - type: session
         background: "235"
-        foreground: "15"
+        foreground: "2"
+        foreground_templates:
+          - "{{ if .Root }}1{{ end }}"
         style: diamond
         leading_diamond: 
         trailing_diamond: 
-        template: '{{ if eq .Env.OMP_SHOW_SESSION "1" }}{{ if .Root }}<b>{{ end }} {{ .UserName }}{{ if .Root }}</b>{{ end }}@{{ .HostName }} {{ end }}'
-      - type: root
-        background: "235"
-        foreground: "13"
-        style: diamond
-        leading_diamond: 
-        trailing_diamond: 
-        template: "  "
+        template: '{{ if eq .Env.OMP_SHOW_SESSION "1" }} {{ .UserName }}@{{ .HostName }} {{ end }}'
       - type: shell
         background: "235"
         foreground: "13"
