@@ -103,7 +103,10 @@ delhist() {
 
 # Kittys TERM string is not widely available by default this is leading
 # to problems on other machines, this alias injects the required infos
-[[ "$TERM" == "xterm-kitty" ]] && alias ssh='TERM=xterm-color ssh'
+if [[ "$TERM" == "xterm-kitty" ]]; then
+  alias ossh='TERM=xterm-color ssh'
+  alias ssh='kitten ssh'
+fi
 
 if command -v yazi &> /dev/null; then
   function y() {
@@ -205,6 +208,6 @@ if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" && "$SHLVL" -eq 1 ]] \
 fi
 
 # Fancy prompt
-export USER_NERD=1
+export OMP_ENABLED=1
 test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
 eval "$(oh-my-posh init zsh --config ~/.omp-main.yml)"

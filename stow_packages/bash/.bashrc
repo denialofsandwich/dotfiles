@@ -176,6 +176,6 @@ fi
 export PROMPT_COMMAND=$(echo -n "$PROMPT_COMMAND" | sed 's/;;/;/g; s/^;//; s/;$//')
 
 # Fancy prompt, if available
-fc-list | grep -i nerd 2>&1 >/dev/null && export USER_NERD=1
+fc-list | grep -i nerd 2>&1 >/dev/null && export OMP_ENABLED=1
 test -v SSH_CONNECTION && export OMP_SHOW_SESSION=1
-command -v oh-my-posh >/dev/null && test "$USER_NERD" == 1 && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
+command -v oh-my-posh >/dev/null && test "$OMP_ENABLED" == 1 && eval "$(oh-my-posh init bash --config ~/.omp-main.yml)"
