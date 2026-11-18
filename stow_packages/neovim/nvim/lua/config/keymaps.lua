@@ -23,15 +23,19 @@ end
 -- Remap Ctrl-C to Esc to behave exactly like it including autocmd
 vim.api.nvim_set_keymap("i", "<C-c>", "<Esc>", { noremap = true, silent = true })
 
-vim.keymap.set("n", "<leader>ft", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
-vim.keymap.set("n", "<leader>fT", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
-vim.keymap.set({ "n", "t" }, "<C-_>", lazyterm(false), { remap = true, desc = "Terminal (Root Dir)" })
-vim.keymap.set({ "n", "t" }, "<C-/>", lazyterm(true), { remap = true, desc = "Terminal (File Dir)" })
+vim.keymap.set("n", "<leader>ft", lazyterm(false), { desc = "Terminal (Root Dir)" })
+vim.keymap.set("n", "<leader>fT", lazyterm(true), { desc = "Terminal (File Dir)" })
+vim.keymap.set({ "n", "t" }, "<C-_>", lazyterm(false), { desc = "Terminal (Root Dir)" })
+vim.keymap.set({ "n", "t" }, "<C-/>", lazyterm(true), { desc = "Terminal (File Dir)" })
 -- Allows navigating windows within the terminal without leaving terminal mode
 vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { desc = "Window navigation" })
 
 -- Delete word on Ctrl+Backspace
 vim.keymap.set("i", "<C-BS>", "<C-W>", { noremap = true })
+
+-- Remap [ and ] for german keyboards
+vim.keymap.set({ "n", "x", "o" }, "ö", "[", { remap = true, desc = "Alias for [" })
+vim.keymap.set({ "n", "x", "o" }, "ä", "]", { remap = true, desc = "Alias for ]" })
 
 vim.keymap.set({ "n", "v" }, "<C-Y>", '"+y', { desc = "Copy to system clipboard" })
 vim.keymap.set({ "n", "v" }, "<C-P>", '"+p', { desc = "Paste from system clipboard" })
@@ -62,16 +66,3 @@ vim.keymap.set("v", "<leader>vy", function()
   vim.fn.setreg("+", relative_path .. ":" .. start_line .. "-" .. end_line)
   vim.api.nvim_input("<Esc>")
 end, { desc = "Copy filename and line range" })
-
--- In visual mode, select something, then enter "<leader>vf".
--- This enters command mode with ":'<,'>Gfill ".
--- You can then type a prompt and press enter to have Gemini fill the selection.
-vim.api.nvim_create_user_command("Gfill", function(opts)
-  vim.cmd(
-    "'<,'>!gemini -m gemini-2.5-flash-lite '"
-      .. opts.args
-      .. "; If i provided code: Print the full updated code. Write response without any explanation and follow up questions' 2>/dev/null | sed '1{/^```/d;};${/^```/d;}'"
-  )
-end, { nargs = "*", range = true, desc = "Fill with Gemini" })
-
-vim.keymap.set("v", "<leader>vf", ":Gfill ", { desc = "Gemini Fill" })

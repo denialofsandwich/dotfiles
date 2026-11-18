@@ -12,6 +12,6 @@ vim.opt.spell = true
 vim.opt.title = true
 vim.g.root_spec = { "cwd" }
 vim.g.mapleader = " "
-vim.g.maplocalleader = "ö"
+vim.g.maplocalleader = "ü"
 vim.opt.conceallevel = 0
 vim.opt.exrc = true
