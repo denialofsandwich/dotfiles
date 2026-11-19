@@ -1,7 +1,6 @@
-export MODULES_DEFAULT=${MODULES_DEFAULT:-core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit misc devc yazi btop kitty}
-# Used for modules that need to be configured without actually installing them
-#   eg. modules only available in devc
-export MODULES_CONFIGURED=${MODULES_CONFIGURED:-$MODULES_DEFAULT}
+export MODULE_GROUPS__DEFAULT="core bash nerd-font oh-my-posh zsh screen tmux vim python neovim lazygit misc devc yazi btop kitty"
+export MODULE_GROUPS__DEVC_IDE="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop"
+
 # If yes, it explicitly sets the kitty and tmux shell to zsh
 export FORCE_ZSH=${FORCE_ZSH:-yes}
 

@@ -42,7 +42,7 @@ ENV HOME=/home/$USERNAME \
     DEVC_HISTORY_DIR=/home/$USERNAME/.local/state
 
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/$USERNAME/.local/bin:${PATH}" \
-    MODULES_DEFAULT="core bash oh-my-posh zsh screen tmux vim python neovim lazygit misc yazi btop"
+    MODULE_GROUP=devc_ide
 RUN /home/$USERNAME/dotfiles/setup.sh \
     && rm -f /home/$USERNAME/.ssh/ssh-agent.env \
     && curl -fsSL https://raw.githubusercontent.com/kovidgoyal/kitty/master/terminfo/kitty.terminfo \

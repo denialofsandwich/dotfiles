@@ -14,7 +14,8 @@ if [[ "$OS" == "unknown" ]]; then
 fi
 
 # Modules to install
-export MODULES=${MODULES:-$MODULES_DEFAULT}
+var_name="MODULE_GROUPS__${MODULE_GROUP:-DEFAULT}"
+export MODULES=${MODULES:-${!var_name}}
 
 if [[ "$MODE" == "uninstall" ]]; then
   # Revert order on uninstall
