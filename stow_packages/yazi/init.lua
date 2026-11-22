@@ -18,3 +18,5 @@ require("searchjump"):setup({
 		"H", "J", "K", "L", "Z", "U", "I", "O", "P", "N", "M",
 	},
 })
+
+require("sizebar"):setup()
