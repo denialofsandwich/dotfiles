@@ -5,12 +5,4 @@ brew_manage yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg ima
 brew link ffmpeg-full imagemagick-full -f --overwrite
 stow_manage_simple ~/.config/yazi
 
-ya pkg add yazi-rs/plugins:chmod || true
-ya pkg add yazi-rs/plugins:mount || true
-ya pkg add uhs-robert/sshfs || true
-ya pkg add AminurAlam/yazi-plugins:spot || true
-ya pkg add AminurAlam/yazi-plugins:spot-video || true
-ya pkg add AminurAlam/yazi-plugins:spot-audio || true
-ya pkg add AminurAlam/yazi-plugins:spot-image || true
-ya pkg add denialofsandwich/searchjump || true
 ya pkg upgrade

@@ -1,0 +1,49 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:chmod"
+rev = "896fa5a"
+hash = "87472b05a8c420100f6a2b9cde1e7746"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "896fa5a"
+hash = "347cc6b190eb0c2fd60513cc7ae37412"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:mount"
+rev = "896fa5a"
+hash = "ba1a606728adb75b091b6eaf3fd60372"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot"
+rev = "50d82a7"
+hash = "1e1b4c9e4b5e83bbd59cd2f89239eb07"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot-video"
+rev = "50d82a7"
+hash = "1e3ea3fe62450615ceca63910c9b629b"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot-audio"
+rev = "50d82a7"
+hash = "4eb64572721410a8b05629de4c93dd38"
+
+[[plugin.deps]]
+use = "AminurAlam/yazi-plugins:spot-image"
+rev = "50d82a7"
+hash = "779bec9dc4f028ec148915cef1e4da44"
+
+[[plugin.deps]]
+use = "denialofsandwich/searchjump"
+rev = "28996a7"
+hash = "8c29574b85a7b4660258aa0ed0073b8c"
+
+[[plugin.deps]]
+use = "uhs-robert/sshfs"
+rev = "2a10f73"
+hash = "9bc5b0969bb16a9dc4b5cc0e62a25ce4"
+
+[[flavor.deps]]
+use = "BennyOe/tokyo-night"
+rev = "8e6296f"
+hash = "d9da921c3bd37ba32ee27a8a7a40461f"
