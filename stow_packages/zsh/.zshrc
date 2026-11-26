@@ -196,7 +196,19 @@ bindkey "\e[3~" delete-char
 bindkey "^H" backward-delete-word
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+bindkey "\e[1;5C" forward-word
+bindkey "\e[1;5D" backward-word
+bindkey "\e[1;3C" forward-word
+bindkey "\e[1;3D" backward-word
+bindkey "\e\x7f" backward-delete-word
+bindkey "^[^?" backward-delete-word
 bindkey '^e' kitty_scrollback_edit_command_line
+
+# Ignore stray modifier sequence sent by remapped keyboard
+_noop() { :; }
+zle -N _noop
+bindkey "\e[57381;9u" _noop
+bindkey "^[[57381;9u" _noop
 
 # Show fastfetch once per tab start in kitty
 if [[ "$TERM" == "xterm-kitty" && -n "$KITTY_WINDOW_ID" && "$SHLVL" -eq 1 ]] \

@@ -188,3 +188,13 @@ if command -v oh-my-posh >/dev/null; then
     eval "$(oh-my-posh init bash --config "$OMP_CONFIG_PATH")"
   fi
 fi
+
+# Key bindings for jumping and deleting words (including remapped keyboard)
+bind '"\e[57381;9u": ""'
+bind '"\e[1;3C": forward-word'
+bind '"\e[1;3D": backward-word'
+bind '"\e[1;5C": forward-word'
+bind '"\e[1;5D": backward-word'
+bind '"\e\x7f": backward-kill-word'
+bind '"\e\b": backward-kill-word'
+bind '"^H": backward-kill-word'

@@ -30,8 +30,24 @@ vim.keymap.set({ "n", "t" }, "<C-/>", lazyterm(true), { desc = "Terminal (File D
 -- Allows navigating windows within the terminal without leaving terminal mode
 vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { desc = "Window navigation" })
 
--- Delete word on Ctrl+Backspace
-vim.keymap.set("i", "<C-BS>", "<C-W>", { noremap = true })
+-- Ignore stray modifier key sent by remapped keyboard
+vim.keymap.set({ "n", "i", "v", "x", "s", "o", "c", "t" }, "<D-F18>", "<Nop>", { desc = "Ignore remapped keyboard modifier" })
+
+-- Delete word on Ctrl+Backspace and Alt+Backspace
+vim.keymap.set({ "i", "c" }, "<C-BS>", "<C-w>", { desc = "Delete word backward" })
+vim.keymap.set({ "i", "c" }, "<M-BS>", "<C-w>", { desc = "Delete word backward" })
+vim.keymap.set("n", "<C-BS>", "db", { desc = "Delete word backward" })
+vim.keymap.set("n", "<M-BS>", "db", { desc = "Delete word backward" })
+
+-- Jump word on Ctrl/Alt + Left/Right
+vim.keymap.set({ "n", "v" }, "<C-Left>", "b", { desc = "Jump word backward" })
+vim.keymap.set({ "n", "v" }, "<C-Right>", "w", { desc = "Jump word forward" })
+vim.keymap.set({ "n", "v" }, "<M-Left>", "b", { desc = "Jump word backward" })
+vim.keymap.set({ "n", "v" }, "<M-Right>", "w", { desc = "Jump word forward" })
+vim.keymap.set({ "i", "c" }, "<C-Left>", "<S-Left>", { desc = "Jump word backward" })
+vim.keymap.set({ "i", "c" }, "<C-Right>", "<S-Right>", { desc = "Jump word forward" })
+vim.keymap.set({ "i", "c" }, "<M-Left>", "<S-Left>", { desc = "Jump word backward" })
+vim.keymap.set({ "i", "c" }, "<M-Right>", "<S-Right>", { desc = "Jump word forward" })
 
 -- Remap [ and ] for german keyboards
 vim.keymap.set({ "n", "x", "o" }, "ö", "[", { remap = true, desc = "Alias for [" })
