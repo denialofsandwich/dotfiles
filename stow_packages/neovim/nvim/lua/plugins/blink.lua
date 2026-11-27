@@ -173,6 +173,7 @@ return {
           kitty = {
             name = "Kitty",
             module = "blink_kitty",
+            score_offset = -5,
             opts = {
               extent = "screen",
               min_word_length = 3,
