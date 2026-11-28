@@ -3,6 +3,8 @@
 
 brew_manage yazi ffmpeg-full sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick-full font-symbols-only-nerd-font chafa exiftool
 brew link ffmpeg-full imagemagick-full -f --overwrite
+
+mkdir -p ~/.config/yazi/plugins
 stow_manage_simple ~/.config/yazi
 
 function yazi_add_plugin() {
