@@ -1,0 +1,7 @@
+# Login profile used on remote hosts when connecting via the kitty ssh kitten.
+# See ssh-bash/profile for how this gets picked up.
+HOME="$KITTY_REAL_HOME"
+unset KITTY_REAL_HOME
+
+[ -r "$HOME/.profile" ] && . "$HOME/.profile"
+[ -r "$HOME/.kitty_dotfiles/.bashrc" ] && . "$HOME/.kitty_dotfiles/.bashrc"

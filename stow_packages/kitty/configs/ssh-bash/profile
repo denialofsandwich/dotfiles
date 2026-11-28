@@ -1,0 +1,9 @@
+# Sourced by kitty's bash shell integration on the remote host in place of
+# /etc/profile (via KITTY_BASH_SYS_PROFILE, see ssh.conf).
+#
+# kitty.bash then sources the first of $HOME/.bash_profile, $HOME/.bash_login,
+# $HOME/.profile. Temporarily pointing HOME at ~/.kitty_dotfiles makes it pick
+# up our own .bash_profile instead of the remote one, which restores HOME.
+[ -r /etc/profile ] && . /etc/profile
+export KITTY_REAL_HOME="$HOME"
+HOME="$HOME/.kitty_dotfiles"
